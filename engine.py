@@ -116,6 +116,9 @@ class Color:
   def random(self):
     return Color(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
   
+  def list(self):
+    return [self.r, self.g, self.b]
+  
   def rgb(self):
     return 'rgb({0}, {1}, {2})'.format(self.r, self.g, self.b)
   

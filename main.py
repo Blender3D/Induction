@@ -59,15 +59,12 @@ class Baker(QtCore.QThread):
           hit = object
       
       if hit:
-        color = hit.diffuse
-        diffuse = hit.diffuse
-        c = hit.normal(ray.position(result)).dot(ray.position(result))
+        c = ray.position(result).dot(hit.normal(ray.position(result)))
         
-        if color.r * c > 1:  color.r = 1 / (c + 0.00001)
-        if color.g * c > 1:  color.g = 1 / (c + 0.00001)
-        if color.b * c > 1:  color.b = 1 / (c + 0.00001)
+        #if c * max(hit.diffuse.list()) > 1:
+        #  c = 1.0 / (max(hit.diffuse.list()) + 0.0000001)
         
-        newColor = QtGui.qRgb(color.r * diffuse.r * 255 * c, color.g * diffuse.g * 255 * c, color.b * diffuse.b * 255 * c)
+        newColor = QtGui.qRgb(hit.diffuse.r / c * 255, hit.diffuse.g / c * 255, hit.diffuse.b / c * 255)
         
         self.image.setPixel(2 * pixel[0], 2 * pixel[1], newColor)
       else:
