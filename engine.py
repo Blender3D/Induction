@@ -46,7 +46,7 @@ class Vector:
     return Vector(-self.x, -self.y, -self.z)
   
   def angle(self, other):
-    return acos(self.norm().dot(other.norm()))
+    return arccos(self.norm().dot(other.norm()))
   
   def norm(self):
     return self * (1.0 / abs(self))

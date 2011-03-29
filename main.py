@@ -25,7 +25,7 @@ class Baker(QtCore.QThread):
     
     sphere = Sphere(Point(1, 3, 1))
     sphere.radius = 2
-    sphere.emission = 1
+    sphere.emission = 0
     sphere.diffuse = Color(0.9, 0.5, 0.5)
     
     plane = Plane(Point(0, 0, 0))
@@ -41,32 +41,41 @@ class Baker(QtCore.QThread):
     self.image = QtGui.QImage(QtCore.QSize(scene.camera.focalplane.canvasWidth, scene.camera.focalplane.canvasHeight), QtGui.QImage.Format_RGB32)
     rays = 0
     
-    
-    
-    for y in range(scene.camera.focalplane.canvasHeight):
-      self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image)
+    while not self.dead:
+      x = random.uniform(-scene.camera.focalplane.width / 2.0, scene.camera.focalplane.width / 2.0)
+      z = random.uniform(-scene.camera.focalplane.height / 2.0, scene.camera.focalplane.height / 2.0)
       
-      for x in range(scene.camera.focalplane.canvasWidth):
-        ray = Ray(scene.camera.pos, scene.camera.pos - Point((float(x) / float(scene.camera.focalplane.canvasWidth)) * scene.camera.focalplane.width, (float(y) / float(scene.camera.focalplane.canvasHeight)) * scene.camera.focalplane.height, scene.camera.focalplane.offset))
-        print ray
-        result = False
-        hit = False
+      pixel = [int(scene.camera.focalplane.width * scene.camera.focalplane.canvasWidth) * (scene.camera.focalplane.width / 2 + x) / scene.camera.focalplane.width, int(scene.camera.focalplane.height * scene.camera.focalplane.canvasHeight) * (scene.camera.focalplane.height / 2 + z) / scene.camera.focalplane.height]
+      ray = Ray(scene.camera.pos, Vector(x, 1, z).norm())
+            
+      result = False
+      hit = False
+    
+      for object in scene.objects:
+        test = object.intersection(ray)
+        
+        if test > result:
+          result = test
+          hit = object
       
-        for object in scene.objects:
-          test = object.intersection(ray)
-          
-          if test > result:
-            result = test
-            hit = object
+      if hit:
+        color = hit.diffuse
+        diffuse = hit.diffuse
+        c = hit.normal(ray.position(result)).dot(ray.position(result))
         
-        if hit:
-          color = hit.diffuse
-        else:
-          color = Color(1, 1, 1)
+        if color.r * c > 1:  color.r = 1 / (c + 0.00001)
+        if color.g * c > 1:  color.g = 1 / (c + 0.00001)
+        if color.b * c > 1:  color.b = 1 / (c + 0.00001)
         
-        newColor = QtGui.qRgb(color.r * 255, color.g * 255, color.b * 255)
+        newColor = QtGui.qRgb(color.r * diffuse.r * 255 * c, color.g * diffuse.g * 255 * c, color.b * diffuse.b * 255 * c)
         
-        self.image.setPixel(x, y, newColor)
+        self.image.setPixel(2 * pixel[0], 2 * pixel[1], newColor)
+      else:
+        self.image.setPixel(2 * pixel[0], 2 * pixel[1], QtGui.qRgb(0, 0, 0))
+      
+      rays += 1
+      
+      if rays % 500 == 0:  self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image)
 
 class StartQT4(QtGui.QMainWindow):
   def __init__(self, parent = None):
