@@ -3,6 +3,7 @@
 from numpy import *
 import random, sys, time
 import Image, ImageDraw
+from xml.dom.minidom import parse
 
 epsilon = 0.00001
 
@@ -92,7 +93,7 @@ class Point:
 
 
 class Ray:
-  def __init__(self, origin, direction):
+  def __init__(self, origin = Point(), direction = Vector()):
     self.origin = origin
     self.direction = direction.norm()
   
@@ -108,10 +109,10 @@ class Ray:
 
 
 class Color:
-  def __init__(self, r = 0, g = 0, b = 0):
-    self.r = r
-    self.g = g
-    self.b = b
+  def __init__(self, r = 0.0, g = 0.0, b = 0.0):
+    self.r = float(r)
+    self.g = float(g)
+    self.b = float(b)
   
   def random(self):
     return Color(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
@@ -132,20 +133,21 @@ class Color:
     return Color(self.r - other.r, self.g - other.g, self.b - other.b)
   
   def __mul__(self, other):
-    if self.__class__ == other.__class__:
+    try:
       return Color(self.r * other.r, self.g * other.g, self.b * other.b)
-    else:
+    except AttributeError:
       return Color(self.r * other, self.g * other, self.b * other)
 
 
 
 class FocalPlane:
-  def __init__(self, width, height, offset, canvasWidth, canvasHeight):
-    self.offset = offset
-    self.width = width
-    self.height = height
-    self.canvasWidth = canvasWidth
-    self.canvasHeight = canvasHeight
+  def __init__(self, width, height, offset, pixelDensity):
+    self.pixelDensity = float(pixelDensity)
+    self.offset = float(offset)
+    self.width = float(width)
+    self.height = float(height)
+    self.canvasWidth = self.width * self.pixelDensity
+    self.canvasHeight = self.height * self.pixelDensity
 
 
 
@@ -161,7 +163,7 @@ class Object:
     self.faces = faces
     self.diffuse = color
     self.reflection = 0
-    self.emission = 0
+    self.emittance = 0
   
   def triangulate(self):
     new = []
@@ -222,9 +224,12 @@ class Object:
 class Sphere(Object):
   def __init__(self, position = Point(0, 0, 0), radius = 1):
     self.pos = position
-    self.radius = radius
+    self.radius = float(radius)
     self.diffuse = Color().random()
-    self.emission = 0
+    self.emittance = 0
+  
+  def __str__(self):
+    print self.pos
   
   def intersection(self, ray):
     cp = self.pos - ray.origin
@@ -246,7 +251,7 @@ class Sphere(Object):
 class Plane(Object):
   def __init__(self, position):
     self.pos = position
-    self.emission = 0
+    self.emittance = 0
   
   def intersection(self, ray):
     d = (self.pos - ray.origin).dot(self.normal.norm()) / (ray.vector().dot(self.normal.norm()))
@@ -259,98 +264,57 @@ class Plane(Object):
 
 
 
-def Radiance(ray, depth, scene):
-  total_color = Color(0, 0, 0)
-  total_reflectance = Color(1, 1, 1)
-  total_depth = 1
+def RandomDirectionInHemisphere(normal):
+  n1 = random.uniform(0, 1)
+  n2 = random.uniform(0, 1)
+  theta = 2.0 * pi * n1
+  phi = arccos(1.0 - n2)
   
-  while True:
-    result = False
-    hit = False
+  w = normal.norm()
+  t = w.norm()
+  
+  if abs(t.x) <= abs(t.y) and abs(t.x) <= abs(t.z):
+    t.x = 1.0
+  elif abs(t.y) <= abs(t.x) and abs(t.y) <= abs(t.z):
+    t.y = 1.0
+  else:
+    t.z = 1.0
+  
+  u = t.cross(w).norm()
+  v = w.cross(u)
+  direction = u * cos(theta) * sin(phi) + v * sin(theta) * sin(phi) + w * cos(phi)
+  
+  return direction.norm()
+
+
+
+def TracePath2(ray, scene, depth):
+  result = 1000000.0
+  hit = False
+  
+  for object in scene.objects:
+    test = object.intersection(ray)
     
-    for object in scene.objects:
-      test = object.intersection(ray)
-      
-      if test > result:
-        result = test
-        hit = object
-    
-    if not result or total_depth > depth:
-      return total_color
-    else:
-      intersection = ray.position(result)
-      color = hit.diffuse
-      normal = hit.normal(intersection)
-      nl = normal * (2 * (normal.dot(ray.direction) < 0) - 1)
-      
-      max_reflectance = max([hit.diffuse.r, hit.diffuse.g, hit.diffuse.b])
-      
-      total_color = total_color + total_reflectance * hit.emission
-      
-      if depth > 4:
-        if random.uniform(0, 1) < max_reflectance:
-          color = color * (1 / max_reflectance)
-        else:
-          return total_color
-      
-      total_reflectance = total_reflectance * color
-      
-      random1 = 2 * pi * random.uniform(0, 1)
-      random2 = random.uniform(0, 1)
-      
-      if abs(nl.dot(ray.direction)) > 0.1:
-        u = Vector(0, 1, 0).cross(nl).norm()
-      else:
-        u = Vector(1, 0, 0).cross(nl).norm()
-      
-      v = nl.cross(u)
-      d = (u * cos(random1) * sqrt(random2) + v * sin(random1) * sqrt(random2) + nl * sqrt(1 - random2)).norm()
-      r = Ray(intersection, d)
-    
-    reflectedRay = Ray(intersection, r.direction - normal * 2 * normal.dot(ray.direction))
-    into = normal.dot(nl) > 0
-    nc = 1
-    nt = 1.5
-    
-    if into:
-      nnt = nc / nt
-    else:
-      nnt = nt / nc
-    
-    ddn = r.direction.dot(nl)
-    cos2t = 1 - nnt * nnt * (1 - ddn * ddn)
-    
-    if cos2t < 0:
-      r = reflectedRay
-    
-    tdir = (r.direction * nnt - normal * ((2 * into - 1) * (ddn * nnt + sqrt(cos2t)))).norm()
-    a = nt - nc
-    b = nt + nc
-    R0 = (a / b)**2
-    
-    if into:
-      c = 1 + ddn
-    else:
-      c = 1 - tdir.dot(normal)
-    
-    if isnan(c):
-      c = 0
-    
-    Re = R0 + (1 - R0) * c**5
-    Tr = 1 - Re
-    P = 0.25 + 0.5 * Re
-    RP = Re / P
-    TP = Tr / (1 - P)
-    
-    if random.uniform(0, 1) < P:
-      total_reflectance = total_reflectance * RP
-      r = reflectedRay
-    else:
-      total_reflectance = total_reflectance * TP
-      r = Ray(intersection, tdir)
-    
-    total_depth += 1
-    
+    if test and test < result:
+      result = test
+      hit = object
+  
+  if not hit or depth > 5:
+    return Color(0.0, 0.0, 0.0)
+  
+  if hit.emittance > 0:
+    return hit.diffuse * hit.emittance
+  
+  newDir = RandomDirectionInHemisphere(hit.normal(ray.position(result)))
+  newRay = Ray(ray.position(result), newDir)
+  cos_omega = newDir.dot(hit.normal(ray.position(result)))
+  
+  BRDF = hit.reflectance * cos_omega
+  
+  return hit.diffuse * hit.emittance + (TracePath2(newRay, scene, depth + 1) * (BRDF * cos_omega))
+
+
+
 class Scene:
   def __init__(self):
     self.objects = []
@@ -363,3 +327,38 @@ class Scene:
     
   def save(self, filename):
     return self.image.save(filename)
+  
+  def load(self, filename):
+    document = parse(filename)
+    
+    camera = document.getElementsByTagName('camera')[0]
+    
+    self.camera = Camera(Point(camera.getElementsByTagName('position')[0].getAttribute('x'), 
+                               camera.getElementsByTagName('position')[0].getAttribute('y'), 
+                               camera.getElementsByTagName('position')[0].getAttribute('z')), 
+                         Vector(camera.getElementsByTagName('direction')[0].getAttribute('x'), 
+                                camera.getElementsByTagName('direction')[0].getAttribute('y'), 
+                                camera.getElementsByTagName('direction')[0].getAttribute('z')), 
+                         FocalPlane(camera.getElementsByTagName('focalplane')[0].getAttribute('width'), 
+                                    camera.getElementsByTagName('focalplane')[0].getAttribute('height'), 
+                                    camera.getElementsByTagName('focalplane')[0].getAttribute('offset'), 
+                                    camera.getElementsByTagName('focalplane')[0].getAttribute('pixeldensity'))) 
+    
+    for object in document.getElementsByTagName('objects')[0].childNodes:
+      try:
+        if object.tagName == 'sphere':
+          sphere = Sphere()
+          sphere.radius = float(object.getAttribute('radius'))
+          sphere.pos = Point(object.getElementsByTagName('position')[0].getAttribute('x'), 
+                             object.getElementsByTagName('position')[0].getAttribute('y'), 
+                             object.getElementsByTagName('position')[0].getAttribute('z'))
+          sphere.emittance = float(object.getElementsByTagName('material')[0].getAttribute('emittance'))
+          sphere.reflectance = float(object.getElementsByTagName('material')[0].getAttribute('reflectance'))
+          sphere.diffuse = Color(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('r'), 
+                                 object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('g'), 
+                                 object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('b'))
+          self.objects.append(sphere)
+      except AttributeError:
+        pass
+    
+    return self

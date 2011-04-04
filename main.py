@@ -16,27 +16,7 @@ class Baker(QtCore.QThread):
     self.dead = False
   
   def run(self):
-    scene = Scene()
-    
-    light = Sphere(Point(-1, 2, 1))
-    light.radius = 1
-    light.emission = 1
-    light.diffuse = Color(0.9, 0.9, 0.9)
-    
-    sphere = Sphere(Point(1, 3, 1))
-    sphere.radius = 2
-    sphere.emission = 0
-    sphere.diffuse = Color(0.9, 0.5, 0.5)
-    
-    plane = Plane(Point(0, 0, 0))
-    plane.diffuse = Color(0.8, 0.8, 0.8)
-    plane.normal = Vector(0, 0, 1)
-    
-    scene.addObject(light)
-    scene.addObject(sphere)
-    scene.addObject(plane)
-    
-    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 300, 300)))
+    scene = Scene().load('scene.xml')
     
     self.image = QtGui.QImage(QtCore.QSize(scene.camera.focalplane.canvasWidth, scene.camera.focalplane.canvasHeight), QtGui.QImage.Format_RGB32)
     rays = 0
@@ -47,7 +27,8 @@ class Baker(QtCore.QThread):
       
       pixel = [int(scene.camera.focalplane.width * scene.camera.focalplane.canvasWidth) * (scene.camera.focalplane.width / 2 + x) / scene.camera.focalplane.width, int(scene.camera.focalplane.height * scene.camera.focalplane.canvasHeight) * (scene.camera.focalplane.height / 2 + z) / scene.camera.focalplane.height]
       ray = Ray(scene.camera.pos, Vector(x, 1, z).norm())
-            
+      
+      '''
       result = False
       hit = False
     
@@ -59,16 +40,23 @@ class Baker(QtCore.QThread):
           hit = object
       
       if hit:
-        c = ray.position(result).dot(hit.normal(ray.position(result)))
+        c = -(hit.pos - ray.position(result)).norm().dot(ray.direction.norm())
         
         #if c * max(hit.diffuse.list()) > 1:
         #  c = 1.0 / (max(hit.diffuse.list()) + 0.0000001)
         
-        newColor = QtGui.qRgb(hit.diffuse.r / c * 255, hit.diffuse.g / c * 255, hit.diffuse.b / c * 255)
+        #test = Radiance(ray, 5, scene)
+        #newColor = QtGui.qRgb(test.r * 255, test.g * 255, test.b * 255)
+        newColor = QtGui.qRgb(hit.diffuse.r * c * 255, hit.diffuse.g * c * 255, hit.diffuse.b * c * 255)
         
         self.image.setPixel(2 * pixel[0], 2 * pixel[1], newColor)
       else:
         self.image.setPixel(2 * pixel[0], 2 * pixel[1], QtGui.qRgb(0, 0, 0))
+      '''
+      
+      pathtrace = TracePath2(ray, scene, 0)
+      
+      self.image.setPixel(2 * pixel[0], 2 * pixel[1], QtGui.qRgb(pathtrace.r * 255, pathtrace.g * 255, pathtrace.b * 255))
       
       rays += 1
       
