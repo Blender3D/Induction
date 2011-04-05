@@ -2,27 +2,89 @@
 
 <scene>
   <camera name="camera">
-    <position x="0" y="-5" z="0" />
+    <position x="0" y="-5.0" z="0.0" />
     <direction x="0" y="1" z="0" />
     
     <focalplane width="0.5" height="0.5" offset="1.0" pixeldensity="800" />
   </camera>
   
   <objects>
-    <sphere name="sphere1" radius="1.0">
+    <sphere name="glass-sphere" radius="2.5">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.8" g="0.0" b="0.0" />
+      </material>
+      
+      <position x="0.0" y="0.0" z="0.0" />
+    </sphere>
+<!--
+
+
+    <sphere name="chrome-sphere" radius="0.5">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.8" g="0.8" b="0.8" />
+      </material>
+      
+      <position x="-1.1" y="2.8" z="0.0" />
+    </sphere>
+
+
+
+    <sphere name="floor" radius="10000000.0 - 0.5">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.9" g="0.9" b="0.9" />
+      </material>
+      
+      <position x="0.0" y="3.5" z="-10000000.0" />
+    </sphere>
+
+
+
+    <sphere name="back" radius="10000000.0 - 4.5">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.9" g="0.9" b="0.9" />
+      </material>
+      
+      <position x="0.0" y="10000000.0" z="0.0" />
+    </sphere>
+
+
+
+    <sphere name="left" radius="10000000.0 - 1.9">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.9" g="0.5" b="0.5" />
+      </material>
+      
+      <position x="-10000000.0" y="3.5" z="0.0" />
+    </sphere>
+
+
+
+    <sphere name="right" radius="10000000.0 - 1.9">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.5" g="0.5" b="0.9" />
+      </material>
+      
+      <position x="10000000.0" y="3.5" z="0.0" />
+    </sphere>
+
+
+-->
+    <sphere name="light" radius="1.0">
       <material emittance="0.9" reflectance="0.0">
-        <diffuse r="0.5" g="0.5" b="0.5" />
+        <diffuse r="0.0" g="0.0" b="0.0" />
       </material>
       
-      <position x="1" y="0" z="0" />
+      <position x="0.0" y="0.0" z="10.0" />
     </sphere>
-    
-    <sphere name="sphere2" radius="1.0">
-      <material emittance="0.0" reflectance="0.5">
-        <diffuse r="0.8" g="0.5" b="0.5" />
+<!--
+
+
+    <sphere name="front" radius="10000000.0 - 2.5">
+      <material emittance="0.0" reflectance="0.0">
+        <diffuse r="0.9" g="0.9" b="0.9" />
       </material>
       
-      <position x="-1" y="0" z="0" />
-    </sphere>
+      <position x="0.0" y="-10000000.0" z="0.0" />
+    </sphere>-->
   </objects>
 </scene>

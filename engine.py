@@ -26,16 +26,16 @@ class Vector:
     return '<{0}, {1}, {2}>'.format(self.x, self.y, self.z)
   
   def __add__(self, other):
-    if self.__class__ == other.__class__:
+    try:
       return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
-    else:
-      return Point(self.x + other.x, self.y + other.y, self.z + other.z)
+    except AttributeError:
+      return Vector(self.x + other, self.y + other, self.z + other)
   
   def __sub__(self, other):
-    if self.__class__ == other.__class__:
+    try:
       return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
-    else:
-      return Point(self.x - other.x, self.y - other.y, self.z - other.z)
+    except AttributeError:
+      return Vector(self.x - other, self.y - other, self.z - other)
   
   def __mul__(self, other):
     return Vector(self.x * other, self.y * other, self.z * other)
@@ -57,6 +57,12 @@ class Vector:
   
   def cross(self, other):
     return Vector(self.y * other.z - self.z * other.y, self.z * other.x - self.x * other.z, self.x * other.y - self.y * other.x)
+  
+  def point(self):
+    return Point(self.x, self.y, self.z)
+  
+  def vector(self):
+    return self
 
 
 
@@ -70,10 +76,16 @@ class Point:
     return '({0}, {1}, {2})'.format(self.x, self.y, self.z)
   
   def __add__(self, other):
-    return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+    try:
+      return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+    except AttributeError:
+      return Vector(self.x + other, self.y + other, self.z + other)
   
   def __sub__(self, other):
-    return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+    try:
+      return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+    except AttributeError:
+      return Vector(self.x - other, self.y - other, self.z - other)
   
   def __mul__(self, other):
     return Point(self.x * other, self.y * other, self.z * other)
@@ -98,7 +110,7 @@ class Ray:
     self.direction = direction.norm()
   
   def position(self, time):
-    return self.origin + self.direction * time
+    return (self.origin + self.direction * time).point()
   
   def vector(self):
     return Vector(self.direction.x, self.direction.y, self.direction.z)
@@ -113,9 +125,6 @@ class Color:
     self.r = float(r)
     self.g = float(g)
     self.b = float(b)
-  
-  def random(self):
-    return Color(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
   
   def list(self):
     return [self.r, self.g, self.b]
@@ -146,8 +155,8 @@ class FocalPlane:
     self.offset = float(offset)
     self.width = float(width)
     self.height = float(height)
-    self.canvasWidth = self.width * self.pixelDensity
-    self.canvasHeight = self.height * self.pixelDensity
+    self.canvasWidth = int(self.width * self.pixelDensity)
+    self.canvasHeight = int(self.height * self.pixelDensity)
 
 
 
@@ -158,70 +167,8 @@ class Camera:
     self.focalplane = focalplane
 
 
-class Object:
-  def __init__(self, faces, color = Color(1, 1, 1)):
-    self.faces = faces
-    self.diffuse = color
-    self.reflection = 0
-    self.emittance = 0
-  
-  def triangulate(self):
-    new = []
-    
-    for face in self.faces:
-      if len(face) == 3:
-        new.append(face)
-      else:
-        new.append([face[0], face[1], face[2]])
-        new.append([face[2], face[0], face[1]])
-    
-    return Object(new, self.diffuse)
-  
-  def intersection(self, ray):
-    output = True
-    
-    for triangle in self.triangulate().faces:
-      pairs = sorted([[(triangle[2] - triangle[0]).angle(triangle[2] - triangle[1]), triangle[2]], [(triangle[1] - triangle[2]).angle(triangle[1] - triangle[0]), triangle[1]], [(triangle[0] - triangle[1]).angle(triangle[0] - triangle[2]), triangle[0]]], key = lambda pair: pair[0])
-      triangle = [i[1] for i in pairs]
-      
-      u = triangle[1] - triangle[0]
-      v = triangle[2] - triangle[0]
-      n = u.cross(v)
 
-      if n == Vector(0, 0, 0):  output = False
-
-      w0 = ray.origin - triangle[0]
-      a = -n.dot(w0)
-      b = n.dot(ray.direction)
-
-      if fabs(b) < epsilon:  output = False
-
-      r = a / b
-      if (r < 0):  output = False
-
-      intersection = ray.origin + ray.direction * r
-
-      uu = u.dot(u)
-      uv = u.dot(v)
-      vv = v.dot(v)
-      w = intersection - triangle[0]
-      wu = w.vector().dot(u)
-      wv = w.vector().dot(v)
-      D = uv * uv - uu * vv
-
-      s = (uv * wv - vv * wu) / D
-      t = (uv * wu - uu * wv) / D
-
-      if s < 0 or s > 1:  output = False
-      if t < 0 or (s + t) > 1:  output = False
-      
-      if output:
-        return r
-    
-    return False
-
-
-class Sphere(Object):
+class Sphere:
   def __init__(self, position = Point(0, 0, 0), radius = 1):
     self.pos = position
     self.radius = float(radius)
@@ -232,63 +179,38 @@ class Sphere(Object):
     print self.pos
   
   def intersection(self, ray):
-    cp = self.pos - ray.origin
-    v = cp.dot(ray.direction)
-    discriminant = self.radius**2  - cp.dot(cp) + v * v
-    
-    if discriminant < 0:
-      return False
-    elif v - sqrt(discriminant) < epsilon:
-      return v - sqrt(discriminant)
-    else:
-      return v + sqrt(discriminant)
-  
-  def normal(self, position):
-    return (self.pos + position).norm()
-
-
-
-class Plane(Object):
-  def __init__(self, position):
-    self.pos = position
-    self.emittance = 0
-  
-  def intersection(self, ray):
-    d = (self.pos - ray.origin).dot(self.normal.norm()) / (ray.vector().dot(self.normal.norm()))
+    distance = (ray.origin - self.pos).vector()
+    b = distance.dot(ray.direction)
+    c = distance.dot(distance) - self.radius**2
+    d = b*b - c
     
     if d > 0:
-      return d
+      return -b - sqrt(d)
+    else:
+      return False
   
   def normal(self, position):
-    return self.normal.norm()
+    return (position - self.pos).norm()
 
 
 
-def RandomDirectionInHemisphere(normal):
-  n1 = random.uniform(0, 1)
-  n2 = random.uniform(0, 1)
-  theta = 2.0 * pi * n1
-  phi = arccos(1.0 - n2)
-  
-  w = normal.norm()
-  t = w.norm()
-  
-  if abs(t.x) <= abs(t.y) and abs(t.x) <= abs(t.z):
-    t.x = 1.0
-  elif abs(t.y) <= abs(t.x) and abs(t.y) <= abs(t.z):
-    t.y = 1.0
+def RandomNormalInHemisphere(v):
+  v2 = Vector(random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0).norm()
+
+  while v2.dot(v2) > 1.0:
+    v2 = Vector(random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0).norm()
+
+  if v2.dot(v) < 0.0:
+    return -v2
   else:
-    t.z = 1.0
+    return v2
+
+
+
+def Trace(ray, scene, n):
+  if n > 10:
+    return Color(0.0, 0.0, 0.0);
   
-  u = t.cross(w).norm()
-  v = w.cross(u)
-  direction = u * cos(theta) * sin(phi) + v * sin(theta) * sin(phi) + w * cos(phi)
-  
-  return direction.norm()
-
-
-
-def TracePath2(ray, scene, depth):
   result = 1000000.0
   hit = False
   
@@ -298,20 +220,26 @@ def TracePath2(ray, scene, depth):
     if test and test < result:
       result = test
       hit = object
+    else:
+      print 'M'
   
-  if not hit or depth > 5:
+  if not hit:
     return Color(0.0, 0.0, 0.0)
   
-  if hit.emittance > 0:
-    return hit.diffuse * hit.emittance
+  point = ray.position(result)
+  print hit.diffuse
   
-  newDir = RandomDirectionInHemisphere(hit.normal(ray.position(result)))
-  newRay = Ray(ray.position(result), newDir)
-  cos_omega = newDir.dot(hit.normal(ray.position(result)))
+  normal = hit.normal(point)
+  direction = RandomNormalInHemisphere(normal)
   
-  BRDF = hit.reflectance * cos_omega
+  if direction.dot(ray.direction) > 0.0:
+    point = ray.origin + ray.direction * (result + 0.0000001)
+  else:
+    point = ray.origin + ray.direction * (result - 0.0000001)
   
-  return hit.diffuse * hit.emittance + (TracePath2(newRay, scene, depth + 1) * (BRDF * cos_omega))
+  newray = Ray(point, direction)
+  
+  return Trace(newray, scene, n + 1) * hit.diffuse + Color(hit.emittance, hit.emittance, hit.emittance)
 
 
 
@@ -348,15 +276,15 @@ class Scene:
       try:
         if object.tagName == 'sphere':
           sphere = Sphere()
-          sphere.radius = float(object.getAttribute('radius'))
-          sphere.pos = Point(object.getElementsByTagName('position')[0].getAttribute('x'), 
-                             object.getElementsByTagName('position')[0].getAttribute('y'), 
-                             object.getElementsByTagName('position')[0].getAttribute('z'))
-          sphere.emittance = float(object.getElementsByTagName('material')[0].getAttribute('emittance'))
-          sphere.reflectance = float(object.getElementsByTagName('material')[0].getAttribute('reflectance'))
-          sphere.diffuse = Color(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('r'), 
-                                 object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('g'), 
-                                 object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('b'))
+          sphere.radius = float(eval(object.getAttribute('radius')))
+          sphere.pos = Point(eval(object.getElementsByTagName('position')[0].getAttribute('x')), 
+                             eval(object.getElementsByTagName('position')[0].getAttribute('y')), 
+                             eval(object.getElementsByTagName('position')[0].getAttribute('z')))
+          sphere.emittance = float(eval(object.getElementsByTagName('material')[0].getAttribute('emittance')))
+          sphere.reflectance = float(eval(object.getElementsByTagName('material')[0].getAttribute('reflectance')))
+          sphere.diffuse = Color(eval(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('r')), 
+                                 eval(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('g')), 
+                                 eval(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('b')))
           self.objects.append(sphere)
       except AttributeError:
         pass
