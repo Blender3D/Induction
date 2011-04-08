@@ -35,7 +35,10 @@ class Vector:
     return self.__add__(other * -1.0)
   
   def __mul__(self, other):
-    return Vector(self.x * other, self.y * other, self.z * other)
+    if type(other) == type(self):
+      return Vector(self.x * other.x, self.y * other.y, self.z * other.z)
+    else:
+      return Vector(self.x * other, self.y * other, self.z * other)
   
   def __div__(self, other):
     return self.__mul__(1.0 / other)
@@ -127,6 +130,17 @@ class Sphere:
 
 
 
+def Clamp(color):
+  if color.x > 1:  color.x = 1
+  if color.y > 1:  color.y = 1
+  if color.z > 1:  color.z = 1
+  
+  if color.x < 0:  color.x = 0
+  if color.y < 0:  color.y = 0
+  if color.z < 0:  color.z = 0
+  
+  return color
+
 def RandomNormalInHemisphere(v):
   v2 = Vector(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)).norm()
 
@@ -157,7 +171,7 @@ def Trace(ray, scene, n):
   if not hit:
     return Color(0.0, 0.0, 0.0)
   
-  return hit.diffuse
+  #return hit.diffuse
   
   point = ray.position(result)
   

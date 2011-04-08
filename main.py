@@ -20,17 +20,17 @@ class Baker(QtCore.QThread):
     
     scene = Scene()
     
-    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 800)))
+    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 1000)))
     scene.addObject(Sphere(Point(0, 0, 0), 1))
     
-    #light = Sphere(Point(-2, 0, 0), 1)
-    #light.emittance = 0.9
-    #scene.addObject(light)
+    light = Sphere(Point(-1.8, 0, 0), 0.6)
+    light.emittance = 0.9
+    scene.addObject(light)
     
     self.image = QtGui.QImage(QtCore.QSize(scene.camera.focalplane.canvasWidth, scene.camera.focalplane.canvasHeight), QtGui.QImage.Format_RGB32)
     self.image.fill(QtGui.qRgb(255, 255, 255))
     
-    samples = 1
+    samples = 100
     
     for y in range(0, scene.camera.focalplane.canvasHeight):
       self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * y) / scene.camera.focalplane.canvasHeight)
@@ -39,10 +39,19 @@ class Baker(QtCore.QThread):
         accumilated = Color(0, 0, 0)
         
         #ray = scene.camera.castRay(x, y)
-        ray = Ray(scene.camera.pos, scene.camera.pos - Point((float(x) / float(scene.camera.focalplane.canvasWidth)) * scene.camera.focalplane.width, (float(y) / float(scene.camera.focalplane.canvasHeight)) * scene.camera.focalplane.height, scene.camera.focalplane.offset))
+        rayX = x * scene.camera.focalplane.width / scene.camera.focalplane.canvasWidth - scene.camera.focalplane.width / 2.0
+        rayZ = y * scene.camera.focalplane.height / scene.camera.focalplane.canvasHeight - scene.camera.focalplane.height / 2.0
+        rayY = 1
+        
+        ray = Ray(scene.camera.pos, (Point(rayX, rayY, rayZ)).norm())
+        #print ray
+        
+        #ray = Ray(scene.camera.pos, scene.camera.pos - Point((float(x) / float(scene.camera.focalplane.canvasWidth)) * scene.camera.focalplane.width, (float(y) / float(scene.camera.focalplane.canvasHeight)) * scene.camera.focalplane.height, scene.camera.focalplane.offset))
         
         for sample in range(samples):
           accumilated += Trace(ray, scene, 0) / float(samples)
+        
+        accumilated = Clamp(accumilated)
         
         self.image.setPixel(x, y, QtGui.qRgb(accumilated.x * 255, accumilated.y * 255, accumilated.z * 255))
       self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image)
