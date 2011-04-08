@@ -8,10 +8,10 @@ from xml.dom.minidom import parse
 epsilon = 0.00001
 
 class Vector:
-  def __init__(self, x = 0, y = 0, z = 0):
-    self.x = float(x)
-    self.y = float(y)
-    self.z = float(z)
+  def __init__(self, x = 0.0, y = 0.0, z = 0.0):
+    self.x = x
+    self.y = y
+    self.z = z
   
   def __abs__(self):
     return sqrt(self.x**2 + self.y**2 + self.z**2)
@@ -26,22 +26,19 @@ class Vector:
     return '<{0}, {1}, {2}>'.format(self.x, self.y, self.z)
   
   def __add__(self, other):
-    try:
+    if type(other) == type(self):
       return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
-    except AttributeError:
+    else:
       return Vector(self.x + other, self.y + other, self.z + other)
   
   def __sub__(self, other):
-    try:
-      return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
-    except AttributeError:
-      return Vector(self.x - other, self.y - other, self.z - other)
+    return self.__add__(other * -1.0)
   
   def __mul__(self, other):
     return Vector(self.x * other, self.y * other, self.z * other)
   
   def __div__(self, other):
-    return Vector(self.x / other, self.y / other, self.z / other)
+    return self.__mul__(1.0 / other)
   
   def __neg__(self):
     return Vector(-self.x, -self.y, -self.z)
@@ -66,42 +63,8 @@ class Vector:
 
 
 
-class Point:
-  def __init__(self, x = 0, y = 0, z = 0):
-    self.x = float(x)
-    self.y = float(y)
-    self.z = float(z)
-  
-  def __str__(self):
-    return '({0}, {1}, {2})'.format(self.x, self.y, self.z)
-  
-  def __add__(self, other):
-    try:
-      return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
-    except AttributeError:
-      return Vector(self.x + other, self.y + other, self.z + other)
-  
-  def __sub__(self, other):
-    try:
-      return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
-    except AttributeError:
-      return Vector(self.x - other, self.y - other, self.z - other)
-  
-  def __mul__(self, other):
-    return Point(self.x * other, self.y * other, self.z * other)
-  
-  def __neg__(self):
-    return self.__mul__(-1)
-  
-  def __div__(self, other):
-    return self.__div__(1.0 / other)
-  
-  def distance(self, other):
-    return sqrt((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2)
-  
-  def vector(self):
-    return Vector(self.x, self.y, self.z)
-
+class Point(Vector):  pass
+class Color(Vector):  pass
 
 
 class Ray:
@@ -117,35 +80,6 @@ class Ray:
   
   def __str__(self):
     return '<<{0}, {1}, {2}>, <{3}, {4}, {5}>>'.format(self.origin.x, self.origin.y, self.origin.z, self.direction.x, self.direction.y, self.direction.z)
-
-
-
-class Color:
-  def __init__(self, r = 0.0, g = 0.0, b = 0.0):
-    self.r = float(r)
-    self.g = float(g)
-    self.b = float(b)
-  
-  def list(self):
-    return [self.r, self.g, self.b]
-  
-  def rgb(self):
-    return 'rgb({0}, {1}, {2})'.format(self.r, self.g, self.b)
-  
-  def __str__(self):
-    return 'rgb({0}, {1}, {2})'.format(self.r, self.g, self.b)
-  
-  def __add__(self, other):
-    return Color(self.r + other.r, self.g + other.g, self.b + other.b)
-  
-  def __sub__(self, other):
-    return Color(self.r - other.r, self.g - other.g, self.b - other.b)
-  
-  def __mul__(self, other):
-    try:
-      return Color(self.r * other.r, self.g * other.g, self.b * other.b)
-    except AttributeError:
-      return Color(self.r * other, self.g * other, self.b * other)
 
 
 
@@ -165,18 +99,17 @@ class Camera:
     self.pos = position
     self.dir = direction
     self.focalplane = focalplane
-
+  
+  def castRay(self, x, y):
+    return Ray(self.pos, (Point(self.pos.x - self.focalplane.width / 2.0, self.pos.y + self.focalplane.offset, self.pos.z - self.focalplane.height / 2.0) + self.focalplane.width * x + self.focalplane.height * y - self.pos).norm())
 
 
 class Sphere:
   def __init__(self, position = Point(0, 0, 0), radius = 1):
     self.pos = position
     self.radius = float(radius)
-    self.diffuse = Color().random()
+    self.diffuse = Color(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
     self.emittance = 0
-  
-  def __str__(self):
-    print self.pos
   
   def intersection(self, ray):
     distance = (ray.origin - self.pos).vector()
@@ -195,10 +128,10 @@ class Sphere:
 
 
 def RandomNormalInHemisphere(v):
-  v2 = Vector(random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0).norm()
+  v2 = Vector(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)).norm()
 
   while v2.dot(v2) > 1.0:
-    v2 = Vector(random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0, random.uniform(0, 1) * 2.0 - 1.0).norm()
+    v2 = Vector(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)).norm()
 
   if v2.dot(v) < 0.0:
     return -v2
@@ -209,7 +142,7 @@ def RandomNormalInHemisphere(v):
 
 def Trace(ray, scene, n):
   if n > 10:
-    return Color(0.0, 0.0, 0.0);
+    return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
   hit = False
@@ -220,14 +153,13 @@ def Trace(ray, scene, n):
     if test and test < result:
       result = test
       hit = object
-    else:
-      print 'M'
   
   if not hit:
     return Color(0.0, 0.0, 0.0)
   
+  return hit.diffuse
+  
   point = ray.position(result)
-  print hit.diffuse
   
   normal = hit.normal(point)
   direction = RandomNormalInHemisphere(normal)
@@ -286,7 +218,7 @@ class Scene:
                                  eval(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('g')), 
                                  eval(object.getElementsByTagName('material')[0].getElementsByTagName('diffuse')[0].getAttribute('b')))
           self.objects.append(sphere)
-      except AttributeError:
+      except AttributeError as error:
         pass
     
     return self

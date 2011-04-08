@@ -16,29 +16,36 @@ class Baker(QtCore.QThread):
     self.dead = False
   
   def run(self):
-    scene = Scene().load('scene.xml')
+    #scene = Scene().load('scene.xml')
+    
+    scene = Scene()
+    
+    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 800)))
+    scene.addObject(Sphere(Point(0, 0, 0), 1))
+    
+    #light = Sphere(Point(-2, 0, 0), 1)
+    #light.emittance = 0.9
+    #scene.addObject(light)
     
     self.image = QtGui.QImage(QtCore.QSize(scene.camera.focalplane.canvasWidth, scene.camera.focalplane.canvasHeight), QtGui.QImage.Format_RGB32)
-    #self.image.fill(QtGui.qRgb(255, 255, 255))
+    self.image.fill(QtGui.qRgb(255, 255, 255))
     
-    sample = 10
+    samples = 1
     
-    while sample > 1:
-      sample -= 1
+    for y in range(0, scene.camera.focalplane.canvasHeight):
+      self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * y) / scene.camera.focalplane.canvasHeight)
       
-      for y in range(-scene.camera.focalplane.canvasHeight / 2, scene.camera.focalplane.canvasHeight / 2, sample):
-        self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * (y + scene.camera.focalplane.canvasHeight / 2)) / scene.camera.focalplane.canvasHeight)
+      for x in range(0, scene.camera.focalplane.canvasWidth):
+        accumilated = Color(0, 0, 0)
         
-        for x in range(-scene.camera.focalplane.canvasWidth / 2, scene.camera.focalplane.canvasWidth / 2, sample):
-          accumilated = Color(0, 0, 0)
-          
-          for sx in range(0, 3):
-            for sy in range(0, 3):
-              ray = Ray(scene.camera.pos, (scene.camera.pos - Point(scene.camera.focalplane.width - (x + sx / 4.0) * (2 * scene.camera.focalplane.width / scene.camera.focalplane.canvasWidth), scene.camera.pos.y - scene.camera.focalplane.offset, scene.camera.focalplane.height - (y + sy / 4.0) * (2 * scene.camera.focalplane.height / scene.camera.focalplane.canvasHeight))).norm())
-              accumilated = accumilated + Trace(ray, scene, 0)
-              
-          self.image.setPixel(x + scene.camera.focalplane.canvasWidth / 2, y + scene.camera.focalplane.canvasHeight / 2, QtGui.qRgb(accumilated.r * 255, accumilated.g * 255, accumilated.b * 255))
-        self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image)
+        #ray = scene.camera.castRay(x, y)
+        ray = Ray(scene.camera.pos, scene.camera.pos - Point((float(x) / float(scene.camera.focalplane.canvasWidth)) * scene.camera.focalplane.width, (float(y) / float(scene.camera.focalplane.canvasHeight)) * scene.camera.focalplane.height, scene.camera.focalplane.offset))
+        
+        for sample in range(samples):
+          accumilated += Trace(ray, scene, 0) / float(samples)
+        
+        self.image.setPixel(x, y, QtGui.qRgb(accumilated.x * 255, accumilated.y * 255, accumilated.z * 255))
+      self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image)
 
 class StartQT4(QtGui.QMainWindow):
   def __init__(self, parent = None):
