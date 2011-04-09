@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
+from PyQt4 import QtCore, QtGui
 from numpy import *
 import random, sys, time
-import Image, ImageDraw
 from xml.dom.minidom import parse
 
 epsilon = 0.00001
@@ -70,6 +70,7 @@ class Point(Vector):  pass
 class Color(Vector):  pass
 
 
+
 class Ray:
   def __init__(self, origin = Point(), direction = Vector()):
     self.origin = origin
@@ -84,6 +85,30 @@ class Ray:
   def __str__(self):
     return '<<{0}, {1}, {2}>, <{3}, {4}, {5}>>'.format(self.origin.x, self.origin.y, self.origin.z, self.direction.x, self.direction.y, self.direction.z)
 
+
+
+class CellImage:
+  def __init__(self, width, height):
+    self.width = width
+    self.height = height
+    self.image = [[Color() for w in range(width)] for h in range(height)]
+  
+  def getPixel(self, x, y):
+    return self.image[x][y]
+  
+  def setPixel(self, x, y, color):
+    self.image[x][y] = color
+  
+  def toQImage(self):
+    canvas = QtGui.QImage(self.width, self.height, QtGui.QImage.Format_RGB32)
+    
+    for x in range(self.width):
+      for y in range(self.height):
+        pixel = Clamp(self.image[x][y])
+        
+        canvas.setPixel(x, y, QtGui.qRgb(pixel.x * 255, pixel.y * 255, pixel.z * 255))
+    
+    return canvas
 
 
 class FocalPlane:
@@ -111,7 +136,7 @@ class Sphere:
   def __init__(self, position = Point(0, 0, 0), radius = 1):
     self.pos = position
     self.radius = float(radius)
-    self.diffuse = Color(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
+    self.diffuse = Color()
     self.emittance = 0
   
   def intersection(self, ray):
@@ -135,11 +160,9 @@ def Clamp(color):
   if color.y > 1:  color.y = 1
   if color.z > 1:  color.z = 1
   
-  if color.x < 0:  color.x = 0
-  if color.y < 0:  color.y = 0
-  if color.z < 0:  color.z = 0
-  
   return color
+
+
 
 def RandomNormalInHemisphere(v):
   v2 = Vector(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)).norm()
@@ -155,7 +178,7 @@ def RandomNormalInHemisphere(v):
 
 
 def Trace(ray, scene, n):
-  if n > 10:
+  if n > 10:# or random.uniform(0, 1) > 0.5:  # Russian Roulette
     return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
@@ -171,17 +194,10 @@ def Trace(ray, scene, n):
   if not hit:
     return Color(0.0, 0.0, 0.0)
   
-  #return hit.diffuse
-  
   point = ray.position(result)
   
   normal = hit.normal(point)
   direction = RandomNormalInHemisphere(normal)
-  
-  if direction.dot(ray.direction) > 0.0:
-    point = ray.origin + ray.direction * (result + 0.0000001)
-  else:
-    point = ray.origin + ray.direction * (result - 0.0000001)
   
   newray = Ray(point, direction)
   
