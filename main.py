@@ -7,8 +7,6 @@ from gui import *
 from engine import *
 from numpy import *
 
-RAYDEPTH = 5
-
 class Baker(QtCore.QThread):
   def __init__(self, parent = None):
     super(Baker, self).__init__(parent)
@@ -22,7 +20,7 @@ class Baker(QtCore.QThread):
     sphere = Sphere(Point(0, 0, 0), 1)
     sphere.diffuse = Color(1.0, 1.0, 1.0)
     
-    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 200)))
+    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 400)))
     scene.addObject(sphere)
     
     light = Sphere(Point(-1.8, 0, 0), 0.6)
@@ -30,23 +28,20 @@ class Baker(QtCore.QThread):
     light.diffuse = Color(1.0, 1.0, 1.0)
     scene.addObject(light)
     
+    constantX = scene.camera.focalplane.width / scene.camera.focalplane.canvasWidth - scene.camera.focalplane.width / 2.0
+    constantY = scene.camera.focalplane.height / scene.camera.focalplane.canvasHeight - scene.camera.focalplane.height / 2.0
+    
     self.image = CellImage(scene.camera.focalplane.canvasWidth, scene.camera.focalplane.canvasHeight)
     
-    samples = 5
-    
-    for sample in range(1, samples + 1):
+    for i in range(50):
+      print i
+      
       for y in range(0, scene.camera.focalplane.canvasHeight):
-        self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * (sample - 1 + float(y) / scene.camera.focalplane.canvasHeight)) / samples)
+        self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * float(y) / scene.camera.focalplane.canvasHeight))
         
         for x in range(0, scene.camera.focalplane.canvasWidth):
-          accumilated = Color(0, 0, 0)
-          
-          rayX = x * scene.camera.focalplane.width / scene.camera.focalplane.canvasWidth - scene.camera.focalplane.width / 2.0
-          rayZ = y * scene.camera.focalplane.height / scene.camera.focalplane.canvasHeight - scene.camera.focalplane.height / 2.0
-          
-          ray = Ray(scene.camera.pos, (Point(rayX, 1, rayZ)))
-          
-          self.image.setPixel(x, y, self.image.getPixel(x, y) + Trace(ray, scene, 0) / float(sample))
+          self.image.setPixel(x, y, self.image.getPixel(x, y) + Trace(Ray(scene.camera.pos, Point(x * constantX, 1, y * constantY)), scene, 0) / float(50))
+        
         self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image.toQImage())
 
 class StartQT4(QtGui.QMainWindow):

@@ -41,7 +41,7 @@ class Vector:
       return Vector(self.x * other, self.y * other, self.z * other)
   
   def __div__(self, other):
-    return self.__mul__(1.0 / other)
+    return self.__mul__(1.0 / float(other))
   
   def __neg__(self):
     return Vector(-self.x, -self.y, -self.z)
@@ -169,7 +169,7 @@ def RandomNormalInHemisphere(v):
 
   while v2.dot(v2) > 1.0:
     v2 = Vector(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)).norm()
-
+  
   if v2.dot(v) < 0.0:
     return -v2
   else:
@@ -178,7 +178,7 @@ def RandomNormalInHemisphere(v):
 
 
 def Trace(ray, scene, n):
-  if n > 10:# or random.uniform(0, 1) > 0.5:  # Russian Roulette
+  if n > 2 or random.uniform(0, 1) > 0.5:  # Russian Roulette
     return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
@@ -196,12 +196,7 @@ def Trace(ray, scene, n):
   
   point = ray.position(result)
   
-  normal = hit.normal(point)
-  direction = RandomNormalInHemisphere(normal)
-  
-  newray = Ray(point, direction)
-  
-  return Trace(newray, scene, n + 1) * hit.diffuse + Color(hit.emittance, hit.emittance, hit.emittance)
+  return Trace(Ray(point, RandomNormalInHemisphere(hit.normal(point)).norm()), scene, n + 1) * hit.diffuse + Color(hit.emittance, hit.emittance, hit.emittance)
 
 
 
