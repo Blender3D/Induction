@@ -91,7 +91,6 @@ class CellImage:
       for y in range(self.height):
         canvas.point([x, y], fill = Clamp(self.image[x][y] / float(samples)).list())
         
-    del canvas
     return image
   
   def toQImage(self, samples):
@@ -173,7 +172,7 @@ def RandomNormalInHemisphere(v):
 
 
 def Trace(ray, scene, roulette, n = 0):
-  if n > 2 or random.uniform(0, 1) < roulette:
+  if n > 10 or random.uniform(0, 1) < roulette:
     return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
@@ -191,7 +190,15 @@ def Trace(ray, scene, roulette, n = 0):
   
   point = ray.position(result)
   
-  return Trace(Ray(point, RandomNormalInHemisphere(hit.normal(point)).norm()), scene, roulette, n + 1) * hit.diffuse + Color(hit.emittance, hit.emittance, hit.emittance)
+  return hit.diffuse * (Trace(Ray(point, RandomNormalInHemisphere(hit.normal(point)).norm()), scene, roulette, n + 1) + hit.emittance)
+
+
+
+def LoadArg(id, type, default):
+  try:
+    return (type)(sys.argv[id])
+  except:
+    return default
 
 
 
@@ -202,53 +209,59 @@ class Scene:
 
 
 if __name__ == '__main__':
-  
-  try:
-    samples = int(sys.argv[1])
-  except:
-    samples = 200
-  
-  try:
-    roulette = float(sys.argv[2])
-  except:
-    roulette = 0.1
-  
-  try:
-    filename = sys.argv[3]
-  except:
-    filename = 'image.png'
+  roulette  = LoadArg(1, float, 0.4)
+  pass_save = LoadArg(2, int, 5)
+  filename  = LoadArg(3, str, 'image.png')
   
   begin = time.time()
-  
   scene = Scene()
-  sphere = Sphere(Point(1, 0, 0), 1)
-  sphere.diffuse = Color(1.0, 1.0, 1.0)
   
-  scene.camera = Camera(Point(0, -5, 0), Vector(0, 1, 0), ViewPlane(0.5, 0.5, 1, 800))
+  sphere = Sphere(Point(2, 0, 0), 1)
+  sphere.diffuse = Color(1.0, 0.75, 0.75)
   scene.objects.append(sphere)
   
-  light = Sphere(Point(-1, 0, 0), 1)
-  light.emittance = 0.9
+  sphere2 = Sphere(Point(-2, 0, 0), 1)
+  sphere2.diffuse = Color(0.75, 0.75, 1.0)
+  scene.objects.append(sphere2)
+  
+  sphere3 = Sphere(Point(0, 2, 0), 1)
+  sphere3.diffuse = Color(0.75, 1.0, 0.75)
+  scene.objects.append(sphere3)
+  
+  sphere3 = Sphere(Point(0, 0, 51), 50)
+  sphere3.diffuse = Color(1.0, 1.0, 1.0)
+  scene.objects.append(sphere3)
+  
+  light = Sphere(Point(0, 0, 0), 1)
+  light.emittance = 10.0
   light.diffuse = Color(1.0, 1.0, 1.0)
   scene.objects.append(light)
   
+  scene.camera = Camera(Point(0.5, -9.0, 1.0), Point(-0.5, 1, 0).norm(), ViewPlane(0.5, 0.5, 1, 400))
+  
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
-  print ' * Using [{0}] samples/pixel...'.format(samples)
+  print ' * Using continuous sampling...'
   print ' * Using [{0}] as Russian Roulette constant...'.format(roulette)
-  
-  for y in range(0, scene.camera.viewplane.canvasHeight):
-    sys.stdout.write(' * Rendering: [{0}%]... \r'.format(1.0 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight)); sys.stdout.flush()
-    
-    for x in range(0, scene.camera.viewplane.canvasWidth):
-      ray = scene.camera.CastRay(x, y)
-      color = Color(0, 0, 0)
-      
-      for i in range(samples):  color += Trace(ray, scene, roulette)
-      
-      image.setPixel(x, y, color)
-  
+  print ' * Saving every [{0}] passes...'.format(pass_save)
   print
-  print ' * Saving image [{0}]...'.format(filename)
-  image.toPILImage(samples).save(filename)
+  
+  i = 0
+  
+  while True:
+    i += 1
+    
+    for y in range(0, scene.camera.viewplane.canvasHeight):
+      sys.stdout.write(' * Rendering pass {0}: [{1}%]... \r'.format(i, 0.5 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight)); sys.stdout.flush()
+      
+      for x in range(0, scene.camera.viewplane.canvasWidth):
+        image.setPixel(x, y, image.getPixel(x, y) + Trace(scene.camera.CastRay(x, y), scene, roulette))
+  
+    print
+    
+    if i % pass_save == 0:
+      print ' * Saving image [{1}]...'.format(i, filename)
+      print
+      image.toPILImage(i).save(filename)
+    
   print ' * Done [{0} seconds].'.format(time.time() - begin)
