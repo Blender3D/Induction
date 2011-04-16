@@ -8,8 +8,7 @@ except:
   pass
 
 from numpy import *
-import random, sys, time
-from xml.dom.minidom import parse
+import random, sys, time, argparse
 
 epsilon = 0.00001
 
@@ -173,8 +172,8 @@ def RandomNormalInHemisphere(v):
 
 
 
-def Trace(ray, scene, n = 0):
-  if n > 2:# or random.uniform(0, 1) > 0.5:  # Russian Roulette
+def Trace(ray, scene, roulette, n = 0):
+  if n > 2 or random.uniform(0, 1) < roulette:
     return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
@@ -192,7 +191,7 @@ def Trace(ray, scene, n = 0):
   
   point = ray.position(result)
   
-  return Trace(Ray(point, RandomNormalInHemisphere(hit.normal(point)).norm()), scene, n + 1) * hit.diffuse + Color(hit.emittance, hit.emittance, hit.emittance)
+  return Trace(Ray(point, RandomNormalInHemisphere(hit.normal(point)).norm()), scene, roulette, n + 1) * hit.diffuse + Color(hit.emittance, hit.emittance, hit.emittance)
 
 
 
@@ -203,10 +202,21 @@ class Scene:
 
 
 if __name__ == '__main__':
+  
   try:
     samples = int(sys.argv[1])
   except:
     samples = 200
+  
+  try:
+    roulette = float(sys.argv[2])
+  except:
+    roulette = 0.1
+  
+  try:
+    filename = sys.argv[3]
+  except:
+    filename = 'image.png'
   
   begin = time.time()
   
@@ -214,7 +224,7 @@ if __name__ == '__main__':
   sphere = Sphere(Point(1, 0, 0), 1)
   sphere.diffuse = Color(1.0, 1.0, 1.0)
   
-  scene.camera = Camera(Point(0, -5, 0), Vector(0, 1, 0), ViewPlane(0.5, 0.5, 1, 200))
+  scene.camera = Camera(Point(0, -5, 0), Vector(0, 1, 0), ViewPlane(0.5, 0.5, 1, 800))
   scene.objects.append(sphere)
   
   light = Sphere(Point(-1, 0, 0), 1)
@@ -224,20 +234,21 @@ if __name__ == '__main__':
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
-  print ' * Using {0} samples/pixel...'.format(samples)
+  print ' * Using [{0}] samples/pixel...'.format(samples)
+  print ' * Using [{0}] as Russian Roulette constant...'.format(roulette)
   
   for y in range(0, scene.camera.viewplane.canvasHeight):
-    sys.stdout.write(' * Rendering: [{0}%] \r'.format(1.0 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight)); sys.stdout.flush()
+    sys.stdout.write(' * Rendering: [{0}%]... \r'.format(1.0 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight)); sys.stdout.flush()
     
     for x in range(0, scene.camera.viewplane.canvasWidth):
       ray = scene.camera.CastRay(x, y)
       color = Color(0, 0, 0)
       
-      for i in range(samples):  color += Trace(ray, scene)
+      for i in range(samples):  color += Trace(ray, scene, roulette)
       
       image.setPixel(x, y, color)
   
   print
-  print ' * Saving image...'
-  image.toPILImage(samples).save('image.png')
+  print ' * Saving image [{0}]...'.format(filename)
+  image.toPILImage(samples).save(filename)
   print ' * Done [{0} seconds].'.format(time.time() - begin)
