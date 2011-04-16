@@ -20,31 +20,31 @@ class Baker(QtCore.QThread):
     sphere = Sphere(Point(0, 0, 0), 1)
     sphere.diffuse = Color(1.0, 1.0, 1.0)
     
-    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), FocalPlane(0.5, 0.5, 1, 200)))
-    scene.addObject(sphere)
+    scene.camera = Camera(Point(0, -5, 0), Vector(0, 1, 0), ViewPlane(0.5, 0.5, 1, 200))
+    scene.objects.append(sphere)
     
     light = Sphere(Point(-1.8, 0, 0), 0.6)
     light.emittance = 0.9
     light.diffuse = Color(1.0, 1.0, 1.0)
-    scene.addObject(light)
+    scene.objects.append(light)
     
-    self.image = CellImage(scene.camera.focalplane.canvasWidth, scene.camera.focalplane.canvasHeight)
+    self.image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
     
     passes = 10
     
     for i in range(passes):
-      for y in range(0, scene.camera.focalplane.canvasHeight):
-        self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * float(y) / scene.camera.focalplane.canvasHeight))
+      for y in range(0, scene.camera.viewplane.canvasHeight):
+        self.emit(QtCore.SIGNAL('updateProgress(int)'), (100.0 * float(y) / scene.camera.viewplane.canvasHeight))
         
-        for x in range(0, scene.camera.focalplane.canvasWidth):
-          rayX = x * scene.camera.focalplane.width / scene.camera.focalplane.canvasWidth - scene.camera.focalplane.width / 2.0
-          rayZ = y * scene.camera.focalplane.height / scene.camera.focalplane.canvasHeight - scene.camera.focalplane.height / 2.0
+        for x in range(0, scene.camera.viewplane.canvasWidth):
+          rayX = x * scene.camera.viewplane.width / scene.camera.viewplane.canvasWidth - scene.camera.viewplane.width / 2.0
+          rayZ = y * scene.camera.viewplane.height / scene.camera.viewplane.canvasHeight - scene.camera.viewplane.height / 2.0
           
           ray = Ray(scene.camera.pos, Point(rayX, 1, rayZ))
           color = Trace(ray, scene, 0)
           
-          self.image.setPixel(x, y, self.image.getPixel(x, y) + color / float(passes))
-        self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image.toQImage())
+          self.image.setPixel(x, y, self.image.getPixel(x, y) + color)
+        self.emit(QtCore.SIGNAL('updateImage(QImage)'), self.image.toQImage(passes))
 
 class StartQT4(QtGui.QMainWindow):
   def __init__(self, parent = None):
