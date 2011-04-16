@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
+import Image, ImageDraw
+
+try:
+  from PyQt4 import QtCore, QtGui
+except:
+  pass
+
 from numpy import *
 import random, sys, time
 from xml.dom.minidom import parse
@@ -16,11 +22,8 @@ class Vector:
   def __abs__(self):
     return sqrt(self.x**2 + self.y**2 + self.z**2)
   
-  def __eq__(self, other):
-    return self.x == other.x and self.y == other.y and self.z == other.z
-  
-  def __ne__(self, other):
-    return self.x != other.x or self.y != other.y or self.z != other.z
+  def list(self):
+    return [self.x * 255, self.y * 255, self.z * 255]
   
   def __str__(self):
     return '<{0}, {1}, {2}>'.format(self.x, self.y, self.z)
@@ -74,10 +77,10 @@ class Color(Vector):  pass
 class Ray:
   def __init__(self, origin = Point(), direction = Vector()):
     self.origin = origin
-    self.direction = direction.norm()
+    self.direction = direction
   
   def position(self, time):
-    return (self.origin + self.direction * time).point()
+    return self.origin + self.direction * time
   
   def vector(self):
     return Vector(self.direction.x, self.direction.y, self.direction.z)
@@ -99,6 +102,33 @@ class CellImage:
   def setPixel(self, x, y, color):
     self.image[x][y] = color
   
+  def dump(self, filename):
+    temp = ''
+    
+    for x in range(self.width):
+      for y in range(self.height):
+        pixel = Clamp(self.image[x][y])
+        color = pixel.list()
+        
+  
+  def toPILImage(self, samples):
+    samples = float(samples)
+    image = Image.new('RGB', [self.width, self.height])
+    canvas = ImageDraw.Draw(image)
+    
+    for x in range(self.width):
+      for y in range(self.height):
+        pixel = Clamp(self.image[x][y] / float(samples))
+        color = map(int, (pixel).list())
+        
+        color2 = 'rgb({0}, {1}, {2})'.format(color[0], color[1], color[2])
+        if color2 != 'rgb(0, 0, 0)':  print color2
+        
+        canvas.point([x, y], fill = color2)
+        
+    del canvas
+    return image
+  
   def toQImage(self):
     canvas = QtGui.QImage(self.width, self.height, QtGui.QImage.Format_RGB32)
     
@@ -111,7 +141,7 @@ class CellImage:
     return canvas
 
 
-class FocalPlane:
+class ViewPlane:
   def __init__(self, width, height, offset, pixelDensity):
     self.pixelDensity = float(pixelDensity)
     self.offset = float(offset)
@@ -123,13 +153,13 @@ class FocalPlane:
 
 
 class Camera:
-  def __init__(self, position, direction, focalplane):
+  def __init__(self, position, direction, viewplane):
     self.pos = position
     self.dir = direction
-    self.focalplane = focalplane
+    self.viewplane = viewplane
   
   def castRay(self, x, y):
-    return Ray(self.pos, (Point(self.pos.x - self.focalplane.width / 2.0, self.pos.y + self.focalplane.offset, self.pos.z - self.focalplane.height / 2.0) + self.focalplane.width * x + self.focalplane.height * y - self.pos).norm())
+    return Ray(self.pos, (Point(self.pos.x - self.viewplane.width / 2.0, self.pos.y + self.viewplane.offset, self.pos.z - self.viewplane.height / 2.0) + self.viewplane.width * x + self.viewplane.height * y - self.pos).norm())
 
 
 class Sphere:
@@ -178,7 +208,7 @@ def RandomNormalInHemisphere(v):
 
 
 def Trace(ray, scene, n):
-  if n > 2 or random.uniform(0, 1) > 0.5:  # Russian Roulette
+  if n > 2:# or random.uniform(0, 1) > 0.5:  # Russian Roulette
     return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
@@ -224,10 +254,10 @@ class Scene:
                          Vector(camera.getElementsByTagName('direction')[0].getAttribute('x'), 
                                 camera.getElementsByTagName('direction')[0].getAttribute('y'), 
                                 camera.getElementsByTagName('direction')[0].getAttribute('z')), 
-                         FocalPlane(camera.getElementsByTagName('focalplane')[0].getAttribute('width'), 
-                                    camera.getElementsByTagName('focalplane')[0].getAttribute('height'), 
-                                    camera.getElementsByTagName('focalplane')[0].getAttribute('offset'), 
-                                    camera.getElementsByTagName('focalplane')[0].getAttribute('pixeldensity'))) 
+                         ViewPlane(camera.getElementsByTagName('viewplane')[0].getAttribute('width'), 
+                                    camera.getElementsByTagName('viewplane')[0].getAttribute('height'), 
+                                    camera.getElementsByTagName('viewplane')[0].getAttribute('offset'), 
+                                    camera.getElementsByTagName('viewplane')[0].getAttribute('pixeldensity'))) 
     
     for object in document.getElementsByTagName('objects')[0].childNodes:
       try:
@@ -247,3 +277,51 @@ class Scene:
         pass
     
     return self
+
+
+if __name__ == '__main__':
+    scene = Scene()
+    sphere = Sphere(Point(0, 0, 0), 1)
+    sphere.diffuse = Color(1.0, 1.0, 1.0)
+    
+    scene.addCamera(Camera(Point(0, -5, 0), Vector(0, 1, 0), ViewPlane(0.5, 0.5, 1, 200)))
+    scene.addObject(sphere)
+    
+    light = Sphere(Point(-1.8, 0, 0), 0.6)
+    light.emittance = 0.9
+    light.diffuse = Color(1.0, 1.0, 1.0)
+    scene.addObject(light)
+    
+    image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
+    
+    try:
+      samples = int(sys.argv[1])
+    except:
+      samples = 200
+    
+    print ' * Using {0} samples/pixel...'.format(samples)
+    
+    begin = time.time()
+    
+    for y in range(0, scene.camera.viewplane.canvasHeight):
+      sys.stdout.write(' * Rendering: [{0}%] \r'.format(1.0 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight))
+      sys.stdout.flush()
+      
+      for x in range(0, scene.camera.viewplane.canvasWidth):
+        rayX = x * scene.camera.viewplane.width / scene.camera.viewplane.canvasWidth - scene.camera.viewplane.width / 2.0
+        rayZ = y * scene.camera.viewplane.height / scene.camera.viewplane.canvasHeight - scene.camera.viewplane.height / 2.0
+        
+        ray = Ray(scene.camera.pos, Point(rayX, 1, rayZ))
+        
+        color = Color(0, 0, 0)
+        
+        for i in range(samples):
+          color += Trace(ray, scene, 0)
+        
+        image.setPixel(x, y, color)
+      
+    print
+    print ' * Saving image...'
+    image.toPILImage(samples).save('image.png')
+    #image.dump('image.data')
+    print ' * Done [{0} seconds].'.format(time.time() - begin)
