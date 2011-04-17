@@ -8,7 +8,7 @@ except:
   pass
 
 from numpy import *
-import random, sys, time, argparse
+import random, sys, time, argparse, math
 
 epsilon = 0.00001
 
@@ -23,6 +23,9 @@ class Vector:
   
   def list(self):
     return (int(self.x * 255), int(self.y * 255), int(self.z * 255))
+  
+  def __call__(self, x, y, z):
+    return Vector(x, y, z)
   
   def __str__(self):
     return '<{0}, {1}, {2}>'.format(self.x, self.y, self.z)
@@ -53,6 +56,9 @@ class Vector:
   
   def dot(self, other):
     return self.x * other.x + self.y * other.y + self.z * other.z
+  
+  def cross(self, other):
+    return Vector(self.y * other.z - self.z * other.y, self.z * other.x - self.x * other.z, self.x * other.y - self.y * other.x)
 
 
 
@@ -74,7 +80,7 @@ class CellImage:
   def __init__(self, width, height):
     self.width = width
     self.height = height
-    self.image = [[Color(0, 0, 0) for w in range(width)] for h in range(height)]
+    self.image = [[Color(0, 0, 0) for h in range(height)] for w in range(width)]
   
   def getPixel(self, x, y):
     return self.image[x][y]
@@ -89,7 +95,7 @@ class CellImage:
     
     for x in range(self.width):
       for y in range(self.height):
-        canvas.point([x, y], fill = Clamp(self.image[x][y] / float(samples)).list())
+        canvas.point([x, scene.camera.viewplane.canvasHeight - 1 - y], fill = Clamp(self.image[x][y] / float(samples)).list())
         
     return image
   
@@ -129,11 +135,54 @@ class Camera:
 
 
 
+class Plane:
+  def __init__(self, origin, point1, point2, normal = None):
+    self.pos = origin
+    self.point1 = point1
+    self.point2 = point2
+    
+    if normal != None:
+      self.normal = normal
+    else:
+      self.normal = (origin - point1).cross(origin - point2).norm()
+    
+    self.diffuse = Color(1, 1, 1)
+    self.emittance = 0
+  
+  def intersection(self, ray):
+    t = (self.pos - ray.origin).dot(self.normal) / (ray.direction.dot(self.normal))
+
+    if math.isnan(t):
+      return False
+    
+    if t < 0.000001:
+      return False
+    
+    point = ray.position(t)
+    toPoint = point - self.pos
+    
+    test1 = toPoint.dot(self.point1)
+    
+    if test1 < 0 or test1 > abs(self.point1 - self.pos):
+      return False
+    
+    test2 = toPoint.dot(self.point2)
+    
+    if test2 < 0 or test1 > abs(self.point2 - self.pos):
+      return False
+    
+    return point
+
+  def normal(self, position):
+    return self.normal
+
+
+
 class Sphere:
   def __init__(self, position = Point(0, 0, 0), radius = 1):
     self.pos = position
     self.radius = float(radius)
-    self.diffuse = Color()
+    self.diffuse = Color(0, 0, 0)
     self.emittance = 0
   
   def intersection(self, ray):
@@ -187,10 +236,20 @@ def Trace(ray, scene, roulette, n = 0):
   
   if not hit:
     return Color(0.0, 0.0, 0.0)
+  else:
+    return hit.diffuse
   
   point = ray.position(result)
   
-  return hit.diffuse * (Trace(Ray(point, RandomNormalInHemisphere(hit.normal(point)).norm()), scene, roulette, n + 1) + hit.emittance)
+  try:
+    normal = hit.normal(point)
+  except:
+    normal = hit.normal
+  
+  direction = RandomNormalInHemisphere(normal)
+  ray = Ray(point, direction)
+  
+  return hit.diffuse * (Trace(ray, scene, roulette, n + 1) + hit.emittance)
 
 
 
@@ -211,11 +270,11 @@ class Scene:
 if __name__ == '__main__':
   roulette  = LoadArg(1, float, 0.4)
   pass_save = LoadArg(2, int, 5)
-  filename  = LoadArg(3, str, 'image.png')
+  filename  = LoadArg(3, str, '/www/image.png')
   
   begin = time.time()
   scene = Scene()
-  
+  '''
   sphere = Sphere(Point(2, 0, 0), 1)
   sphere.diffuse = Color(1.0, 0.75, 0.75)
   scene.objects.append(sphere)
@@ -231,13 +290,16 @@ if __name__ == '__main__':
   sphere3 = Sphere(Point(0, 0, 51), 50)
   sphere3.diffuse = Color(1.0, 1.0, 1.0)
   scene.objects.append(sphere3)
-  
-  light = Sphere(Point(0, 0, 0), 1)
+  '''
+  light = Sphere(Point(0, 0, -1), 1)
   light.emittance = 10.0
   light.diffuse = Color(1.0, 1.0, 1.0)
   scene.objects.append(light)
   
-  scene.camera = Camera(Point(0.5, -9.0, 1.0), Point(-0.5, 1, 0).norm(), ViewPlane(0.5, 0.5, 1, 400))
+  plane = Plane(Point(-1, -1, -1), Point(0, 2, 0), Point(0, 0, 2))
+  scene.objects.append(plane)
+  
+  scene.camera = Camera(Point(0.5, -9.0, 0.0), Point(0.0, 1, 0.0), ViewPlane(0.8, 0.4, 1, 600))
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
@@ -252,7 +314,7 @@ if __name__ == '__main__':
     i += 1
     
     for y in range(0, scene.camera.viewplane.canvasHeight):
-      sys.stdout.write(' * Rendering pass {0}: [{1}%]... \r'.format(i, 0.5 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight)); sys.stdout.flush()
+      sys.stdout.write(' * Rendering pass {0}: [{1}%]... \r'.format(i, int(0.5 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight))); sys.stdout.flush()
       
       for x in range(0, scene.camera.viewplane.canvasWidth):
         image.setPixel(x, y, image.getPixel(x, y) + Trace(scene.camera.CastRay(x, y), scene, roulette))
