@@ -285,7 +285,7 @@ if __name__ == '__main__':
   left.diffuse = Color(0.75, 0.25, 0.25)
   scene.objects.append(left)
 
-  scene.camera = Camera(Point(0, -4.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 300))
+  scene.camera = Camera(Point(0, -4.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 800))
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
