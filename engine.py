@@ -285,7 +285,7 @@ if __name__ == '__main__':
   left.diffuse = Color(0.75, 0.25, 0.25)
   scene.objects.append(left)
 
-  scene.camera = Camera(Point(0, -5.0, 0), Point(0, 0, 0), ViewPlane(0.8, 0.5, 1, 300))
+  scene.camera = Camera(Point(0, -4.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 300))
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
@@ -303,7 +303,7 @@ if __name__ == '__main__':
       sys.stdout.write(' * Rendering pass {0}: [{1}%]... \r'.format(i, int(0.5 + 100.0 * float(y) / scene.camera.viewplane.canvasHeight))); sys.stdout.flush()
       
       for x in range(0, scene.camera.viewplane.canvasWidth):
-        image.setPixel(x, y, image.getPixel(x, y) + Trace(scene.camera.CastRay(x, y), scene, roulette))
+        image.setPixel(x, y, image.getPixel(x, y) + Trace(scene.camera.CastRay(x + random.uniform(-0.5, 0.5), y + random.uniform(-0.5, 0.5)), scene, roulette))
   
     print('')
     
