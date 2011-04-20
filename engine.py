@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 
-import Image, ImageDraw
-
-try:
-  from PyQt4 import QtCore, QtGui
-except:
-  pass
-
-from numpy import *
-import random, sys, time, argparse, math
+from math import sqrt, isnan
+import random, sys, time
 
 epsilon = 0.00001
 
@@ -52,7 +45,10 @@ class Vector:
     return Vector(-self.x, -self.y, -self.z)
   
   def norm(self):
-    return self * (1.0 / abs(self))
+    if abs(self) != 0:
+      return self * (1.0 / abs(self))
+    else:
+      return self
   
   def dot(self, other):
     return self.x * other.x + self.y * other.y + self.z * other.z
@@ -88,27 +84,21 @@ class CellImage:
   def setPixel(self, x, y, color):
     self.image[x][y] = color
   
-  def toPILImage(self, samples):
+  def save(self, samples, filename):
     samples = float(samples)
-    image = Image.new('RGB', [self.width, self.height])
-    canvas = ImageDraw.Draw(image)
     
-    for x in range(self.width):
-      for y in range(self.height):
-        canvas.point([x, scene.camera.viewplane.canvasHeight - 1 - y], fill = Clamp(self.image[x][y] / float(samples)).list())
-        
-    return image
+    handle = open(filename, 'w')
+    contents = 'P3\n{0} {1}\n255\n'.format(self.width, self.height)
+    
+    for y in range(self.height):
+      for x in range(self.width):
+        pixel = Clamp(self.image[x][self.height - 1 - y] / float(samples)).list()
+        contents += '{0} {1} {2} '.format(pixel[0], pixel[1], pixel[2])
+      contents += '\n'
+    
+    handle.write(contents)
+    handle.close()
   
-  def toQImage(self, samples):
-    canvas = QtGui.QImage(self.width, self.height, QtGui.QImage.Format_RGB32)
-    
-    for x in range(self.width):
-      for y in range(self.height):
-        pixel = Clamp(self.image[x][y] / float(samples))
-        
-        canvas.setPixel(x, y, QtGui.qRgb(pixel.x * 255, pixel.y * 255, pixel.z * 255))
-    
-    return canvas
 
 
 class ViewPlane:
@@ -123,9 +113,9 @@ class ViewPlane:
 
 
 class Camera:
-  def __init__(self, position, direction, viewplane):
+  def __init__(self, position, focus, viewplane):
     self.pos = position
-    self.dir = direction
+    self.dir = (position - focus).norm()
     self.viewplane = viewplane
     self.cX = viewplane.width / viewplane.canvasWidth
     self.cY = viewplane.height / viewplane.canvasHeight
@@ -144,18 +134,20 @@ class Plane:
     if normal != None:
       self.normal = normal
     else:
-      self.normal = (origin - point1).cross(origin - point2).norm()
+      self.normal = (point1).cross(point2).norm()
     
     self.diffuse = Color(1, 1, 1)
     self.emittance = 0
   
   def intersection(self, ray):
-    t = (self.pos - ray.origin).dot(self.normal) / (ray.direction.dot(self.normal))
-
-    if math.isnan(t):
+    k = (ray.direction.dot(self.normal))
+    
+    if k != 0:
+      t = (self.pos - ray.origin).dot(self.normal) / k
+    else:
       return False
     
-    if t < 0.000001:
+    if t < 0.0000001:
       return False
     
     point = ray.position(t)
@@ -168,10 +160,10 @@ class Plane:
     
     test2 = toPoint.dot(self.point2)
     
-    if test2 < 0 or test1 > abs(self.point2 - self.pos):
+    if test2 < 0 or test2 > abs(self.point2 - self.pos):
       return False
     
-    return point
+    return t
 
   def normal(self, position):
     return self.normal
@@ -230,14 +222,12 @@ def Trace(ray, scene, roulette, n = 0):
   for object in scene.objects:
     test = object.intersection(ray)
     
-    if test and test < result:
+    if test and 0 < test < result:
       result = test
       hit = object
   
   if not hit:
     return Color(0.0, 0.0, 0.0)
-  else:
-    return hit.diffuse
   
   point = ray.position(result)
   
@@ -270,43 +260,39 @@ class Scene:
 if __name__ == '__main__':
   roulette  = LoadArg(1, float, 0.4)
   pass_save = LoadArg(2, int, 5)
-  filename  = LoadArg(3, str, '/www/image.png')
+  filename  = LoadArg(3, str, 'image.ppm')
   
   begin = time.time()
   scene = Scene()
-  '''
-  sphere = Sphere(Point(2, 0, 0), 1)
-  sphere.diffuse = Color(1.0, 0.75, 0.75)
-  scene.objects.append(sphere)
   
-  sphere2 = Sphere(Point(-2, 0, 0), 1)
-  sphere2.diffuse = Color(0.75, 0.75, 1.0)
-  scene.objects.append(sphere2)
-  
-  sphere3 = Sphere(Point(0, 2, 0), 1)
-  sphere3.diffuse = Color(0.75, 1.0, 0.75)
-  scene.objects.append(sphere3)
-  
-  sphere3 = Sphere(Point(0, 0, 51), 50)
-  sphere3.diffuse = Color(1.0, 1.0, 1.0)
-  scene.objects.append(sphere3)
-  '''
-  light = Sphere(Point(0, 0, -1), 1)
-  light.emittance = 10.0
-  light.diffuse = Color(1.0, 1.0, 1.0)
+  light = Plane(Point(-1, 1, 1), Point(2, 0, 0), Point(0, -2, 0), Vector(0, 0, -1))
+  light.emittance = 20
   scene.objects.append(light)
   
-  plane = Plane(Point(-1, -1, -1), Point(0, 2, 0), Point(0, 0, 2))
-  scene.objects.append(plane)
+  sphere = Sphere(Point(0, 0, -0.45), 0.25)
+  sphere.diffuse = Color(0.25, 0.25, 0.75)
+  scene.objects.append(sphere)
   
-  scene.camera = Camera(Point(0.5, -9.0, 0.0), Point(0.0, 1, 0.0), ViewPlane(0.8, 0.4, 1, 600))
+  back = Plane(Point(-1, 1, -1), Point(2, 0, 0), Point(0, 0, 2), Vector(0, 1, 0))
+  back.diffuse = Color(0.75, 0.75, 0.75)
+  scene.objects.append(back)
+  
+  bottom = Plane(Point(-1, 1, -1), Point(2, 0, 0), Point(0, -2, 0), Vector(0, 0, -1))
+  bottom.diffuse = Color(0.75, 0.75, 0.75)
+  scene.objects.append(bottom)
+  
+  left = Plane(Point(-1, 1, -1), Point(0, -2, 0), Point(0, 0, 2), Vector(-1, 0, 0))
+  left.diffuse = Color(0.75, 0.25, 0.25)
+  scene.objects.append(left)
+
+  scene.camera = Camera(Point(0, -5.0, 0), Point(0, 0, 0), ViewPlane(0.8, 0.5, 1, 300))
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
-  print ' * Using continuous sampling...'
-  print ' * Using [{0}] as Russian Roulette constant...'.format(roulette)
-  print ' * Saving every [{0}] passes...'.format(pass_save)
-  print
+  print(' * Using continuous sampling...')
+  print(' * Using [{0}] as Russian Roulette constant...'.format(roulette))
+  print(' * Saving every [{0}] passes...'.format(pass_save))
+  print('')
   
   i = 0
   
@@ -319,11 +305,11 @@ if __name__ == '__main__':
       for x in range(0, scene.camera.viewplane.canvasWidth):
         image.setPixel(x, y, image.getPixel(x, y) + Trace(scene.camera.CastRay(x, y), scene, roulette))
   
-    print
+    print('')
     
     if i % pass_save == 0:
-      print ' * Saving image [{1}]...'.format(i, filename)
-      print
-      image.toPILImage(i).save(filename)
+      print(' * Saving image [{1}]...'.format(i, filename))
+      print('')
+      image.save(i, filename)
     
-  print ' * Done [{0} seconds].'.format(time.time() - begin)
+  print(' * Done [{0} seconds].'.format(time.time() - begin))
