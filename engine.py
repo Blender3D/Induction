@@ -174,7 +174,7 @@ class Sphere:
   def __init__(self, position = Point(0, 0, 0), radius = 1):
     self.pos = position
     self.radius = float(radius)
-    self.diffuse = Color(0, 0, 0)
+    self.diffuse = Color(1, 1, 1)
     self.emittance = 0
   
   def intersection(self, ray):
@@ -213,7 +213,7 @@ def RandomNormalInHemisphere(v):
 
 
 def Trace(ray, scene, roulette, n = 0):
-  if n > 10 or random.uniform(0, 1) < roulette:
+  if n > 10 or random.random() < roulette:
     return Color(0.0, 0.0, 0.0)
   
   result = 1000000.0
@@ -265,27 +265,35 @@ if __name__ == '__main__':
   begin = time.time()
   scene = Scene()
   
-  light = Plane(Point(-1, 1, 1), Point(2, 0, 0), Point(0, -2, 0), Vector(0, 0, -1))
-  light.emittance = 20
-  scene.objects.append(light)
+  top = Plane(Point(-1, 1, 1), Point(1, 0, 0), Point(0, -1, 0), Vector(0, 0, 1))
+  top.diffuse = Color(0.75, 0.75, 0.75)
+  scene.objects.append(top)
   
-  sphere = Sphere(Point(0, 0, -0.45), 0.25)
-  sphere.diffuse = Color(0.25, 0.25, 0.75)
-  scene.objects.append(sphere)
-  
-  back = Plane(Point(-1, 1, -1), Point(2, 0, 0), Point(0, 0, 2), Vector(0, 1, 0))
+  back = Plane(Point(-1, 1, -1), Point(1, 0, 0), Point(0, 0, 1), Vector(0, 1, 0))
   back.diffuse = Color(0.75, 0.75, 0.75)
   scene.objects.append(back)
   
-  bottom = Plane(Point(-1, 1, -1), Point(2, 0, 0), Point(0, -2, 0), Vector(0, 0, -1))
+  bottom = Plane(Point(-1, 1, -1), Point(1, 0, 0), Point(0, -1, 0), Vector(0, 0, -1))
   bottom.diffuse = Color(0.75, 0.75, 0.75)
   scene.objects.append(bottom)
   
-  left = Plane(Point(-1, 1, -1), Point(0, -2, 0), Point(0, 0, 2), Vector(-1, 0, 0))
+  light = Sphere(Point(0.7, 0.7, -0.7), 0.3)
+  light.emittance = 10
+  scene.objects.append(light)
+  '''
+  light2 = Sphere(Point(-0.7, 0.7, -0.7), 0.3)
+  light2.emittance = 10
+  scene.objects.append(light2)
+  '''
+  left = Plane(Point(-1, 1, -1), Point(0, -1, 0), Point(0, 0, 1), Vector(-1, 0, 0))
   left.diffuse = Color(0.75, 0.25, 0.25)
   scene.objects.append(left)
-
-  scene.camera = Camera(Point(0, -4.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 800))
+  
+  right = Plane(Point(1, 1, -1), Point(0, -1, 0), Point(0, 0, 1), Vector(1, 0, 0))
+  right.diffuse = Color(0.25, 0.25, 0.75)
+  scene.objects.append(right)
+  
+  scene.camera = Camera(Point(0, -5.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 200))
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
