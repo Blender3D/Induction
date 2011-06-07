@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-from math import sqrt, isnan
+from math import sqrt
 import random, sys, time
-
-epsilon = 0.00001
 
 class Vector:
   def __init__(self, x = 0.0, y = 0.0, z = 0.0):
@@ -258,7 +256,7 @@ class Scene:
 
 
 if __name__ == '__main__':
-  roulette  = LoadArg(1, float, 0.4)
+  roulette  = LoadArg(1, float, 0.0)
   pass_save = LoadArg(2, int, 5)
   filename  = LoadArg(3, str, 'image.ppm')
   
@@ -278,13 +276,13 @@ if __name__ == '__main__':
   scene.objects.append(bottom)
   
   light = Sphere(Point(0.7, 0.7, -0.7), 0.3)
-  light.emittance = 10
+  light.emittance = 25
   scene.objects.append(light)
-  '''
+  
   light2 = Sphere(Point(-0.7, 0.7, -0.7), 0.3)
   light2.emittance = 10
   scene.objects.append(light2)
-  '''
+  
   left = Plane(Point(-1, 1, -1), Point(0, -1, 0), Point(0, 0, 1), Vector(-1, 0, 0))
   left.diffuse = Color(0.75, 0.25, 0.25)
   scene.objects.append(left)
@@ -293,7 +291,7 @@ if __name__ == '__main__':
   right.diffuse = Color(0.25, 0.25, 0.75)
   scene.objects.append(right)
   
-  scene.camera = Camera(Point(0, -5.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 600))
+  scene.camera = Camera(Point(0, -5.0, 0), Point(0, 0, 0), ViewPlane(0.5, 0.5, 1, 200))
   
   image = CellImage(scene.camera.viewplane.canvasWidth, scene.camera.viewplane.canvasHeight)
   
