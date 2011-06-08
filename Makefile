@@ -3,4 +3,4 @@ all:
 
 run: all
 	./engine
-	ristretto image.ppm
+	eog image.ppm
