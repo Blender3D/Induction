@@ -8,6 +8,8 @@
 
 #include "structures.cpp"
 #include "objects.cpp"
+#include "objects/plane.cpp"
+#include "objects/sphere.cpp"
 
 using namespace std;
 
@@ -15,48 +17,61 @@ int main(int argc, char *argv[]) {
   srand(time(NULL));
     
   vector<Object*> objects;
+
+  Object* light = new Sphere();
+  light->pos = Vector(0.0, 0.0, 2.0);
+  light->radius = 0.5;
+  light->emittance = 10;
+  light->diffuse = Vector(1.0, 0.0, 0.0);
   
-  Sphere sphere = Sphere();
-  sphere.pos = Vector(0, 0, 0);
-  sphere.radius = 1;
-  sphere.diffuse = Vector(1, 1, 1);
+  objects.push_back(light);
   
-  objects.push_back(&sphere);
+  Object* light2 = new Sphere();
+  light2->pos = Vector(0.0, 0.0, -2.0);
+  light2->radius = 2.0;
+  light2->diffuse = Vector(1.0, 1.0, 1.0);
   
-  Camera camera = Camera(Vector(0, -5.0, 0), Vector(0, 0, 0), ViewPlane(0.5, 0.5, 1, 200));
+  objects.push_back(light2);
   
+  Camera camera = Camera(Vector(0.0, -15.0, 0.0), Vector(0.0, 1.0, 0.0), ViewPlane(1.0, 0.5, 0.5, 300.0));
+  
+  int samples = 200;
   int count = camera.viewplane.canvasWidth * camera.viewplane.canvasHeight;
   Vector *image = new Vector[count];
   
-  for (int y = 0; y < camera.viewplane.canvasHeight; y++) {
-    for (int x = 0; x < camera.viewplane.canvasWidth; x++) {
-      int sub = (int)(y * camera.viewplane.canvasWidth + x);
-      Ray ray = camera.CastRay(x, y);
-      cout << sub << endl;
-      image[sub] = image[sub] + Trace(ray, objects, 0);
+  for (int sample = 0; sample < samples; sample++) {
+    cout << "Sampling [" << sample << "/" << samples << "]";
+    cout.flush();
+        
+    for (float y = 0.0; y < camera.viewplane.canvasHeight; y++) {
+      for (float x = 0.0; x < camera.viewplane.canvasWidth; x++) {
+        int sub = (int)(y * camera.viewplane.canvasWidth + x);
+        Ray ray = camera.CastRay(x + random_uniform() - 0.5, y + random_uniform() - 0.5);
+        image[sub] = image[sub] + Trace(ray, objects, 0);
+      }
     }
+    
+    cout << "\r";
   }
   
-  int samples = 1;
-  
   ofstream handle;
-  handle.open("image_cpp.ppm");
+  handle.open("image.ppm");
   
-  handle << "P3\n";
+  handle << "P3" << endl;
   handle << camera.viewplane.canvasWidth;
   handle << " ";
   handle << camera.viewplane.canvasHeight;
   handle << " ";
-  handle << "255\n\n";
+  handle << "255" << endl << endl;
   
   for (int i = 0; i < camera.viewplane.canvasWidth * camera.viewplane.canvasHeight; i++) {
-    Vector pixel = image[i] / samples;
+    Vector pixel = Clamp(image[i] / float(samples));
     
-    handle << pixel.x;
+    handle << (int)(pixel.x * 255.0);
     handle << " ";
-    handle << pixel.y;
+    handle << (int)(pixel.y * 255.0);
     handle << " ";
-    handle << pixel.z;
+    handle << (int)(pixel.z * 255.0); 
     handle << " ";
   }
   
