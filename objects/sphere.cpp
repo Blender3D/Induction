@@ -3,8 +3,6 @@
 
 class Sphere: public Object {
   public:
-    float emittance;
-    Vector diffuse;
     float radius;
     
     float intersection(Ray ray) {

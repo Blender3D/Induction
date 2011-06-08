@@ -43,7 +43,5 @@ Vector Trace(Ray &ray, vector<Object*> objects, int n = 0) {
 
   Ray ray2 = Ray(point, direction);
   
-  cout << hit->diffuse.x << endl;
-  
   return hit->diffuse * Trace(ray2, objects, n + 1) + hit->emittance;
 }
