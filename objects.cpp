@@ -6,22 +6,52 @@ using namespace std;
 class Object {
   public:
     Vector pos;
-    float emittance;
     Vector diffuse;
+    
     ReflectionType reflectionType;
+    
+    float emittance;
+    float IOR;
+    float reflection;
     
     virtual float intersection(Ray ray) = 0;
     virtual Vector getNormal(Vector position) = 0;
     virtual Vector getDirection(Vector position, Vector direction) {
+      Vector tempNormal = this->getNormal(position);
+      
       switch (reflectionType) {
+        default:
         case DIFFUSE:
-        case REFRACTIVE:
-          return RandomNormalInHemisphere(this->getNormal(position));
+          return RandomNormalInHemisphere(tempNormal);
           break;
         
         case SPECULAR:
-          Vector tempNormal = this->getNormal(position);
           return tempNormal * 2.0 * abs(direction.dot(tempNormal)) + direction;
+          break;
+        
+        case GLASS:
+          float internalIndex, externalIndex;
+          float theta1 = abs(direction.dot(tempNormal));
+          
+          if (theta1 >= 0.0) {
+            internalIndex = IOR;
+            externalIndex = 1.0;
+          } else {
+            internalIndex = 1.0;
+            externalIndex = IOR;
+          }
+          
+          float eta = externalIndex / internalIndex;
+          float theta2 = sqrt(1.0 - (eta*eta) * (1.0 - (theta1*theta1)));
+          float rs = (externalIndex * theta1 - internalIndex * theta2) / (externalIndex*theta1 + internalIndex * theta2);
+          float rp = (internalIndex * theta1 - externalIndex * theta2) / (internalIndex*theta1 + externalIndex * theta2);
+          float reflectance = (rs*rs + rp*rp);
+          
+          if (random_uniform() < reflectance + reflection) {
+            return direction + tempNormal * 2.0 * theta1;
+          }
+          
+          return (tempNormal * theta1 + direction) * eta + (tempNormal * -theta2);
           break;
       }
     }
