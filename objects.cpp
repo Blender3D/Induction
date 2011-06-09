@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include <stdlib.h>
 
 using namespace std;
@@ -8,15 +8,29 @@ class Object {
     Vector pos;
     float emittance;
     Vector diffuse;
+    ReflectionType reflectionType;
     
     virtual float intersection(Ray ray) = 0;
     virtual Vector getNormal(Vector position) = 0;
+    virtual Vector getDirection(Vector position, Vector direction) {
+      switch (reflectionType) {
+        case DIFFUSE:
+        case REFRACTIVE:
+          return RandomNormalInHemisphere(this->getNormal(position));
+          break;
+        
+        case SPECULAR:
+          Vector tempNormal = this->getNormal(position);
+          return tempNormal * 2.0 * abs(direction.dot(tempNormal)) + direction;
+          break;
+      }
+    }
 };
 
 Vector Trace(Ray &ray, vector<Object*> objects, int n = 0) {
   int index = -1;
 
-  if (n > 10) {
+  if (n > 25) {
     return Vector(0.0, 0.0, 0.0);
   }
   
@@ -39,7 +53,7 @@ Vector Trace(Ray &ray, vector<Object*> objects, int n = 0) {
   Object *hit = objects[index];
   
   Vector point = ray.position(result);
-  Vector direction = RandomNormalInHemisphere(hit->getNormal(point));
+  Vector direction = hit->getDirection(point, ray.direction);
 
   Ray ray2 = Ray(point, direction);
   
