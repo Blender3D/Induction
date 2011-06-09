@@ -25,9 +25,18 @@ int main(int argc, char *argv[]) {
   top->point3 = Vector(1, -1, 1);
   top->point4 = Vector(-1, -1, 1);
   top->normal = Vector(0, 0, 1);
+  top->emittance = 2;
   top->diffuse = Vector(0.75, 0.75, 0.75);
   objects.push_back(top);
   
+  /*
+  Plane* top = new Plane();
+  top->pos = Vector(0, 0, 5);
+  top->normal = Vector(0, 0, 1);
+  top->emittance = 10;
+  top->diffuse = Vector(0.75, 0.75, 0.75);
+  objects.push_back(top);
+  */
   Quadrilateral* back = new Quadrilateral();
   back->point1 = Vector(-1, 1, -1);
   back->point2 = Vector(1, 1, -1);
@@ -63,7 +72,7 @@ int main(int argc, char *argv[]) {
   right->normal = Vector(1, 0, 0);
   right->diffuse = Vector(0.25, 0.25, 0.75);
   objects.push_back(right);
-  
+  /*
   Quadrilateral* light = new Quadrilateral();
   light->point1 = Vector(-0.2, -0.2, 0.999);
   light->point2 = Vector(0.2, -0.2, 0.999);
@@ -73,14 +82,43 @@ int main(int argc, char *argv[]) {
   light->diffuse = Vector(1, 0.85, 0.43);
   light->emittance = 30;
   objects.push_back(light);
-  
+  */
   
   Sphere* sphere = new Sphere();
-  sphere->pos = Vector(0, 0, -0.5);
+  sphere->pos = Vector(0, -0.8, -0.5);
   sphere->radius = 0.5;
   sphere->diffuse = Vector(1, 1, 1);
-  sphere->reflectionType = SPECULAR;
+  sphere->reflectionType = GLASS;
+  sphere->IOR = 1.53;
   objects.push_back(sphere);
+  
+  Sphere* sphere2 = new Sphere();
+  sphere2->pos = Vector(-0.7, 0, -0.9);
+  sphere2->radius = 0.3;
+  sphere2->diffuse = Vector(0.5, 0.5, 0.5);
+  sphere2->reflectionType = SPECULAR;
+  objects.push_back(sphere2);
+  
+  Sphere* sphere3 = new Sphere();
+  sphere3->pos = Vector(0.7, 0, -0.8);
+  sphere3->radius = 0.2;
+  sphere3->diffuse = Vector(0.3, 0.3, 0.3);
+  sphere3->reflectionType = SPECULAR;
+  objects.push_back(sphere3);
+  
+  Sphere* sphere4 = new Sphere();
+  sphere4->pos = Vector(0, 0, 0.1);
+  sphere4->radius = 0.1;
+  sphere4->diffuse = Vector(0.5, 0.5, 0.5);
+  sphere4->reflectionType = SPECULAR;
+  objects.push_back(sphere4);
+  
+  Sphere* sphere5 = new Sphere();
+  sphere5->pos = Vector(0.3, 0.2, -0.85);
+  sphere5->radius = 0.15;
+  sphere5->diffuse = Vector(1, 1, 1);
+  sphere5->emittance = 2;
+  objects.push_back(sphere5);
   
   /*
   Quadrilateral* object = new Quadrilateral();
@@ -94,7 +132,7 @@ int main(int argc, char *argv[]) {
   objects.push_back(object);
   */
   
-  Camera camera = Camera(Vector(0, -6.0, 0), Vector(0, 1, 0), ViewPlane(1, 0.5, 0.5, 1200));
+  Camera camera = Camera(Vector(0, -5.0, 0), Vector(0, 1, 0), ViewPlane(1, 0.5, 0.5, 1200));
   
   int samples = 0;
   Vector *image = new Vector[(int)(camera.viewplane.canvasWidth * camera.viewplane.canvasHeight)];

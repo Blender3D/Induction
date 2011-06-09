@@ -102,7 +102,7 @@ struct Camera {
 };
 
 enum ReflectionType {
-  DIFFUSE, SPECULAR, REFRACTIVE
+  DIFFUSE, SPECULAR, GLASS
 };
 
 inline Vector Clamp(Vector color) {
