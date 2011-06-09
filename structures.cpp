@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <vector>
 
-#define MAXWIDTH 2000
-#define MAXHEIGHT 2000
-
 using namespace std;
 
 struct Vector {
@@ -45,11 +42,11 @@ struct Vector {
     return *this * (1.0 / sqrt(x*x + y*y + z*z));
   }
   
-  float dot(const Vector &other) const {
+  float dot(Vector other) const {
     return x * other.x + y * other.y + z * other.z;
   }
   
-  Vector cross(const Vector &other) const {
+  Vector cross(Vector other) const {
     return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
   }
   
@@ -102,6 +99,10 @@ struct Camera {
   Ray CastRay(float x, float y) {
     return Ray(pos, Vector(x * cX - viewplane.width / 2.0, 1.0, y * cY - viewplane.height / 2.0));
   }
+};
+
+enum ReflectionType {
+  DIFFUSE, SPECULAR, REFRACTIVE
 };
 
 inline Vector Clamp(Vector color) {

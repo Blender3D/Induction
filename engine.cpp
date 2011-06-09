@@ -8,8 +8,8 @@
 
 #include "structures.cpp"
 #include "objects.cpp"
+#include "objects/quadrilateral.cpp"
 #include "objects/plane.cpp"
-#include "objects/infinite_plane.cpp"
 #include "objects/sphere.cpp"
 
 using namespace std;
@@ -18,39 +18,83 @@ int main(int argc, char *argv[]) {
   srand(time(NULL));
     
   vector<Object*> objects;
-
-  InfinitePlane* bottom = new InfinitePlane();
-  bottom->pos = Vector(0, 0, -1);
+  
+  Quadrilateral* top = new Quadrilateral();
+  top->point1 = Vector(-1, 1, 1);
+  top->point2 = Vector(1, 1, 1);
+  top->point3 = Vector(1, -1, 1);
+  top->point4 = Vector(-1, -1, 1);
+  top->normal = Vector(0, 0, 1);
+  top->diffuse = Vector(0.75, 0.75, 0.75);
+  objects.push_back(top);
+  
+  Quadrilateral* back = new Quadrilateral();
+  back->point1 = Vector(-1, 1, -1);
+  back->point2 = Vector(1, 1, -1);
+  back->point3 = Vector(1, 1, 1);
+  back->point4 = Vector(-1, 1, 1);
+  back->normal = Vector(0, 1, 0);
+  back->diffuse = Vector(0.75, 0.75, 0.75);
+  objects.push_back(back);
+  
+  Quadrilateral* bottom = new Quadrilateral();
+  bottom->point1 = Vector(-1, -1, -1);
+  bottom->point2 = Vector(1, -1, -1);
+  bottom->point3 = Vector(1, 1, -1);
+  bottom->point4 = Vector(-1, 1, -1);
   bottom->normal = Vector(0, 0, -1);
   bottom->diffuse = Vector(0.75, 0.75, 0.75);
-  
   objects.push_back(bottom);
   
-  Sphere* light1 = new Sphere();
-  light1->pos = Vector(-0.35, 0.35, -0.7);
-  light1->radius = 0.3;
-  light1->diffuse = Vector(1.0, 0.0, 0.0);
-  light1->emittance = 20;
+  Quadrilateral* left = new Quadrilateral();
+  left->point1 = Vector(-1, -1, 1);
+  left->point2 = Vector(-1, 1, 1);
+  left->point3 = Vector(-1, 1, -1);
+  left->point4 = Vector(-1, -1, -1);
+  left->normal = Vector(-1, 0, 0);
+  left->diffuse = Vector(0.75, 0.25, 0.25);
+  objects.push_back(left);
   
-  objects.push_back(light1);
+  Quadrilateral* right = new Quadrilateral();
+  right->point1 = Vector(1, -1, 1);
+  right->point2 = Vector(1, 1, 1);
+  right->point3 = Vector(1, 1, -1);
+  right->point4 = Vector(1, -1, -1);
+  right->normal = Vector(1, 0, 0);
+  right->diffuse = Vector(0.25, 0.25, 0.75);
+  objects.push_back(right);
   
-  Sphere* light2 = new Sphere();
-  light2->pos = Vector(0.35, 0.35, -0.7);
-  light2->radius = 0.3;
-  light2->diffuse = Vector(0.0, 1.0, 0.0);
-  light2->emittance = 20;
+  Quadrilateral* light = new Quadrilateral();
+  light->point1 = Vector(-0.2, -0.2, 0.999);
+  light->point2 = Vector(0.2, -0.2, 0.999);
+  light->point3 = Vector(0.2, 0.2, 0.999);
+  light->point4 = Vector(-0.2, 0.2, 0.999);
+  light->normal = Vector(0, 0, 1);
+  light->diffuse = Vector(1, 0.85, 0.43);
+  light->emittance = 30;
+  objects.push_back(light);
   
-  objects.push_back(light2);
   
-  Sphere* light3 = new Sphere();
-  light3->pos = Vector(0.0, 0.0, -0.7);
-  light3->radius = 0.3;
-  light3->diffuse = Vector(0.0, 0.0, 1.0);
-  light3->emittance = 20;
+  Sphere* sphere = new Sphere();
+  sphere->pos = Vector(0, 0, -0.5);
+  sphere->radius = 0.5;
+  sphere->diffuse = Vector(1, 1, 1);
+  sphere->reflectionType = SPECULAR;
+  objects.push_back(sphere);
   
-  objects.push_back(light3);
+  /*
+  Quadrilateral* object = new Quadrilateral();
+  object->point1 = Vector(-0.8, -0.3, 0.3);
+  object->point2 = Vector(0.3, -0.3, -0.3);
+  object->point3 = Vector(0.3, 0.3, -0.6);
+  object->point4 = Vector(-0.3, 0.3, 0.5);
+  object->normal = Vector(0, 0, 1);
+  object->reflectionType = SPECULAR;
+  object->diffuse = Vector(1, 1, 1);
+  objects.push_back(object);
+  */
   
-  Camera camera = Camera(Vector(0.0, -15.0, 1.0), Vector(0.0, 1.0, 0.0), ViewPlane(1.0, 0.5, 0.5, 600.0));
+  Camera camera = Camera(Vector(0, -6.0, 0), Vector(0, 1, 0), ViewPlane(1, 0.5, 0.5, 1200));
   
   int samples = 0;
   Vector *image = new Vector[(int)(camera.viewplane.canvasWidth * camera.viewplane.canvasHeight)];
@@ -60,8 +104,8 @@ int main(int argc, char *argv[]) {
     cout << "Samples: [" << samples << "]";
     cout.flush();
         
-    for (float y = 0.0; y < camera.viewplane.canvasHeight; y++) {
-      for (float x = 0.0; x < camera.viewplane.canvasWidth; x++) {
+    for (float y = 0; y < camera.viewplane.canvasHeight; y++) {
+      for (float x = 0; x < camera.viewplane.canvasWidth; x++) {
         int sub = (int)(y * camera.viewplane.canvasWidth + x);
         Ray ray = camera.CastRay(camera.viewplane.canvasWidth  - x + random_uniform() - 0.5,
                                  camera.viewplane.canvasHeight - y + random_uniform() - 0.5);
@@ -71,7 +115,7 @@ int main(int argc, char *argv[]) {
     
     cout << "\r";
     
-    if (samples % 100 == 0) {
+    if (samples % 10 == 0) {
       ofstream handle;
       handle.open("image.ppm");
       
