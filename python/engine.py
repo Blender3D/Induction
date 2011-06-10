@@ -211,18 +211,38 @@ def RandomNormalInHemisphere(v):
 
 
 def Trace(ray, scene, roulette, n = 0):
-  if n > 10 or random.random() < roulette:
-    return Color(0.0, 0.0, 0.0)
-  
-  result = 1000000.0
-  hit = False
-  
-  for object in scene.objects:
-    test = object.intersection(ray)
+  total = Color(0, 0, 0)
+  mult = 1
+  n = 1
+
+  while n < 10:   # Maximum recursion depth
+    result = 1000000.0
+    hit = False
     
-    if test and 0 < test < result:
-      result = test
-      hit = object
+    for object in scene.objects:
+      test = object.intersection(ray)
+      
+      if test and 0 < test < result:
+        result = test
+        hit = object
+    
+    if not hit: break
+    
+    point = ray.position(result)
+
+    try:
+      normal = hit.normal(point)
+    except:
+      normal = hit.normal
+
+    direction = RandomNormalInHemisphere(normal)
+    ray = Ray(point, direction)
+    
+    total = total + hit.diffuse * mult * hit.emittance
+    mult = hit.diffuse * mult
+    n += 1
+    
+  return total
   
   if not hit:
     return Color(0.0, 0.0, 0.0)
@@ -238,7 +258,6 @@ def Trace(ray, scene, roulette, n = 0):
   ray = Ray(point, direction)
   
   return hit.diffuse * (Trace(ray, scene, roulette, n + 1) + hit.emittance)
-
 
 
 def LoadArg(id, type, default):

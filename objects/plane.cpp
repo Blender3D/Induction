@@ -7,7 +7,7 @@ class Plane: public Object {
 
     float intersection(Ray ray) {
       float k, t;
-      Vector point;
+      Point point;
       Vector toPoint;
       
       k = ray.direction.dot(normal);
@@ -25,7 +25,7 @@ class Plane: public Object {
       return t;
     }
       
-    Vector getNormal(Vector position) {
+    Vector getNormal(Point position) {
       return normal;
     }
 };
