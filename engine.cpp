@@ -13,6 +13,8 @@
 #include "structures/viewplane.cpp"
 #include "structures/camera.cpp"
 
+#include "structures/image.cpp"
+
 #include "structures.cpp"
 
 #include "objects.cpp"
@@ -140,10 +142,11 @@ int main(int argc, char *argv[]) {
   objects.push_back(object);
   */
   
-  Camera camera = Camera(Point(0, -5.0, 0), Point(0, 0, -1), ViewPlane(1, 0.5, 0.5, 600));
+  Camera camera = Camera(Point(0, -4.995, 0), Point(0, 0, -1), ViewPlane(1, 0.5, 0.5, 600));
+  CellImage* image = new CellImage();
+  image->setSize(camera.viewplane.canvasWidth, camera.viewplane.canvasHeight);
   
   int samples = 0;
-  Color *image = new Color[(int)(camera.viewplane.canvasWidth * camera.viewplane.canvasHeight)];
   
   while (true) {
     samples++;
@@ -152,37 +155,15 @@ int main(int argc, char *argv[]) {
         
     for (float y = 0; y < camera.viewplane.canvasHeight; y++) {
       for (float x = 0; x < camera.viewplane.canvasWidth; x++) {
-        int sub = (int)(y * camera.viewplane.canvasWidth + x);
         Ray ray = camera.CastRay(camera.viewplane.canvasWidth  - x, camera.viewplane.canvasHeight - y);
-        image[sub] = image[sub] + Trace(ray, objects);
+        image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, objects));
       }
     }
     
     cout << "\r";
     
     if (samples % 10 == 0) {
-      ofstream handle;
-      handle.open("image.ppm");
-      
-      handle << "P3" << endl;
-      handle << camera.viewplane.canvasWidth;
-      handle << " ";
-      handle << camera.viewplane.canvasHeight;
-      handle << " ";
-      handle << "255" << endl << endl;
-      
-      for (int i = 0; i < camera.viewplane.canvasWidth * camera.viewplane.canvasHeight; i++) {
-        Color pixel = (image[i] / float(samples)).clamp();
-        
-        handle << (int)(pixel.r * 255.0);
-        handle << " ";
-        handle << (int)(pixel.g * 255.0);
-        handle << " ";
-        handle << (int)(pixel.b * 255.0); 
-        handle << " ";
-      }
-      
-      handle.close();
+      image->write("image.ppm", samples);
     }
   }
 }
