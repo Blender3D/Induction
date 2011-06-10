@@ -1,26 +1,55 @@
 #include <math.h>
 #include <stdlib.h>
-#include <vector>
+#include <stdio.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <cstdlib>
 
 using namespace std;
 
 class CellImage {
   public:
-    CellImage(std::size_t width, std::size_t height, const rgb_color& color)
-      : width_(width), height_(height)
-    {
-      pixels_ = new rgb_color[width_ * height_];
-      std::fill_n(pixels_, width_ * height_, color);
+    int width, height;
+    vector<Color> image;
+    
+    void setSize(int _width, int _height) {
+      width = _width;
+      height = _height;
+      
+      image.resize(width * height, Color(0, 0, 0));
     }
-    std::size_t width() const { return width_; }
-    std::size_t height() const { return height_; }
-    const rgb_color& operator()(std::size_t row, std::size_t col) const
-    {
-      return pixels_[(row * width_) + col];
+    
+    void setPixel(int x, int y, Color color) {
+      image[y * height + x] = color;
     }
-    rgb_color& operator()(std::size_t row, std::size_t col)
-    {
-      return pixels_[(row * width_) + col];
+    
+    Color getPixel(int x, int y) {
+      return image[y * height + x];
     }
-    bool write_ppm(std::ostream& os) const;
+    
+    void write(const char* filename, int samples) {
+      ofstream handle;
+      handle.open(filename);
+      
+      handle << "P3" << endl;
+      handle << width;
+      handle << " ";
+      handle << height;
+      handle << " ";
+      handle << "255" << endl << endl;
+      
+      for (int i = 0; i < width * height; i++) {
+        Color pixel = (image[i] / samples).clamp();
+        
+        handle << (int)(pixel.r * 255.0);
+        handle << " ";
+        handle << (int)(pixel.g * 255.0);
+        handle << " ";
+        handle << (int)(pixel.b * 255.0); 
+        handle << " ";
+      }
+      
+      handle.close();
+    }
 };
