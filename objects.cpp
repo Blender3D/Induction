@@ -3,10 +3,14 @@
 
 using namespace std;
 
+enum ReflectionType {
+  DIFFUSE, SPECULAR, GLASS
+};
+
 class Object {
   public:
-    Vector pos;
-    Vector diffuse;
+    Point pos;
+    Color diffuse;
     
     ReflectionType reflectionType;
     
@@ -15,14 +19,19 @@ class Object {
     float reflection;
     
     virtual float intersection(Ray ray) = 0;
-    virtual Vector getNormal(Vector position) = 0;
-    virtual Vector getDirection(Vector position, Vector direction) {
+    virtual Vector getNormal(Point position) = 0;
+    virtual Vector getDirection(Point position, Vector direction) {
       Vector tempNormal = this->getNormal(position);
+      Vector v2;
       
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          return RandomNormalInHemisphere(tempNormal);
+          do {
+            v2 = Vector(2.0 * random_uniform() - 1.0, 2.0 * random_uniform() - 1.0, 2.0 * random_uniform() - 1.0).norm();
+          } while (v2.abs() > 1.0);
+          
+          return v2 * (2 * (v2.dot(tempNormal) < 0.0) - 1);
           break;
         
         case SPECULAR:
@@ -57,35 +66,40 @@ class Object {
     }
 };
 
-Vector Trace(Ray &ray, vector<Object*> objects, int n = 0) {
-  int index = -1;
+Color Trace(Ray &ray, vector<Object*> objects) {
+  Color radiosity = Color(0, 0, 0);
+  Color diffuseProduct = Color(1, 1, 1);
+  int bounces = 1;
 
-  if (n > 25) {
-    return Vector(0.0, 0.0, 0.0);
-  }
-  
-  float result = 1000000.0;
-  
-  for (unsigned int i = 0; i < objects.size(); i++) {
-    Object *target = objects[i];
-    float test = target->intersection(ray);
+  while (bounces < 10) {
+    int index = -1;
+    float result = 1000000.0;
     
-    if ((test > 0.0) && (test < result)) {
-      result = test;
-      index = i;
+    for (unsigned int i = 0; i < objects.size(); i++) {
+      Object *target = objects[i];
+      float test = target->intersection(ray);
+      
+      if ((test > 0.0) && (test < result)) {
+        result = test;
+        index = i;
+      }
     }
-  }
-  
-  if (index == -1) {
-    return Vector(0.0, 0.0, 0.0);
-  }
-  
-  Object *hit = objects[index];
-  
-  Vector point = ray.position(result);
-  Vector direction = hit->getDirection(point, ray.direction);
+    
+    if (index == -1) {
+      break;
+    }
+    
+    Object *hit = objects[index];
+    
+    Point point = ray.position(result);
+    Vector direction = hit->getDirection(point, ray.direction);
 
-  Ray ray2 = Ray(point, direction);
-  
-  return hit->diffuse * Trace(ray2, objects, n + 1) + hit->emittance;
+    ray = Ray(point, direction);
+    
+    diffuseProduct = hit->diffuse * diffuseProduct;
+    radiosity = radiosity + diffuseProduct * hit->emittance;
+    bounces++;
+  }
+
+  return radiosity;
 }

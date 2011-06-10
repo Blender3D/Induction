@@ -3,7 +3,7 @@
 
 class Quadrilateral: public Object {
   public:
-    Vector point1, point2, point3, point4;
+    Point point1, point2, point3, point4;
     Vector normal;
 
     float intersection(Ray ray) {
@@ -70,7 +70,7 @@ class Quadrilateral: public Object {
       }
     }
       
-    Vector getNormal(Vector position) {
+    Vector getNormal(Point position) {
       return normal;
     }
 };
