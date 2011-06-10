@@ -12,12 +12,11 @@
 #include "structures/ray.cpp"
 #include "structures/viewplane.cpp"
 #include "structures/camera.cpp"
-
+#include "structures/random.cpp"
 #include "structures/image.cpp"
 
-#include "structures.cpp"
-
 #include "objects.cpp"
+#include "objects/triangle.cpp"
 #include "objects/quadrilateral.cpp"
 #include "objects/plane.cpp"
 #include "objects/sphere.cpp"
@@ -95,11 +94,11 @@ int main(int argc, char *argv[]) {
   */
   
   Sphere* sphere = new Sphere();
-  sphere->pos = Point(0, 0, -0.5);
+  sphere->pos = Point(0, -1, -0.5);
   sphere->radius = 0.5;
   sphere->diffuse = Color(1, 1, 1);
   sphere->reflectionType = GLASS;
-  sphere->IOR = 1.53;
+  sphere->IOR = 1.03;
   objects.push_back(sphere);
   
   Sphere* sphere2 = new Sphere();
