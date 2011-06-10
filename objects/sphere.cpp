@@ -6,16 +6,20 @@ class Sphere: public Object {
     float radius;
     
     float intersection(Ray ray) {
-      Vector distance;
-      float b, c, d;
-      
-      distance = ray.origin - pos;
-      b = distance.dot(ray.direction);
-      c = distance.dot(distance) - radius*radius;
-      d = b*b - c;
+      Vector distance = ray.origin - pos;
+      float b = distance.dot(ray.direction);
+      float c = distance.dot(distance) - radius*radius;
+      float d = b*b - c;
       
       if (d > 0.0) {
-        return -b - sqrt(d);
+        float solution1 = -b - sqrt(d);
+        float solution2 = -b + sqrt(d);
+        
+        if (solution1 > solution2) {
+          return solution2;
+        } else {
+          return solution1;
+        }
       } else {
         return false;
       }
