@@ -104,12 +104,18 @@ int main(int argc, char *argv[]) {
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
   
+  Sphere* sphere3 = new Sphere();
+  sphere3->pos = Point(-0.6, -0.6, -0.7);
+  sphere3->radius = 0.3;
+  sphere3->diffuse = Color(1, 1, 1);
+  scene.addObject(sphere3);
+  
   Camera camera = Camera();
   camera.pos = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(300);
+  camera.setPixelDensity(600);
   
   scene.setCamera(camera);
   
