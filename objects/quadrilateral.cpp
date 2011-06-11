@@ -1,7 +1,7 @@
 #include <cmath>
 #include <stdlib.h>
 
-class Quadrilateral: public Object {
+class Quadrilateral: public BaseObject {
   public:
     Point point1, point2, point3, point4;
     Vector normal;

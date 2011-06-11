@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-class Plane: public Object {
+class Plane: public BaseObject {
   public:
     Vector normal;
 
