@@ -1,5 +1,5 @@
 all:
-	g++ -Wall -O3 engine.cpp -o engine
+	g++ -Wall -O3 -march=native -fopenmp engine.cpp -o engine
 
 run: all
 	./engine

@@ -6,6 +6,8 @@
 #include <fstream>
 #include <cstdlib>
 
+#include <omp.h>
+
 #include "structures/vector.cpp"
 #include "structures/point.cpp"
 #include "structures/color.cpp"
@@ -104,12 +106,6 @@ int main(int argc, char *argv[]) {
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
   
-  Sphere* sphere3 = new Sphere();
-  sphere3->pos = Point(-0.6, -0.6, -0.7);
-  sphere3->radius = 0.3;
-  sphere3->diffuse = Color(1, 1, 1);
-  scene.addObject(sphere3);
-  
   Camera camera = Camera();
   camera.pos = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
@@ -123,23 +119,31 @@ int main(int argc, char *argv[]) {
   image->setSize(camera.canvasWidth, camera.canvasHeight);
   
   int samples = 0;
+  int threadID;
   
-  while (true) {
-    samples++;
-    cout << "Samples: [" << samples << "]";
-    cout.flush();
-        
-    for (float y = 0; y < scene.camera.canvasHeight; y++) {
-      for (float x = 0; x < scene.camera.canvasWidth; x++) {
-        Ray ray = scene.camera.CastRay(scene.camera.canvasWidth  - x, scene.camera.canvasHeight - y);
-        image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, scene.objects));
+  #pragma omp parallel private(threadID)
+  {
+    while (true) {
+      samples++;
+      threadID = omp_get_thread_num();
+      cout << "Samples: [" << samples << "] => Thread " << threadID << endl;
+      
+      for (float y = 0; y < scene.camera.canvasHeight; y++) {
+        for (float x = 0; x < scene.camera.canvasWidth; x++) {
+          Ray ray = scene.camera.CastRay(scene.camera.canvasWidth  - x, scene.camera.canvasHeight - y);
+          image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, scene.objects));
+        }
       }
-    }
-    
-    cout << "\r";
-    
-    if (samples % 10 == 0) {
-      image->write("image.ppm", samples);
+      #pragma omp barrier
+      #pragma omp master
+      {
+        if (samples % 10 == 0) {
+          cout << "There are " << omp_get_num_threads() << " threads." << endl;
+          cout << "Saving image." << endl;
+          
+          image->write("image.ppm", samples);
+        }
+      }
     }
   }
 }
