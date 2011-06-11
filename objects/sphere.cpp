@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-class Sphere: public Object {
+class Sphere: public BaseObject {
   public:
     float radius;
     

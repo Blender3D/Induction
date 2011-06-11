@@ -7,10 +7,11 @@ enum ReflectionType {
   DIFFUSE, SPECULAR, GLASS
 };
 
-class Object {
+class BaseObject {
   public:
     Point pos;
     Color diffuse;
+    const char* name;
     
     ReflectionType reflectionType;
     
@@ -66,7 +67,7 @@ class Object {
     }
 };
 
-Color Trace(Ray &ray, vector<Object*> objects) {
+Color Trace(Ray &ray, vector<BaseObject*> objects) {
   Color radiosity = Color(0, 0, 0);
   Color diffuseProduct = Color(1, 1, 1);
   int bounces = 1;
@@ -76,7 +77,7 @@ Color Trace(Ray &ray, vector<Object*> objects) {
     float result = 1000000.0;
     
     for (unsigned int i = 0; i < objects.size(); i++) {
-      Object *target = objects[i];
+      BaseObject *target = objects[i];
       float test = target->intersection(ray);
       
       if ((test > 0.0) && (test < result)) {
@@ -89,7 +90,7 @@ Color Trace(Ray &ray, vector<Object*> objects) {
       break;
     }
     
-    Object *hit = objects[index];
+    BaseObject *hit = objects[index];
     
     Point point = ray.position(result);
     Vector direction = hit->getDirection(point, ray.direction);

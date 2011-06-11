@@ -1,7 +1,7 @@
 #include <cmath>
 #include <stdlib.h>
 
-class Triangle: public Object {
+class Triangle: public BaseObject {
   public:
     Point point1, point2, point3, point4;
 
