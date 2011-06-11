@@ -13,6 +13,19 @@ class CellImage {
     int width, height;
     vector<Color> image;
     
+    CellImage* operator+ (CellImage other) {
+      CellImage* temp = new CellImage();
+      temp->setSize(width, height);
+      
+      for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+          temp->setPixel(x, y, getPixel(x, y) + other.getPixel(x, y));
+        }
+      }
+      
+      return temp;
+    }
+    
     void setSize(int _width, int _height) {
       width = _width;
       height = _height;
