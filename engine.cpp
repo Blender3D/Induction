@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
   top->point3 = Point(1, -1, 1);
   top->point4 = Point(-1, -1, 1);
   top->normal = Vector(0, 0, 1);
-  top->emittance = 2;
   top->diffuse = Color(0.75, 0.75, 0.75);
   scene.addObject(top);
   
@@ -80,48 +79,37 @@ int main(int argc, char *argv[]) {
   right->diffuse = Color(0.25, 0.25, 0.75);
   scene.addObject(right);
   
-  Sphere* sphere = new Sphere();
-  sphere->pos = Point(0, -1, -0.5);
-  sphere->radius = 0.5;
-  sphere->diffuse = Color(1, 1, 1);
-  sphere->reflectionType = GLASS;
-  sphere->IOR = 1.03;
-  scene.addObject(sphere);
+  Quadrilateral* light = new Quadrilateral();
+  light->point1 = Point(-0.2, -0.2, 0.999999);
+  light->point2 = Point(0.2, -0.2, 0.999999);
+  light->point3 = Point(0.2, 0.2, 0.999999);
+  light->point4 = Point(-0.2, 0.2, 0.999999);
+  light->normal = Vector(0, 0, 1);
+  light->diffuse = Color(1, 0.85, 0.43);
+  light->emittance = 30;
+  scene.addObject(light);
+  
+  Sphere* sphere1 = new Sphere();
+  sphere1->pos = Point(-0.3, -0.3, -0.7);
+  sphere1->radius = 0.3;
+  sphere1->diffuse = Color(1, 1, 1);
+  sphere1->reflectionType = GLASS;
+  sphere1->IOR = 1.53;
+  scene.addObject(sphere1);
   
   Sphere* sphere2 = new Sphere();
-  sphere2->pos = Point(-0.7, 0, -0.9);
+  sphere2->pos = Point(0.3, 0.3, -0.7);
   sphere2->radius = 0.3;
-  sphere2->diffuse = Color(0.5, 0.5, 0.5);
+  sphere2->diffuse = Color(1, 1, 1);
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
-  
-  Sphere* sphere3 = new Sphere();
-  sphere3->pos = Point(0.7, 0, -0.8);
-  sphere3->radius = 0.2;
-  sphere3->diffuse = Color(0.3, 0.3, 0.3);
-  sphere3->reflectionType = SPECULAR;
-  scene.addObject(sphere3);
-  
-  Sphere* sphere4 = new Sphere();
-  sphere4->pos = Point(0, 0, 0.1);
-  sphere4->radius = 0.1;
-  sphere4->diffuse = Color(0.5, 0.5, 0.5);
-  sphere4->reflectionType = SPECULAR;
-  scene.addObject(sphere4);
-  
-  Sphere* sphere5 = new Sphere();
-  sphere5->pos = Point(0.3, -0.7, -0.85);
-  sphere5->radius = 0.15;
-  sphere5->diffuse = Color(1, 1, 1);
-  sphere5->emittance = 2;
-  scene.addObject(sphere5);
   
   Camera camera = Camera();
   camera.pos = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(600);
+  camera.setPixelDensity(300);
   
   scene.setCamera(camera);
   
