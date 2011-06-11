@@ -24,6 +24,7 @@
 
 #include "structures/scene.cpp"
 
+#include "structures/trace.cpp"
 #include "loaders/obj.cpp"
 
 using namespace std;
@@ -88,7 +89,7 @@ int main(int argc, char *argv[]) {
   light->point4 = Point(-0.2, 0.2, 0.999999);
   light->normal = Vector(0, 0, 1);
   light->diffuse = Color(1, 0.85, 0.43);
-  light->emittance = 30;
+  light->emittance = 50;
   scene.addObject(light);
   
   Sphere* sphere1 = new Sphere();
@@ -106,12 +107,18 @@ int main(int argc, char *argv[]) {
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
   
+  Sphere* sphere3 = new Sphere();
+  sphere3->pos = Point(0.3, 0.3, 0.3);
+  sphere3->radius = 0.3;
+  sphere3->diffuse = Color(1, 1, 1);
+  scene.addObject(sphere3);
+  
   Camera camera = Camera();
   camera.pos = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(600);
+  camera.setPixelDensity(300);
   
   scene.setCamera(camera);
   
@@ -119,31 +126,31 @@ int main(int argc, char *argv[]) {
   image->setSize(camera.canvasWidth, camera.canvasHeight);
   
   int samples = 0;
-  int threadID;
   
-  #pragma omp parallel private(threadID)
+  #pragma omp parallel
   {
     while (true) {
       samples++;
-      threadID = omp_get_thread_num();
             
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
-          Ray ray = scene.camera.CastRay(scene.camera.canvasWidth  - x, scene.camera.canvasHeight - y);
+          Ray ray = scene.camera.CastRay(scene.camera.canvasWidth - x + random_uniform() - 0.5, scene.camera.canvasHeight - y + random_uniform() - 0.5);
           image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, scene.objects));
         }
+      }
+      
+      cout << "Samples: [" << samples << "]";
+      cout.flush();
+      cout << "\r";
+      
+      if (samples % 10 == 0) {
+        image->write("image.ppm", samples);
       }
       
       #pragma omp barrier
       #pragma omp master
       {
-        cout << "Samples: [" << samples << "]";
-        cout.flush();
-        cout << "\r";
-        
-        if (samples % 10 == 0) {
-          image->write("image.ppm", samples);
-        }
+        // Core thread only.
       }
     }
   }
