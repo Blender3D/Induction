@@ -126,21 +126,22 @@ int main(int argc, char *argv[]) {
     while (true) {
       samples++;
       threadID = omp_get_thread_num();
-      cout << "Samples: [" << samples << "] => Thread " << threadID << endl;
-      
+            
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Ray ray = scene.camera.CastRay(scene.camera.canvasWidth  - x, scene.camera.canvasHeight - y);
           image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, scene.objects));
         }
       }
+      
       #pragma omp barrier
       #pragma omp master
       {
+        cout << "Samples: [" << samples << "]";
+        cout.flush();
+        cout << "\r";
+        
         if (samples % 10 == 0) {
-          cout << "There are " << omp_get_num_threads() << " threads." << endl;
-          cout << "Saving image." << endl;
-          
           image->write("image.ppm", samples);
         }
       }
