@@ -9,7 +9,7 @@ enum ReflectionType {
 
 class BaseObject {
   public:
-    Point pos;
+    Point position;
     Color diffuse;
     const char* name;
     
@@ -20,19 +20,15 @@ class BaseObject {
     float reflection;
     
     virtual float intersection(Ray ray) = 0;
-    virtual Vector getNormal(Point position) = 0;
-    virtual Vector getDirection(Point position, Vector direction) {
-      Vector tempNormal = this->getNormal(position);
+    virtual Vector getNormal(Point positionition) = 0;
+    virtual Vector getdirection(Point positionition, Vector direction) {
+      Vector tempNormal = this->getNormal(positionition);
       Vector v2;
       
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          do {
-            v2 = Vector(2.0 * random_uniform() - 1.0, 2.0 * random_uniform() - 1.0, 2.0 * random_uniform() - 1.0).norm();
-          } while (v2.abs() > 1.0);
-          
-          return v2 * (2 * (v2.dot(tempNormal) < 0.0) - 1);
+          return random_vector(tempNormal);
           break;
         
         case SPECULAR:

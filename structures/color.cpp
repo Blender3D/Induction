@@ -38,6 +38,10 @@ struct Color {
     return *this * (1.0 / other);
   }
   
+  bool operator==(Color other) {
+    return ((other.r == r) && (other.g == g) && (other.b == b));
+  }
+  
   Color norm() {
     return *this * (1.0 / sqrt(r*r + g*g + b*b));
   }
