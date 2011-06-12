@@ -21,4 +21,8 @@ struct Point {
   Vector operator-(const Point &other) const {
     return Vector(x - other.x, y - other.y, z - other.z);
   }
+  
+  bool operator==(Point other) {
+    return ((other.x == x) && (other.y == y) && (other.z == z));
+  }
 };

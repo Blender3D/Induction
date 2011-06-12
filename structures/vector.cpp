@@ -38,6 +38,10 @@ struct Vector {
     return *this * (1.0 / other);
   }
   
+  bool operator==(Vector other) {
+    return ((other.x == x) && (other.y == y) && (other.z == z));
+  }
+  
   Vector norm() {
     return *this * (1.0 / sqrt(x*x + y*y + z*z));
   }

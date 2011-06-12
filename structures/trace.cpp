@@ -1,13 +1,13 @@
 #include <cmath>
 #include <stdlib.h>
 
-void GetIntersection(Ray &ray, vector<BaseObject*> objects, float &_result, BaseObject* &_hit) {
+void GetIntersection(Ray &ray, Scene scene, float &_result, BaseObject* &_hit) {
   int index = -1;
   float result = 1000000.0;
   unsigned int i;  
   
-  for (i = 0; i < objects.size(); i++) {
-    BaseObject *target = objects[i];
+  for (i = 0; i < scene.objects.size(); i++) {
+    BaseObject *target = scene.objects[i];
     float test = target->intersection(ray);
     
     if ((test > 0.0) && (test < result)) {
@@ -17,10 +17,10 @@ void GetIntersection(Ray &ray, vector<BaseObject*> objects, float &_result, Base
   }
   
   _result = (index == -1) ? -1 : result;
-  _hit = objects[index];
+  _hit = scene.objects[index];
 }
 
-Color Trace(Ray &ray, vector<BaseObject*> objects) {
+Color Trace(Ray &ray, Scene scene) {
   Color radiosity = Color(0, 0, 0);
   Color diffuseProduct = Color(1, 1, 1);
   float result;
@@ -28,14 +28,14 @@ Color Trace(Ray &ray, vector<BaseObject*> objects) {
   
   
   while (true) {
-    GetIntersection(ray, objects, result, hit);
+    GetIntersection(ray, scene, result, hit);
     
     if (result == -1) {
       break;
     }
     
     Point point = ray.position(result);
-    Vector direction = hit->getDirection(point, ray.direction);
+    Vector direction = hit->getdirection(point, ray.direction);
 
     ray = Ray(point, direction);
     
@@ -46,52 +46,90 @@ Color Trace(Ray &ray, vector<BaseObject*> objects) {
   return radiosity;
 }
 
-Color RecursiveTrace(Ray &ray, vector<BaseObject*> objects) {
+Color RecursiveTrace(Ray &ray, Scene scene) {
   float result;
   BaseObject* hit;
   
-  GetIntersection(ray, objects, result, hit);
+  GetIntersection(ray, scene, result, hit);
   
   if (result == -1) {
     return Color(0, 0, 0);
   }
   
   Point point = ray.position(result);
-  Vector direction = hit->getDirection(point, ray.direction);
+  Vector direction = hit->getdirection(point, ray.direction);
   
   ray = Ray(point, direction);
   
-  return hit->diffuse * (RecursiveTrace(ray, objects) + hit->emittance);
+  return hit->diffuse * (RecursiveTrace(ray, scene) + hit->emittance);
 }
 
 float ShadowRay(BaseObject* object1, BaseObject* object2) {
-  return object2->intersection(Ray(object1->pos, object1->pos - object2->pos));
+  return object2->intersection(Ray(object1->position, object1->position - object2->position));
 }
 
-Color LightTrace(BaseObject* light, vector<BaseObject*> objects) {
-  int index = -1;
-  float result = 1000000.0;
+/*
+
+Color LightPath(BaseObject light, Scene scene) {
+  float result;
+  BaseObject* hit;
   
-  for (unsigned int i = 0; i < objects.size(); i++) {
-    BaseObject *target = objects[i];
-    float test = target->intersection(ray);
-    
-    if ((test > 0.0) && (test < result)) {
-      result = test;
-      index = i;
+  Ray ray = Ray(light->position, random_vector());
+  
+  
+  GetIntersection(ray, scene, result, hit);
+  
+  Point point = ray.position(result);
+  Vector direction = hit->getdirection(point, ray.direction);
+  
+  ray = Ray(point, direction);
+  
+  return hit->diffuse * (LightTrace(ray, scene.objects) + hit->emittance);
+}
+
+vector<Point*> BidirectionalTrace(Ray ray, Scene scene) {
+  Color radiosity = Color(0, 0, 0);
+  Color diffuseProduct = Color(1, 1, 1);
+  float result;
+  BaseObject* hit;
+  
+  vector<Point*> cameraPath;
+  
+  //
+  // Get path of rays from the camera.
+  //
+  
+  vector<BaseObject*> lights;
+  
+  for (int i = 0; i < scene.objects.size(); i++) {
+    if (scene.objects[i]->emittance > 0) {
+      lights.push_back(scene.objects[i]);
     }
   }
   
-  if (index == -1) {
-    return false;
-  }
+  BaseObject* light = lights[(int)((rand() / MAX_RAND) * lights.size())];
+  Ray ray = random_vector();
   
-  BaseObject *hit = objects[index];
+  //
+  // Get path of rays from a random light.
+  //
   
-  Point point = ray.position(result);
-  Vector direction = hit->getDirection(point, ray.direction);
+  while (true) {
+    GetIntersection(ray, scene, result, hit);
+    
+    if (result == -1) {
+      break;
+    }
+    
+    Point point = ray.position(result);
+    Vector direction = hit->getdirection(point, ray.direction);
 
-  ray = Ray(point, direction);
-  
-  return hit->diffuse * (RecursiveTrace(objects, ray) + hit->emittance);
+    ray = Ray(point, direction);
+    
+    diffuseProduct = hit->diffuse * diffuseProduct;
+    radiosity = radiosity + diffuseProduct * hit->emittance;
+  }
+
+  return radiosity;
 }
+*/

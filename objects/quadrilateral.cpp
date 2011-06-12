@@ -70,7 +70,7 @@ class Quadrilateral: public BaseObject {
       }
     }
       
-    Vector getNormal(Point position) {
+    Vector getNormal(Point positionition) {
       return normal;
     }
 };

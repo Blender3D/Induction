@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
   top->point4 = Point(-1, -1, 1);
   top->normal = Vector(0, 0, 1);
   top->diffuse = Color(0.75, 0.75, 0.75);
+  top->emittance = 2;
   scene.addObject(top);
   
   Quadrilateral* back = new Quadrilateral();
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
   right->normal = Vector(1, 0, 0);
   right->diffuse = Color(0.25, 0.25, 0.75);
   scene.addObject(right);
-  
+  /*
   Quadrilateral* light = new Quadrilateral();
   light->point1 = Point(-0.2, -0.2, 0.999999);
   light->point2 = Point(0.2, -0.2, 0.999999);
@@ -93,7 +94,7 @@ int main(int argc, char *argv[]) {
   scene.addObject(light);
   
   Sphere* sphere1 = new Sphere();
-  sphere1->pos = Point(-0.3, -0.3, -0.7);
+  sphere1->position = Point(-0.3, -0.3, -0.7);
   sphere1->radius = 0.3;
   sphere1->diffuse = Color(1, 1, 1);
   sphere1->reflectionType = GLASS;
@@ -101,20 +102,20 @@ int main(int argc, char *argv[]) {
   scene.addObject(sphere1);
   
   Sphere* sphere2 = new Sphere();
-  sphere2->pos = Point(0.3, 0.3, -0.7);
+  sphere2->position = Point(0.3, 0.3, -0.7);
   sphere2->radius = 0.3;
   sphere2->diffuse = Color(1, 1, 1);
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
-  
+  */
   Sphere* sphere3 = new Sphere();
-  sphere3->pos = Point(0.3, 0.3, 0.3);
+  sphere3->position = Point(0.3, 0.3, 0.3);
   sphere3->radius = 0.3;
   sphere3->diffuse = Color(1, 1, 1);
   scene.addObject(sphere3);
   
   Camera camera = Camera();
-  camera.pos = Point(0, -4.995, 0);
+  camera.position = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
@@ -131,11 +132,11 @@ int main(int argc, char *argv[]) {
   {
     while (true) {
       samples++;
-            
+      
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Ray ray = scene.camera.CastRay(scene.camera.canvasWidth - x + random_uniform() - 0.5, scene.camera.canvasHeight - y + random_uniform() - 0.5);
-          image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, scene.objects));
+          image->setPixel(x, y, image->getPixel(x, y) + Trace(ray, scene));
         }
       }
       

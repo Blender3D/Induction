@@ -6,7 +6,7 @@ class Sphere: public BaseObject {
     float radius;
     
     float intersection(Ray ray) {
-      Vector distance = ray.origin - pos;
+      Vector distance = ray.origin - position;
       float b = distance.dot(ray.direction);
       float c = distance.dot(distance) - radius*radius;
       float d = b*b - c;
@@ -25,7 +25,7 @@ class Sphere: public BaseObject {
       }
     }
 
-    Vector getNormal(Point position) {
-      return (position - pos).norm();
+    Vector getNormal(Point positionition) {
+      return (positionition - position).norm();
     }
 };

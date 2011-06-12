@@ -17,4 +17,8 @@ struct Ray {
   Point position(float &time) {
     return origin + direction * time;
   }
+  
+  bool operator==(Ray &other) {
+    return ((other.origin == origin) && (other.direction == direction));
+  }
 };

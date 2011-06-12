@@ -28,7 +28,7 @@ class Object: BaseObject {
       return result;
     }
     
-    virtual Vector getNormal(Point position) {
+    virtual Vector getNormal(Point positionition) {
       int index = -1;
       float result = 1000000.0;
       
@@ -49,8 +49,8 @@ class Object: BaseObject {
       return result;
     }
     
-    virtual Vector getDirection(Point position, Vector direction) {
-      Vector tempNormal = this->getNormal(position);
+    virtual Vector getdirection(Point positionition, Vector direction) {
+      Vector tempNormal = this->getNormal(positionition);
       Vector v2;
       
       switch (reflectionType) {

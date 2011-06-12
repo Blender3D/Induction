@@ -7,8 +7,8 @@ using namespace std;
 
 class Camera {
   public:
-    Point pos;
-    Vector dir;
+    Point position;
+    Vector direction;
     float cX, cY;
     float pixelDensity, offset, width, height;
     int canvasWidth, canvasHeight;
@@ -27,10 +27,10 @@ class Camera {
     }
     
     void setFocus(Point focus) {
-      dir = (pos - focus).norm();
+      direction = (position - focus).norm();
     }
     
     Ray CastRay(float x, float y) {
-      return Ray(pos, Vector(x * cX - width / 2.0, 1.0, y * cY - height / 2.0));
+      return Ray(position, Vector(x * cX - width / 2.0, 1.0, y * cY - height / 2.0));
     }
 };

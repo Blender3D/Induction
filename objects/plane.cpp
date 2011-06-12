@@ -13,7 +13,7 @@ class Plane: public BaseObject {
       k = ray.direction.dot(normal);
 
       if (k != 0.0) {
-        t = (pos - ray.origin).dot(normal) / k;
+        t = (position - ray.origin).dot(normal) / k;
       } else {
         return false;
       }
@@ -25,7 +25,7 @@ class Plane: public BaseObject {
       return t;
     }
       
-    Vector getNormal(Point position) {
+    Vector getNormal(Point positionition) {
       return normal;
     }
 };
