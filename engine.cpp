@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
   top->point4 = Point(-1, -1, 1);
   top->normal = Vector(0, 0, 1);
   top->diffuse = Color(0.75, 0.75, 0.75);
-  top->emittance = 2;
   scene.addObject(top);
   
   Quadrilateral* back = new Quadrilateral();
@@ -82,7 +81,7 @@ int main(int argc, char *argv[]) {
   right->normal = Vector(1, 0, 0);
   right->diffuse = Color(0.25, 0.25, 0.75);
   scene.addObject(right);
-  /*
+  
   Quadrilateral* light = new Quadrilateral();
   light->point1 = Point(-0.2, -0.2, 0.999999);
   light->point2 = Point(0.2, -0.2, 0.999999);
@@ -92,7 +91,7 @@ int main(int argc, char *argv[]) {
   light->diffuse = Color(1, 0.85, 0.43);
   light->emittance = 50;
   scene.addObject(light);
-  
+  /*
   Sphere* sphere1 = new Sphere();
   sphere1->position = Point(-0.3, -0.3, -0.7);
   sphere1->radius = 0.3;
@@ -107,12 +106,28 @@ int main(int argc, char *argv[]) {
   sphere2->diffuse = Color(1, 1, 1);
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
-  */
+  
   Sphere* sphere3 = new Sphere();
   sphere3->position = Point(0.3, 0.3, 0.3);
   sphere3->radius = 0.3;
   sphere3->diffuse = Color(1, 1, 1);
   scene.addObject(sphere3);
+  */
+  
+  Sphere* sphere1 = new Sphere();
+  sphere1->position = Point(-0.5, 0, -0.5);
+  sphere1->radius = 0.5;
+  sphere1->diffuse = Color(1, 1, 1);
+  sphere1->reflectionType = GLASS;
+  sphere1->IOR = 1.53;
+  scene.addObject(sphere1);
+  
+  Sphere* sphere2 = new Sphere();
+  sphere2->position = Point(0.5, 0.5, -0.5);
+  sphere2->radius = 0.5;
+  sphere2->diffuse = Color(1, 1, 1);
+  sphere2->reflectionType = SPECULAR;
+  scene.addObject(sphere2);
   
   Camera camera = Camera();
   camera.position = Point(0, -4.995, 0);

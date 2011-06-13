@@ -25,7 +25,7 @@ class Plane: public BaseObject {
       return t;
     }
       
-    Vector getNormal(Point positionition) {
+    Vector getNormal(Point _position) {
       return normal;
     }
 };

@@ -25,7 +25,7 @@ class Sphere: public BaseObject {
       }
     }
 
-    Vector getNormal(Point positionition) {
-      return (positionition - position).norm();
+    Vector getNormal(Point _position) {
+      return (position - _position).norm();
     }
 };
