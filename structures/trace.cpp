@@ -25,9 +25,9 @@ Color Trace(Ray &ray, Scene scene) {
   Color diffuseProduct = Color(1, 1, 1);
   float result;
   BaseObject* hit;
+  int bounces = 1;
   
-  
-  while (true) {
+  while (bounces < 20) {
     GetIntersection(ray, scene, result, hit);
     
     if (result == -1) {
@@ -35,18 +35,19 @@ Color Trace(Ray &ray, Scene scene) {
     }
     
     Point point = ray.position(result);
-    Vector direction = hit->getdirection(point, ray.direction);
+    Vector direction = hit->getDirection(point, ray.direction);
 
     ray = Ray(point, direction);
     
     diffuseProduct = hit->diffuse * diffuseProduct;
     radiosity = radiosity + diffuseProduct * hit->emittance;
+    bounces++;
   }
 
   return radiosity;
 }
 
-Color RecursiveTrace(Ray &ray, Scene scene) {
+Color RecursiveTrace(Ray ray, Scene scene) {
   float result;
   BaseObject* hit;
   
@@ -54,14 +55,14 @@ Color RecursiveTrace(Ray &ray, Scene scene) {
   
   if (result == -1) {
     return Color(0, 0, 0);
+  } else if (hit->emittance > 0) {
+    return hit->diffuse * hit->emittance;
   }
   
   Point point = ray.position(result);
-  Vector direction = hit->getdirection(point, ray.direction);
+  Vector direction = hit->getDirection(point, ray.direction);
   
-  ray = Ray(point, direction);
-  
-  return hit->diffuse * (RecursiveTrace(ray, scene) + hit->emittance);
+  return hit->diffuse * RecursiveTrace(Ray(point, direction), scene);
 }
 
 float ShadowRay(BaseObject* object1, BaseObject* object2) {

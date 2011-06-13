@@ -20,9 +20,9 @@ class BaseObject {
     float reflection;
     
     virtual float intersection(Ray ray) = 0;
-    virtual Vector getNormal(Point positionition) = 0;
-    virtual Vector getdirection(Point positionition, Vector direction) {
-      Vector tempNormal = this->getNormal(positionition);
+    virtual Vector getNormal(Point position) = 0;
+    virtual Vector getDirection(Point position, Vector direction) {
+      Vector tempNormal = this->getNormal(position);
       Vector v2;
       
       switch (reflectionType) {

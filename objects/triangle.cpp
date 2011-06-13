@@ -49,7 +49,7 @@ class Triangle: public BaseObject {
       return t;
     }
       
-    Vector getNormal(Point positionition) {
+    Vector getNormal(Point _position) {
       return (point2 - point1).cross(point3 - point2);
     }
 };
