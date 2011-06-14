@@ -19,8 +19,8 @@ void GetIntersection(Ray &ray, Scene scene, float &_result, BaseObject* &_hit) {
   _result = (index == -1) ? -1 : result;
   _hit = scene.objects[index];
 }
-
-Color Trace(Ray &ray, Scene scene) {
+/*
+Color LoopTrace(Ray &ray, Scene scene) {
   Color radiosity = Color(0, 0, 0);
   Color diffuseProduct = Color(1, 1, 1);
   float result;
@@ -35,7 +35,7 @@ Color Trace(Ray &ray, Scene scene) {
     }
     
     Point point = ray.position(result);
-    Vector direction = hit->getDirection(point, ray.direction);
+    Vector direction = hit->BRDF(point, ray.direction);
 
     ray = Ray(point, direction);
     
@@ -46,10 +46,15 @@ Color Trace(Ray &ray, Scene scene) {
 
   return radiosity;
 }
+*/
 
-Color RecursiveTrace(Ray ray, Scene scene) {
+Color Trace(Ray ray, Scene scene, int depth = 0) {
   float result;
   BaseObject* hit;
+  
+  if (depth > 20) {
+    return Color(0, 0, 0);
+  }
   
   GetIntersection(ray, scene, result, hit);
   
@@ -60,9 +65,13 @@ Color RecursiveTrace(Ray ray, Scene scene) {
   }
   
   Point point = ray.position(result);
-  Vector direction = hit->getDirection(point, ray.direction);
+  Vector normal = hit->getNormal(point);
+  Vector direction = hit->getDirection(ray.direction, point);
+  Ray newRay = Ray(point, direction);
   
-  return hit->diffuse * RecursiveTrace(Ray(point, direction), scene);
+  float cos_omega = newRay.direction.dot(normal);
+  
+  return hit->diffuse * hit->emittance + hit->BRDF(ray.direction, newRay.direction, point) * cos_omega * Trace(newRay, scene, depth + 1);
 }
 
 float ShadowRay(BaseObject* object1, BaseObject* object2) {
@@ -81,7 +90,7 @@ Color LightPath(BaseObject light, Scene scene) {
   GetIntersection(ray, scene, result, hit);
   
   Point point = ray.position(result);
-  Vector direction = hit->getdirection(point, ray.direction);
+  Vector direction = hit->BRDF(point, ray.direction);
   
   ray = Ray(point, direction);
   
@@ -123,7 +132,7 @@ vector<Point*> BidirectionalTrace(Ray ray, Scene scene) {
     }
     
     Point point = ray.position(result);
-    Vector direction = hit->getdirection(point, ray.direction);
+    Vector direction = hit->BRDF(point, ray.direction);
 
     ray = Ray(point, direction);
     

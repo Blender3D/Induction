@@ -7,6 +7,7 @@
 #include <cstdlib>
 
 #include <omp.h>
+#include <GL/glut.h>
 
 #include "structures/vector.cpp"
 #include "structures/point.cpp"
@@ -29,92 +30,70 @@
 
 using namespace std;
 
-int main(int argc, char *argv[]) {
-  srand(time(NULL));
+Scene scene = Scene();
+Quadrilateral* topPlane = new Quadrilateral();
+Quadrilateral* backPlane = new Quadrilateral();
+Quadrilateral* bottomPlane = new Quadrilateral();
+Quadrilateral* leftPlane = new Quadrilateral();
+Quadrilateral* rightPlane = new Quadrilateral();
+Quadrilateral* lightPlane = new Quadrilateral();
+
+Sphere* sphere1 = new Sphere();
+Sphere* sphere2 = new Sphere();
+
+Camera camera = Camera();
+CellImage* image = new CellImage();
+
+void InitScene() {
+  topPlane->point1 = Point(-1, 1, 1);
+  topPlane->point2 = Point(1, 1, 1);
+  topPlane->point3 = Point(1, -1, 1);
+  topPlane->point4 = Point(-1, -1, 1);
+  topPlane->normal = Vector(0, 0, 1);
+  topPlane->diffuse = Color(0.75, 0.75, 0.75);
+  scene.addObject(topPlane);
   
-  ObjLoader loader = ObjLoader();
-  loader.load("scene.obj");
+  backPlane->point1 = Point(-1, 1, -1);
+  backPlane->point2 = Point(1, 1, -1);
+  backPlane->point3 = Point(1, 1, 1);
+  backPlane->point4 = Point(-1, 1, 1);
+  backPlane->normal = Vector(0, 1, 0);
+  backPlane->diffuse = Color(0.75, 0.75, 0.75);
+  scene.addObject(backPlane);
   
-  Scene scene = Scene();
+  bottomPlane->point1 = Point(-1, -1, -1);
+  bottomPlane->point2 = Point(1, -1, -1);
+  bottomPlane->point3 = Point(1, 1, -1);
+  bottomPlane->point4 = Point(-1, 1, -1);
+  bottomPlane->normal = Vector(0, 0, -1);
+  bottomPlane->diffuse = Color(0.75, 0.75, 0.75);
+  scene.addObject(bottomPlane);
   
-  Quadrilateral* top = new Quadrilateral();
-  top->point1 = Point(-1, 1, 1);
-  top->point2 = Point(1, 1, 1);
-  top->point3 = Point(1, -1, 1);
-  top->point4 = Point(-1, -1, 1);
-  top->normal = Vector(0, 0, 1);
-  top->diffuse = Color(0.75, 0.75, 0.75);
-  scene.addObject(top);
+  leftPlane->point1 = Point(-1, -1, 1);
+  leftPlane->point2 = Point(-1, 1, 1);
+  leftPlane->point3 = Point(-1, 1, -1);
+  leftPlane->point4 = Point(-1, -1, -1);
+  leftPlane->normal = Vector(-1, 0, 0);
+  leftPlane->diffuse = Color(0.75, 0.25, 0.25);
+  scene.addObject(leftPlane);
   
-  Quadrilateral* back = new Quadrilateral();
-  back->point1 = Point(-1, 1, -1);
-  back->point2 = Point(1, 1, -1);
-  back->point3 = Point(1, 1, 1);
-  back->point4 = Point(-1, 1, 1);
-  back->normal = Vector(0, 1, 0);
-  back->diffuse = Color(0.75, 0.75, 0.75);
-  scene.addObject(back);
+  rightPlane->point1 = Point(1, -1, 1);
+  rightPlane->point2 = Point(1, 1, 1);
+  rightPlane->point3 = Point(1, 1, -1);
+  rightPlane->point4 = Point(1, -1, -1);
+  rightPlane->normal = Vector(1, 0, 0);
+  rightPlane->diffuse = Color(0.25, 0.25, 0.75);
+  scene.addObject(rightPlane);
   
-  Quadrilateral* bottom = new Quadrilateral();
-  bottom->point1 = Point(-1, -1, -1);
-  bottom->point2 = Point(1, -1, -1);
-  bottom->point3 = Point(1, 1, -1);
-  bottom->point4 = Point(-1, 1, -1);
-  bottom->normal = Vector(0, 0, -1);
-  bottom->diffuse = Color(0.75, 0.75, 0.75);
-  scene.addObject(bottom);
+  lightPlane->point1 = Point(-0.2, -0.2, 0.999999);
+  lightPlane->point2 = Point(0.2, -0.2, 0.999999);
+  lightPlane->point3 = Point(0.2, 0.2, 0.999999);
+  lightPlane->point4 = Point(-0.2, 0.2, 0.999999);
+  lightPlane->normal = Vector(0, 0, 1);
+  lightPlane->diffuse = Color(1, 0.85, 0.43);
+  lightPlane->emittance = 100;
+  scene.addObject(lightPlane);
   
-  Quadrilateral* left = new Quadrilateral();
-  left->point1 = Point(-1, -1, 1);
-  left->point2 = Point(-1, 1, 1);
-  left->point3 = Point(-1, 1, -1);
-  left->point4 = Point(-1, -1, -1);
-  left->normal = Vector(-1, 0, 0);
-  left->diffuse = Color(0.75, 0.25, 0.25);
-  scene.addObject(left);
-  
-  Quadrilateral* right = new Quadrilateral();
-  right->point1 = Point(1, -1, 1);
-  right->point2 = Point(1, 1, 1);
-  right->point3 = Point(1, 1, -1);
-  right->point4 = Point(1, -1, -1);
-  right->normal = Vector(1, 0, 0);
-  right->diffuse = Color(0.25, 0.25, 0.75);
-  scene.addObject(right);
-  
-  Quadrilateral* light = new Quadrilateral();
-  light->point1 = Point(-0.2, -0.2, 0.999999);
-  light->point2 = Point(0.2, -0.2, 0.999999);
-  light->point3 = Point(0.2, 0.2, 0.999999);
-  light->point4 = Point(-0.2, 0.2, 0.999999);
-  light->normal = Vector(0, 0, 1);
-  light->diffuse = Color(1, 0.85, 0.43);
-  light->emittance = 50;
-  scene.addObject(light);
-  /*
-  Sphere* sphere1 = new Sphere();
-  sphere1->position = Point(-0.3, -0.3, -0.7);
-  sphere1->radius = 0.3;
-  sphere1->diffuse = Color(1, 1, 1);
-  sphere1->reflectionType = GLASS;
-  sphere1->IOR = 1.53;
-  scene.addObject(sphere1);
-  
-  Sphere* sphere2 = new Sphere();
-  sphere2->position = Point(0.3, 0.3, -0.7);
-  sphere2->radius = 0.3;
-  sphere2->diffuse = Color(1, 1, 1);
-  sphere2->reflectionType = SPECULAR;
-  scene.addObject(sphere2);
-  
-  Sphere* sphere3 = new Sphere();
-  sphere3->position = Point(0.3, 0.3, 0.3);
-  sphere3->radius = 0.3;
-  sphere3->diffuse = Color(1, 1, 1);
-  scene.addObject(sphere3);
-  */
-  
-  Sphere* sphere1 = new Sphere();
   sphere1->position = Point(-0.5, 0, -0.5);
   sphere1->radius = 0.5;
   sphere1->diffuse = Color(1, 1, 1);
@@ -122,14 +101,12 @@ int main(int argc, char *argv[]) {
   sphere1->IOR = 1.53;
   scene.addObject(sphere1);
   
-  Sphere* sphere2 = new Sphere();
   sphere2->position = Point(0.5, 0.5, -0.5);
   sphere2->radius = 0.5;
   sphere2->diffuse = Color(1, 1, 1);
   sphere2->reflectionType = SPECULAR;
   scene.addObject(sphere2);
   
-  Camera camera = Camera();
   camera.position = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
@@ -138,14 +115,15 @@ int main(int argc, char *argv[]) {
   
   scene.setCamera(camera);
   
-  CellImage* image = new CellImage();
   image->setSize(camera.canvasWidth, camera.canvasHeight);
-  
+}
+
+void Render() {  
   int samples = 0;
   
   #pragma omp parallel
   {
-    while (true) {
+    while (samples < 50) {
       samples++;
       
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
@@ -159,6 +137,18 @@ int main(int argc, char *argv[]) {
       cout.flush();
       cout << "\r";
       
+      for (float y = 0; y < scene.camera.canvasHeight; y++) {
+        for (float x = 0; x < scene.camera.canvasWidth; x++) {
+          glBegin(GL_POINTS);
+            Color pixel = (image->getPixel(x, y) / samples).clamp();
+            glColor3f(pixel.r, pixel.g, pixel.b);
+            glVertex2i(x, scene.camera.canvasHeight - y);
+          glEnd();
+        }
+      }
+      
+      glutSwapBuffers();
+      
       if (samples % 10 == 0) {
         image->write("image.ppm", samples);
       }
@@ -170,4 +160,24 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+}
+
+int main(int argc, char *argv[]) {
+  srand(time(NULL));
+  InitScene();
+  
+  glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
+  glutInitWindowPosition(-1, -1);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+  glutInit(&argc, argv);
+
+  glutCreateWindow("Induction");
+  
+  glutDisplayFunc(Render);
+  
+  glViewport(0, 0, scene.camera.canvasWidth, scene.camera.canvasHeight);
+  glLoadIdentity();
+  glOrtho(0.f, scene.camera.canvasWidth - 1.f, 0.f, scene.camera.canvasHeight - 1.f, -1.f, 1.f);
+  
+  glutMainLoop();
 }

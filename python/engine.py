@@ -22,29 +22,24 @@ class Vector:
     return '<{0}, {1}, {2}>'.format(self.x, self.y, self.z)
   
   def __add__(self, other):
-    if type(other) == type(self):
-      return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
-    else:
-      return Vector(self.x + other, self.y + other, self.z + other)
+    return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
   
   def __sub__(self, other):
-    return self.__add__(other * -1.0)
+    return self.__add__(other * Vector(-1.0, -1.0, -1.0))
   
   def __mul__(self, other):
-    if type(other) == type(self):
-      return Vector(self.x * other.x, self.y * other.y, self.z * other.z)
-    else:
-      return Vector(self.x * other, self.y * other, self.z * other)
+    return Vector(self.x * other.x, self.y * other.y, self.z * other.z)
   
   def __div__(self, other):
-    return self.__mul__(1.0 / float(other))
+    return self.__mul__(Vector(1.0 / float(other), 1.0 / float(other), 1.0 / float(other)))
   
   def __neg__(self):
     return Vector(-self.x, -self.y, -self.z)
   
   def norm(self):
     if abs(self) != 0:
-      return self * (1.0 / abs(self))
+      absInv = 1.0 / abs(self)
+      return self * Vector(absInv, absInv, absInv)
     else:
       return self
   
@@ -67,7 +62,7 @@ class Ray:
     self.direction = direction.norm()
   
   def position(self, time):
-    return self.origin + self.direction * time
+    return self.origin + self.direction * Vector(time, time, time)
 
 
 class CellImage:
@@ -90,7 +85,7 @@ class CellImage:
     
     for y in range(self.height):
       for x in range(self.width):
-        pixel = Clamp(self.image[x][self.height - 1 - y] / float(samples)).list()
+        pixel = Clamp(self.image[x][self.height - 1 - y] / Vector(samples, samples, samples)).list()
         contents += '{0} {1} {2} '.format(pixel[0], pixel[1], pixel[2])
       contents += '\n'
     
@@ -206,13 +201,13 @@ def RandomNormalInHemisphere(v):
   while v2.dot(v2) > 1.0:
     v2 = Vector(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)).norm()
   
-  return v2 * (v2.dot(v) < 0.0)
+  return v2 * Vector(v2.dot(v) < 0.0, v2.dot(v) < 0.0, v2.dot(v) < 0.0)
 
 
 
 def Trace(ray, scene, roulette, n = 0):
   total = Color(0, 0, 0)
-  mult = 1
+  mult = Vector(1, 1, 1)
   n = 1
 
   while n < 10:   # Maximum recursion depth
@@ -238,7 +233,7 @@ def Trace(ray, scene, roulette, n = 0):
     direction = RandomNormalInHemisphere(normal)
     ray = Ray(point, direction)
     
-    total = total + hit.diffuse * mult * hit.emittance
+    total = total + hit.diffuse * mult * Vector(hit.emittance, hit.emittance, hit.emittance)
     mult = hit.diffuse * mult
     n += 1
     
@@ -257,15 +252,7 @@ def Trace(ray, scene, roulette, n = 0):
   direction = RandomNormalInHemisphere(normal)
   ray = Ray(point, direction)
   
-  return hit.diffuse * (Trace(ray, scene, roulette, n + 1) + hit.emittance)
-
-
-def LoadArg(id, type, default):
-  try:
-    return (type)(sys.argv[id])
-  except:
-    return default
-
+  return hit.diffuse * (Trace(ray, scene, roulette, n + 1) + Color(hit.emittance, hit.emittance, hit.emittance))
 
 
 class Scene:
@@ -275,9 +262,9 @@ class Scene:
 
 
 if __name__ == '__main__':
-  roulette  = LoadArg(1, float, 0.0)
-  pass_save = LoadArg(2, int, 5)
-  filename  = LoadArg(3, str, 'image.ppm')
+  roulette  = 0
+  pass_save = 5
+  filename  = 'image.ppm'
   
   begin = time.time()
   scene = Scene()
