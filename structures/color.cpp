@@ -14,36 +14,42 @@ struct Color {
     b = _b;
   }
   
-  Color operator+(const Color &other) const {
+  Color operator +(Color other) const {
     return Color(r + other.r, g + other.g, b + other.b);
   }
   
-  Color operator+(float other) const {
+  Color operator +(float other) const {
     return Color(r + other, g + other, b + other);
   }
   
-  Color operator-(const Color &other) const {
+  Color operator -(Color other) const {
     return Color(r - other.r, g - other.g, b - other.b);
   }
   
-  Color operator*(float other) const {
+  Color operator *(float other) const {
     return Color(r * other, g * other, b * other);
   }
   
-  Color operator*(Color other) const {
+  Color operator *(Color other) const {
     return Color(r * other.r, g * other.g, b * other.b);
   }
   
-  Color operator/(float other) const {
+  Color operator /(float other) const {
     return *this * (1.0 / other);
   }
   
-  bool operator==(Color other) {
+  bool operator ==(Color other) {
     return ((other.r == r) && (other.g == g) && (other.b == b));
   }
   
-  Color norm() {
-    return *this * (1.0 / sqrt(r*r + g*g + b*b));
+  Color operator +=(Color other) const {
+    //*this = *this + other;
+    return *this;
+  }
+  
+  Color operator -=(Color other) const {
+    //*this = *this - other;
+    return *this;
   }
   
   Color clamp() {

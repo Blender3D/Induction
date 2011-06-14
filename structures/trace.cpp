@@ -48,28 +48,26 @@ Color LoopTrace(Ray &ray, Scene scene) {
 }
 */
 
+Color SampleEmitters(Vector direction, Point point) {
+
+}
+
+
 Color Trace(Ray ray, Scene scene, int depth = 0) {
   float result;
   BaseObject* hit;
-  
-  if (depth > 20) {
-    return Color(0, 0, 0);
-  }
   
   GetIntersection(ray, scene, result, hit);
   
   if (result == -1) {
     return Color(0, 0, 0);
-  } else if (hit->emittance > 0) {
-    return hit->diffuse * hit->emittance;
   }
   
   Point point = ray.position(result);
-  Vector normal = hit->getNormal(point);
-  Vector direction = hit->getDirection(ray.direction, point);
-  Ray newRay = Ray(point, direction);
+  Color illumination = SampleEmitters(ray.direction, point);
   
-  float cos_omega = newRay.direction.dot(normal);
+  Vector direction = hit->BRDF(ray.direction, point);
+  Ray newRay = Ray(point, direction);
   
   return hit->diffuse * hit->emittance + hit->BRDF(ray.direction, newRay.direction, point) * cos_omega * Trace(newRay, scene, depth + 1);
 }

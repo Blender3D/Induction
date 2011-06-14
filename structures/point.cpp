@@ -10,19 +10,29 @@ struct Point {
     z = _z;
   }
   
-  Point operator+(const Point &other) const {
+  Point operator +(Point other) const {
     return Point(x + other.x, y + other.y, z + other.z);
   }
   
-  Point operator+(const Vector &other) const {
+  Point operator +(Vector other) const {
     return Point(x + other.x, y + other.y, z + other.z);
   }
 
-  Vector operator-(const Point &other) const {
+  Vector operator -(Point other) const {
     return Vector(x - other.x, y - other.y, z - other.z);
   }
   
-  bool operator==(Point other) {
+  Point operator +=(Point other) {
+    *this = *this + other;
+    return *this;
+  }
+  
+  Point operator -=(Point other) const {
+    //*this = *this - other;
+    return *this;
+  }
+  
+  bool operator ==(Point other) {
     return ((other.x == x) && (other.y == y) && (other.z == z));
   }
 };
