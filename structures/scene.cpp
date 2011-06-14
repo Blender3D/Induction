@@ -9,6 +9,7 @@ class Scene {
   public:
     vector<BaseObject*> objects;
     Camera camera;
+    CellImage* image;
     
     BaseObject* getObject(int index) {
       return objects[index];
@@ -28,5 +29,9 @@ class Scene {
     
     void setCamera(Camera _camera) {
       camera = _camera;
+    }
+    
+    void setImage(CellImage* _image) {
+      image = _image;
     }
 };

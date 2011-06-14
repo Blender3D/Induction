@@ -14,32 +14,42 @@ struct Vector {
     z = _z;
   }
   
-  Vector operator+(const Vector &other) const {
+  Vector operator +(Vector other) const {
     return Vector(x + other.x, y + other.y, z + other.z);
   }
   
-  Vector operator+(float other) const {
+  Vector operator +(float other) const {
     return Vector(x + other, y + other, z + other);
   }
   
-  Vector operator-(const Vector &other) const {
+  Vector operator -(Vector other) const {
     return Vector(x - other.x, y - other.y, z - other.z);
   }
   
-  Vector operator*(float other) const {
+  Vector operator *(float other) const {
     return Vector(x * other, y * other, z * other);
   }
   
-  Vector operator*(Vector other) const {
+  Vector operator *(Vector other) const {
     return Vector(x * other.x, y * other.y, z * other.z);
   }
   
-  Vector operator/(float other) const {
+  Vector operator /(float other) const {
     return *this * (1.0 / other);
   }
   
-  bool operator==(Vector other) {
+  bool operator ==(Vector other) {
     return ((other.x == x) && (other.y == y) && (other.z == z));
+  }
+  
+  Vector operator +=(Vector other) const {
+    //*this = *this + other;
+    return *this;
+  }
+  
+  Vector operator -=(Vector other) const {
+    //this = this - other;
+    return *this;
   }
   
   Vector norm() {
