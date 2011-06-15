@@ -1,7 +1,7 @@
 #include <cmath>
 #include <stdlib.h>
 
-void GetIntersection(Ray &ray, Scene scene, float &_result, BaseObject* &_hit) {
+float GetIntersection(Ray &ray, Scene scene, BaseObject* &_hit) {
   int index = -1;
   float result = 1000000.0;
   unsigned int i;  
@@ -16,8 +16,8 @@ void GetIntersection(Ray &ray, Scene scene, float &_result, BaseObject* &_hit) {
     }
   }
   
-  _result = (index == -1) ? -1 : result;
   _hit = scene.objects[index];
+  return (index == -1) ? -1 : result;
 }
 /*
 Color LoopTrace(Ray &ray, Scene scene) {
@@ -47,29 +47,40 @@ Color LoopTrace(Ray &ray, Scene scene) {
   return radiosity;
 }
 */
-
+/*
 Color SampleEmitters(Vector direction, Point point) {
-
+  BaseObject* hit;
+  BaseObject* light = scene.lights[random_int(scene.lights.size())];
+  Vector toPoint = (light.position - point).norm();
+  
+  float result = GetIntersection(Ray(light.position, toPoint), scene, hit);
+  Point hitPoint = light.position + toPoint * result;
+  Color emission = hit->getEmission(hitPoint, -toPoint);
+  
+  return hit->BDRF(direction, toPoint, point);
 }
-
+*/
 
 Color Trace(Ray ray, Scene scene, int depth = 0) {
-  float result;
   BaseObject* hit;
+  float result = GetIntersection(ray, scene, hit);
   
-  GetIntersection(ray, scene, result, hit);
-  
-  if (result == -1) {
+  if ((result == -1) || (depth > 25)) {
     return Color(0, 0, 0);
   }
   
   Point point = ray.position(result);
-  Color illumination = SampleEmitters(ray.direction, point);
+  float emittance = hit->emittance;
   
-  Vector direction = hit->BRDF(ray.direction, point);
+  if (emittance > 0) {
+    return hit->diffuse * emittance * 2;
+  }
+  
+  Vector normal = hit->getNormal(point);
+  Vector direction = random_vector(normal);
   Ray newRay = Ray(point, direction);
   
-  return hit->diffuse * hit->emittance + hit->BRDF(ray.direction, newRay.direction, point) * cos_omega * Trace(newRay, scene, depth + 1);
+  return hit->diffuse * Trace(newRay, scene, depth + 1) * hit->BRDF(direction, ray.direction) * normal.dot(direction) * 2;
 }
 
 float ShadowRay(BaseObject* object1, BaseObject* object2) {

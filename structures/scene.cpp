@@ -8,12 +8,9 @@ using namespace std;
 class Scene {
   public:
     vector<BaseObject*> objects;
+    vector<BaseObject*> lights;
     Camera camera;
     CellImage* image;
-    
-    BaseObject* getObject(int index) {
-      return objects[index];
-    }
     
     BaseObject* getObject(const char* name) {
       for (unsigned int i = 0; i < objects.size(); i++) {
@@ -25,6 +22,10 @@ class Scene {
     
     void addObject(BaseObject* object) {
       objects.push_back(object);
+      
+      if (object->emittance > 0) {
+        lights.push_back(object);
+      }
     }
     
     void setCamera(Camera _camera) {
