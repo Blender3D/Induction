@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-  glutInitWindowPosition(100,100);
+  glutInitWindowPosition(100, 100);
   glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
   glutCreateWindow("Induction");
   

@@ -21,44 +21,11 @@ class BaseObject {
     
     virtual float intersection(Ray ray) = 0;
     virtual Vector getNormal(Point position) = 0;
-    Vector getDirection(Vector input, Point position) {
-      Vector tempNormal = this->getNormal(position);
-      Vector v2;
-      
+    float BRDF(Vector input, Vector output) {
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          return random_vector(tempNormal);
-          break;
-        
-        case SPECULAR:
-          return tempNormal * 2.0 * abs(input.dot(tempNormal)) + input;
-          break;
-        
-        case GLASS:
-          float internalIndex, externalIndex;
-          float theta1 = abs(input.dot(tempNormal));
-          
-          if (theta1 >= 0.0) {
-            internalIndex = IOR;
-            externalIndex = 1.0;
-          } else {
-            internalIndex = 1.0;
-            externalIndex = IOR;
-          }
-          
-          float eta = externalIndex / internalIndex;
-          float theta2 = sqrt(1.0 - (eta*eta) * (1.0 - (theta1*theta1)));
-          float rs = (externalIndex * theta1 - internalIndex * theta2) / (externalIndex*theta1 + internalIndex * theta2);
-          float rp = (internalIndex * theta1 - externalIndex * theta2) / (internalIndex*theta1 + externalIndex * theta2);
-          float reflectance = (rs*rs + rp*rp);
-          
-          if (random_uniform() < reflectance + reflection) {
-            return input + tempNormal * 2.0 * theta1;
-          } else {
-            return (tempNormal * theta1 + input) * eta + (tempNormal * -theta2);
-          }
-          
+          return 1;
           break;
       }
     }

@@ -69,7 +69,6 @@ void InitScene() {
   sphere1->radius = 0.5;
   sphere1->diffuse = Color(1, 1, 1);
   sphere1->reflectionType = DIFFUSE;
-  sphere1->IOR = 1.53;
   scene.addObject(sphere1);
   
   Camera camera = Camera();

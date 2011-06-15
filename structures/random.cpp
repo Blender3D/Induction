@@ -5,6 +5,10 @@ float random_uniform() {
   return ((float)rand()) / RAND_MAX;
 }
 
+int random_int(int end) {
+  return ((float)rand() * (end - 1)) / RAND_MAX;
+}
+
 Vector random_vector(Vector normal = Vector(0, 0, 0)) {
   Vector v2;
   
