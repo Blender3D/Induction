@@ -42,13 +42,38 @@ struct Color {
     return ((other.r == r) && (other.g == g) && (other.b == b));
   }
   
-  Color operator +=(Color other) const {
-    //*this = *this + other;
+  Color operator +=(Color other) {
+    *this = *this + other;
     return *this;
   }
   
-  Color operator -=(Color other) const {
-    //*this = *this - other;
+  Color operator +=(float other) {
+    *this = *this + other;
+    return *this;
+  }
+  
+  Color operator -=(Color other) {
+    *this = *this - other;
+    return *this;
+  }
+  
+  Color operator -=(float other) {
+    *this = *this - other;
+    return *this;
+  }
+  
+  Color operator *=(Color other) {
+    *this = *this * other;
+    return *this;
+  }
+  
+  Color operator *=(float other) {
+    *this = *this * other;
+    return *this;
+  }
+  
+  Color operator /=(float other) {
+    *this = *this / other;
     return *this;
   }
   

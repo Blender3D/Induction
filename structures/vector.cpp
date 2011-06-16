@@ -42,13 +42,38 @@ struct Vector {
     return ((other.x == x) && (other.y == y) && (other.z == z));
   }
   
-  Vector operator +=(Vector other) const {
-    //*this = *this + other;
+  Vector operator +=(Vector other) {
+    *this = *this + other;
     return *this;
   }
   
-  Vector operator -=(Vector other) const {
-    //this = this - other;
+  Vector operator +=(float other) {
+    *this = *this + other;
+    return *this;
+  }
+  
+  Vector operator -=(Vector other) {
+    *this = *this - other;
+    return *this;
+  }
+  
+  Vector operator -=(float other) {
+    *this = *this - other;
+    return *this;
+  }
+  
+  Vector operator *=(Vector other) {
+    *this = *this * other;
+    return *this;
+  }
+  
+  Vector operator *=(float other) {
+    *this = *this * other;
+    return *this;
+  }
+  
+  Vector operator /=(float other) {
+    *this = *this / other;
     return *this;
   }
   

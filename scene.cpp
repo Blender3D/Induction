@@ -9,74 +9,82 @@
 Scene scene = Scene();
 
 void InitScene() {
-  Quadrilateral* topPlane = new Quadrilateral();
-  topPlane->point1 = Point(-1, 1, 1);
-  topPlane->point2 = Point(1, 1, 1);
-  topPlane->point3 = Point(1, -1, 1);
-  topPlane->point4 = Point(-1, -1, 1);
-  topPlane->normal = Vector(0, 0, 1);
-  topPlane->diffuse = Color(0.75, 0.75, 0.75);
-  scene.addObject(topPlane);
+  Quadrilateral* top = new Quadrilateral();
+  top->point1 = Point(-1, 1, 1);
+  top->point2 = Point(1, 1, 1);
+  top->point3 = Point(1, -1, 1);
+  top->point4 = Point(-1, -1, 1);
+  top->normal = Vector(0, 0, 1);
+  top->diffuse = Color(1, 0.85, 0.63);
+  top->emittance = 1.6;
+  scene.addObject(top);
 
-  Quadrilateral* backPlane = new Quadrilateral();
-  backPlane->point1 = Point(-1, 1, -1);
-  backPlane->point2 = Point(1, 1, -1);
-  backPlane->point3 = Point(1, 1, 1);
-  backPlane->point4 = Point(-1, 1, 1);
-  backPlane->normal = Vector(0, 1, 0);
-  backPlane->diffuse = Color(0.75, 0.75, 0.75);
-  scene.addObject(backPlane);
+  Quadrilateral* back = new Quadrilateral();
+  back->point1 = Point(-1, 1, -1);
+  back->point2 = Point(1, 1, -1);
+  back->point3 = Point(1, 1, 1);
+  back->point4 = Point(-1, 1, 1);
+  back->normal = Vector(0, 1, 0);
+  back->diffuse = Color(0.75, 0.75, 0.75);
+  scene.addObject(back);
 
-  Quadrilateral* bottomPlane = new Quadrilateral();
-  bottomPlane->point1 = Point(-1, -1, -1);
-  bottomPlane->point2 = Point(1, -1, -1);
-  bottomPlane->point3 = Point(1, 1, -1);
-  bottomPlane->point4 = Point(-1, 1, -1);
-  bottomPlane->normal = Vector(0, 0, -1);
-  bottomPlane->diffuse = Color(0.75, 0.75, 0.75);
-  scene.addObject(bottomPlane);
+  Quadrilateral* bottom = new Quadrilateral();
+  bottom->point1 = Point(-1, -1, -1);
+  bottom->point2 = Point(1, -1, -1);
+  bottom->point3 = Point(1, 1, -1);
+  bottom->point4 = Point(-1, 1, -1);
+  bottom->normal = Vector(0, 0, -1);
+  bottom->diffuse = Color(0.75, 0.75, 0.75);
+  scene.addObject(bottom);
 
-  Quadrilateral* leftPlane = new Quadrilateral();  
-  leftPlane->point1 = Point(-1, -1, 1);
-  leftPlane->point2 = Point(-1, 1, 1);
-  leftPlane->point3 = Point(-1, 1, -1);
-  leftPlane->point4 = Point(-1, -1, -1);
-  leftPlane->normal = Vector(-1, 0, 0);
-  leftPlane->diffuse = Color(0.75, 0.25, 0.25);
-  scene.addObject(leftPlane);
+  Quadrilateral* left = new Quadrilateral();  
+  left->point1 = Point(-1, -1, 1);
+  left->point2 = Point(-1, 1, 1);
+  left->point3 = Point(-1, 1, -1);
+  left->point4 = Point(-1, -1, -1);
+  left->normal = Vector(-1, 0, 0);
+  left->diffuse = Color(0.75, 0.25, 0.25);
+  scene.addObject(left);
 
-  Quadrilateral* rightPlane = new Quadrilateral();
-  rightPlane->point1 = Point(1, -1, 1);
-  rightPlane->point2 = Point(1, 1, 1);
-  rightPlane->point3 = Point(1, 1, -1);
-  rightPlane->point4 = Point(1, -1, -1);
-  rightPlane->normal = Vector(1, 0, 0);
-  rightPlane->diffuse = Color(0.25, 0.25, 0.75);
-  scene.addObject(rightPlane);
-
-  Quadrilateral* lightPlane = new Quadrilateral();
-  lightPlane->point1 = Point(-0.2, -0.2, 0.999999);
-  lightPlane->point2 = Point(0.2, -0.2, 0.999999);
-  lightPlane->point3 = Point(0.2, 0.2, 0.999999);
-  lightPlane->point4 = Point(-0.2, 0.2, 0.999999);
-  lightPlane->normal = Vector(0, 0, 1);
-  lightPlane->diffuse = Color(1, 0.85, 0.43);
-  lightPlane->emittance = 100;
-  scene.addObject(lightPlane);
-
+  Quadrilateral* right = new Quadrilateral();
+  right->point1 = Point(1, -1, 1);
+  right->point2 = Point(1, 1, 1);
+  right->point3 = Point(1, 1, -1);
+  right->point4 = Point(1, -1, -1);
+  right->normal = Vector(1, 0, 0);
+  right->diffuse = Color(0.25, 0.25, 0.75);
+  scene.addObject(right);
+/*
+  Quadrilateral* light = new Quadrilateral();
+  light->point1 = Point(-0.4, -0.4, 0.999999);
+  light->point2 = Point(0.4, -0.4, 0.999999);
+  light->point3 = Point(0.4, 0.4, 0.999999);
+  light->point4 = Point(-0.4, 0.4, 0.999999);
+  light->normal = Vector(0, 0, 1);
+  light->diffuse = Color(1, 0.85, 0.43);
+  light->emittance = 20;
+  scene.addObject(light);
+*/
   Sphere* sphere1 = new Sphere();
-  sphere1->position = Point(0, 0, -0.5);
+  sphere1->position = Point(-0.5, -0.5, -0.5);
   sphere1->radius = 0.5;
   sphere1->diffuse = Color(1, 1, 1);
   sphere1->reflectionType = DIFFUSE;
   scene.addObject(sphere1);
+  
+  Sphere* sphere2 = new Sphere();
+  sphere2->position = Point(0.5, 0.5, -0.5);
+  sphere2->radius = 0.5;
+  sphere2->diffuse = Color(1, 1, 1);
+  sphere2->reflectionType = DIFFUSE;
+  scene.addObject(sphere2);
   
   Camera camera = Camera();
   camera.position = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(600);
+  camera.setPixelDensity(300);
   scene.setCamera(camera);
   
   CellImage* image = new CellImage();
