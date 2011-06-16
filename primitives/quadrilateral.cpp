@@ -8,7 +8,7 @@ class Quadrilateral: public BaseObject {
 
     float intersection(Ray ray) {
       float t;
-      static const float eps = 0.0000001;
+      static const float eps = 0.000000001;
       
       Vector edge_12 = point2 - point1;
       Vector edge_14 = point4 - point1;
@@ -16,7 +16,7 @@ class Quadrilateral: public BaseObject {
       
       float determinant = edge_12.dot(P);
       
-      if (abs(determinant) < eps) {
+      if (abs(determinant) < 0.0000000000001) {
         return false;
       }
       

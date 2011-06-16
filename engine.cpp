@@ -38,17 +38,16 @@ void Render() {
           scene.image->setPixel(x, y, scene.image->getPixel(x, y) + Trace(ray, scene));
         }
       }
+
+      if (samples % 10 == 0) {
+        scene.image->write("image.ppm", samples);
+      }
       
       #pragma omp barrier
       #pragma omp master
       {
         sprintf(sampleString, "Samples: [%d]", samples);
-
         glutSetWindowTitle(sampleString);
-
-        if (samples % 10 == 0) {
-          scene.image->write("image.ppm", samples);
-        }
         
         for (float y = 0; y < scene.camera.canvasHeight; y++) {
           for (float x = 0; x < scene.camera.canvasWidth; x++) {
@@ -74,7 +73,7 @@ int main(int argc, char *argv[]) {
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
   glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - scene.camera.canvasWidth) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.canvasHeight) / 2);
   glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
-  glutCreateWindow("Induction");
+  glutCreateWindow("Samples: [0]");
   
   glutDisplayFunc(Render);
   

@@ -43,9 +43,10 @@ Color Trace(Ray ray, Scene scene) {
     }
     
     Vector normal = hit->getNormal(point);
-    Vector direction = random_vector(normal);
+    Vector direction = cosine_weighted_random_vector(normal);
     
-     radiance *= hit->diffuse * hit->BRDF(direction, ray.direction) * abs(normal.dot(direction)) * hit->PDF();
+    radiance *= hit->diffuse * hit->BRDF(direction, ray.direction) * abs(normal.dot(direction));
+    //radiance *= hit->PDF();
     
     ray = Ray(point, direction);
   }

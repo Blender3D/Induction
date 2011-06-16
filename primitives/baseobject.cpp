@@ -31,13 +31,10 @@ class BaseObject {
     }
     
     float PDF() {
-      Vector tempNormal = this->getNormal(position);
-      Vector v2;
-      
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          return abs(random_vector().dot(random_vector()));
+          return 1 / (2 * 3.141592653589);
           break;
       }
     }
