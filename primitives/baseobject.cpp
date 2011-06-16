@@ -30,14 +30,26 @@ class BaseObject {
       }
     }
     
-    Color BRDF(Vector input, Vector output, Point position) {
+    float PDF() {
       Vector tempNormal = this->getNormal(position);
       Vector v2;
       
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          return diffuse * output.dot(tempNormal);
+          return abs(random_vector().dot(random_vector()));
+          break;
+      }
+    }
+    
+    float BRDF(Vector input, Vector output, Point position) {
+      Vector tempNormal = this->getNormal(position);
+      Vector v2;
+      
+      switch (reflectionType) {
+        default:
+        case DIFFUSE:
+          return output.dot(tempNormal);
           break;
         /*
         case SPECULAR:

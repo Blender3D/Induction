@@ -27,11 +27,6 @@ struct Point {
     return *this;
   }
   
-  Point operator -=(Point other) const {
-    //*this = *this - other;
-    return *this;
-  }
-  
   bool operator ==(Point other) {
     return ((other.x == x) && (other.y == y) && (other.z == z));
   }

@@ -25,6 +25,7 @@ using namespace std;
 
 void Render() {  
   int samples = 0;
+  char sampleString[512];
   
   #pragma omp parallel
   {
@@ -38,17 +39,17 @@ void Render() {
         }
       }
       
-      cout << "Samples: [" << samples << "]";
-      cout.flush();
-      cout << "\r";\
-      
-      if (samples % 10 == 0) {
-        scene.image->write("image.ppm", samples);
-      }
-      
       #pragma omp barrier
       #pragma omp master
       {
+        sprintf(sampleString, "Samples: [%d]", samples);
+
+        glutSetWindowTitle(sampleString);
+
+        if (samples % 10 == 0) {
+          scene.image->write("image.ppm", samples);
+        }
+        
         for (float y = 0; y < scene.camera.canvasHeight; y++) {
           for (float x = 0; x < scene.camera.canvasWidth; x++) {
             glBegin(GL_POINTS);
@@ -71,7 +72,7 @@ int main(int argc, char *argv[]) {
   
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-  glutInitWindowPosition(100, 100);
+  glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - scene.camera.canvasWidth) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.canvasHeight) / 2);
   glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
   glutCreateWindow("Induction");
   
