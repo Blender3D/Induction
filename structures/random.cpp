@@ -9,19 +9,22 @@ int random_int(int end) {
   return ((float)rand() * (end - 1)) / RAND_MAX;
 }
 
-Vector random_vector(Vector normal = Vector(0, 0, 0)) {
-  Vector v2;
+Vector uniform_hemisphere(Vector normal = Vector(0, 0, 0)) {
+  float random = random_uniform();
+  float radius = sqrt(1 - random * random);
+  float phi = 2 * 3.1415926535897932384626433832795 * random_uniform();
+  Vector vector = Vector(radius * cos(phi), radius * sin(phi), random);
   
-  do {
-    v2 = Vector(2.0 * random_uniform() - 1.0, 2.0 * random_uniform() - 1.0, 2.0 * random_uniform() - 1.0).norm();
-  } while (v2.abs() > 1.0);
-
-  return (normal == Vector(0, 0, 0)) ? v2 : v2 * (2 * (v2.dot(normal) < 0.0) - 1);
+  return (normal == Vector(0, 0, 0)) ? vector : vector * (2 * (vector.dot(normal) < 0.0) - 1);
 }
 
-Vector cosine_weighted_random_vector(Vector normal) {
+float uniform_hemisphere_pdf(float theta, float phi) {
+  return 1 / (2 * 3.1415926535897932384626433832795);
+}
+
+Vector cosine_weighted_hemisphere(Vector normal) {
   float theta = acos(sqrt(random_uniform()));
-  float phi = 2.0 * 3.1415926535897932384626433832795 * random_uniform();
+  float phi = 2 * 3.1415926535897932384626433832795 * random_uniform();
 
   Vector result = normal;
   
@@ -37,4 +40,9 @@ Vector cosine_weighted_random_vector(Vector normal) {
   Vector z = (x.cross(normal)).norm();
 
   return (x * sin(theta) * cos(phi) + normal * cos(theta) + z * sin(theta) * sin(phi)).norm() * -1;
+}
+
+float cosine_weighted_hemisphere_pdf(float theta, float phi) {
+  float result = cos(theta) / 3.1415926535897932384626433832795;
+  return (result > 1) ? 1 : ((result < 0) ? 0 : result);
 }

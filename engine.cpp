@@ -21,18 +21,29 @@
 
 #include "structures/trace.cpp"
 
+#include "loaders/obj.cpp"
+
 using namespace std;
 
 void Render() {  
   int samples = 0;
   char sampleString[512];
   
+  cout << "Rendering " << scene.objects.size() << " objects." << endl;
+  cout << "Canvas resolution is " << scene.camera.canvasWidth << "x" << scene.camera.canvasHeight << "." << endl;
+  
   #pragma omp parallel
   {
     while (true) {
       samples++;
       
+      cout << endl;
+      
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
+        cout << "Tracing sample " << samples << ": [" << (int)((100 * y) / scene.camera.canvasHeight) + 1 << "%]";
+        cout.flush();
+        cout << "\r";
+        
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Ray ray = scene.camera.CastRay(scene.camera.canvasWidth - x + random_uniform() - 0.5, scene.camera.canvasHeight - y + random_uniform() - 0.5);
           scene.image->setPixel(x, y, scene.image->getPixel(x, y) + Trace(ray, scene));
@@ -69,6 +80,20 @@ int main(int argc, char *argv[]) {
   srand(time(NULL));
   InitScene();
   
+  cout << "/==========================\\" << endl;
+  cout << "||  Induction Pathtracer  ||" << endl;
+  cout << "||       v0.1 (Git)       ||" << endl;
+  cout << "\\==========================/" << endl;
+  cout << endl;
+  /*
+  ObjLoader* loader = new ObjLoader();
+  loader->load("plane.obj");
+  vector<BaseObject*> objects = loader->objects;
+  
+  for (unsigned int i = 0; i < objects.size(); i++) {
+    scene.addObject(objects[i]);
+  }
+  */
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
   glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - scene.camera.canvasWidth) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.canvasHeight) / 2);

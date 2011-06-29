@@ -16,7 +16,7 @@ class Quadrilateral: public BaseObject {
       
       float determinant = edge_12.dot(P);
       
-      if (abs(determinant) < 0.0000000000001) {
+      if (abs(determinant) < 0.0000001) {
         return false;
       }
       

@@ -22,8 +22,18 @@ float GetIntersection(Ray &ray, Scene scene, BaseObject* &_hit) {
 
 Color Trace(Ray ray, Scene scene) {
   Color radiance = Color(1, 1, 1);
+  int bounces = 0;
+  float termination_probability = 0.5;
+  float termination_constant = 0;
   
-  while (true) {
+  while (++bounces < 20) {
+    /*
+    if (random_uniform() < termination_probability) {
+      radiance *= termination_constant;
+    }
+
+    radiance *= 1 / (1 - termination_probability);
+    */
     BaseObject* hit;
     float result = GetIntersection(ray, scene, hit);
     
@@ -43,10 +53,15 @@ Color Trace(Ray ray, Scene scene) {
     }
     
     Vector normal = hit->getNormal(point);
-    Vector direction = cosine_weighted_random_vector(normal);
+    Vector direction = uniform_hemisphere(normal);
+    //float radius = sqrt(direction.x*direction.x + direction.y*direction.y + direction.z*direction.z);
+    //float theta = acos(direction.z / radius);
+    //float phi = atan(direction.y / direction.x);
     
     radiance *= hit->diffuse * hit->BRDF(direction, ray.direction) * abs(normal.dot(direction));
-    //radiance *= hit->PDF();
+    radiance *= uniform_hemisphere_pdf(0, 0);//theta, phi);
+    
+    //termination_probability = 1 - abs(normal.dot(direction));
     
     ray = Ray(point, direction);
   }
