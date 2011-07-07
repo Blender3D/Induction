@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
+#include <limits>
 
 #include <omp.h>
 #include <GL/glut.h>
@@ -16,11 +17,10 @@
 #include "structures/camera.cpp"
 #include "structures/random.cpp"
 #include "structures/image.cpp"
+#include "structures/boundingbox.cpp"
 
 #include "scene.cpp"
-
 #include "structures/trace.cpp"
-
 #include "loaders/obj.cpp"
 
 using namespace std;
@@ -63,7 +63,7 @@ void Render() {
         for (float y = 0; y < scene.camera.canvasHeight; y++) {
           for (float x = 0; x < scene.camera.canvasWidth; x++) {
             glBegin(GL_POINTS);
-              Color pixel = (scene.image->getPixel(x, y) / samples).clamp();
+              Color pixel = (scene.image->getPixel(scene.camera.canvasWidth - x, y) / samples).clamp();
               glColor3f(pixel.r, pixel.g, pixel.b);
               glVertex2i(x, scene.camera.canvasHeight - y);
             glEnd();
@@ -85,15 +85,15 @@ int main(int argc, char *argv[]) {
   cout << "||       v0.1 (Git)       ||" << endl;
   cout << "\\==========================/" << endl;
   cout << endl;
-  /*
+  
   ObjLoader* loader = new ObjLoader();
   loader->load("plane.obj");
-  vector<BaseObject*> objects = loader->objects;
+  vector<Object*> objects = loader->objects;
   
   for (unsigned int i = 0; i < objects.size(); i++) {
     scene.addObject(objects[i]);
   }
-  */
+  
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
   glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - scene.camera.canvasWidth) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.canvasHeight) / 2);

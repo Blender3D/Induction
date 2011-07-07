@@ -1,12 +1,12 @@
 #include <cmath>
 #include <stdlib.h>
 
-class Triangle: public BaseObject {
+class Triangle: public Primitive {
   public:
     Point point1, point2, point3;
     Vector normal;
 
-    float intersection(Ray ray) {
+    float getIntersection(Ray ray) {
       Vector u = point2 - point1;
       Vector v = point3 - point1;
       Vector n = u.cross(v);
@@ -25,12 +25,12 @@ class Triangle: public BaseObject {
         return false;
       }
 
-      Point intersection = ray.position(ratio);
+      Point getIntersection = ray.position(ratio);
 
       float uu = u.dot(u);
       float uv = u.dot(v);
       float vv = v.dot(v);
-      Vector w  = intersection - point1;
+      Vector w  = getIntersection - point1;
       float wu = w.dot(u);
       float wv = w.dot(v);
       float D = uv * uv - uu * vv;
@@ -48,6 +48,21 @@ class Triangle: public BaseObject {
       }
 
       return ratio;
+    }
+    
+    BoundingBox* createBoundingBox() {
+      BoundingBox* box = new BoundingBox();
+      
+      box->corner1 = Point(min(min(point1.x, point2.x), point3.x), 
+                           min(min(point1.y, point2.y), point3.y), 
+                           min(min(point1.z, point2.z), point3.z));
+      
+      box->corner2 = Point(max(max(point1.x, point2.x), point3.x), 
+                           max(max(point1.y, point2.y), point3.y), 
+                           max(max(point1.z, point2.z), point3.z));
+      
+      boundingBox = box;
+      return box;
     }
       
     Vector getNormal(Point _position) {
