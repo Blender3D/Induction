@@ -7,12 +7,12 @@ using namespace std;
 
 class Scene {
   public:
-    vector<BaseObject*> objects;
-    vector<BaseObject*> lights;
+    vector<Object*> objects;
+    vector<Object*> lights;
     Camera camera;
     CellImage* image;
     
-    BaseObject* getObject(const char* name) {
+    Object* getObject(const char* name) {
       for (unsigned int i = 0; i < objects.size(); i++) {
         if (objects[i]->name == name) {
           return objects[i];
@@ -20,12 +20,21 @@ class Scene {
       }
     }
     
-    void addObject(BaseObject* object) {
+    void addObject(Object* object) {
+      //object->createBoundingBox();
       objects.push_back(object);
       
       if (object->emittance > 0) {
         lights.push_back(object);
       }
+    }
+    
+    void addObject(Primitive* _object) {
+      Object* object = new Object();
+      object->objects.push_back(_object);
+      //object->createBoundingBox();
+      
+      addObject(object);
     }
     
     void setCamera(Camera _camera) {

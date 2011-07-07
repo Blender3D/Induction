@@ -1,11 +1,11 @@
 #include <math.h>
 #include <stdlib.h>
 
-class Sphere: public BaseObject {
+class Sphere: public Primitive {
   public:
     float radius;
     
-    float intersection(Ray ray) {
+    float getIntersection(Ray ray) {
       Vector distance = ray.origin - position;
       float b = distance.dot(ray.direction);
       float c = distance.dot(distance) - radius*radius;
@@ -23,6 +23,16 @@ class Sphere: public BaseObject {
       } else {
         return false;
       }
+    }
+    
+    BoundingBox* createBoundingBox() {
+      BoundingBox* box = new BoundingBox();
+      
+      box->corner1 = position - radius;
+      box->corner2 = position + radius;
+      
+      boundingBox = box;
+      return box;
     }
 
     Vector getNormal(Point _position) {

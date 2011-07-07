@@ -1,11 +1,13 @@
 #include <math.h>
 #include <stdlib.h>
 
-class Plane: public BaseObject {
+using namespace std;
+
+class Plane: public Primitive {
   public:
     Vector normal;
 
-    float intersection(Ray ray) {
+    float getIntersection(Ray ray) {
       float k, t;
       Point point;
       Vector toPoint;
@@ -23,6 +25,16 @@ class Plane: public BaseObject {
       }
       
       return t;
+    }
+    
+    BoundingBox* createBoundingBox() {
+      BoundingBox* box = new BoundingBox();
+      
+      box->corner1 = Point(-INFINITY, -INFINITY, -INFINITY);
+      box->corner2 = Point(INFINITY, INFINITY, INFINITY);
+      
+      boundingBox = box;
+      return box;
     }
       
     Vector getNormal(Point _position) {

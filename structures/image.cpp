@@ -52,15 +52,17 @@ class CellImage {
       handle << " ";
       handle << "255" << endl << endl;
       
-      for (int i = 0; i < width * height; i++) {
-        Color pixel = (image[i] / samples).clamp();
-        
-        handle << (int)(pixel.r * 255.0);
-        handle << " ";
-        handle << (int)(pixel.g * 255.0);
-        handle << " ";
-        handle << (int)(pixel.b * 255.0); 
-        handle << " ";
+      for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+          Color pixel = (image[(width - x) * y] / samples).clamp();
+          
+          handle << (int)(pixel.r * 255.0);
+          handle << " ";
+          handle << (int)(pixel.g * 255.0);
+          handle << " ";
+          handle << (int)(pixel.b * 255.0); 
+          handle << " ";
+        }
       }
       
       handle.close();

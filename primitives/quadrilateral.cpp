@@ -1,12 +1,12 @@
 #include <cmath>
 #include <stdlib.h>
 
-class Quadrilateral: public BaseObject {
+class Quadrilateral: public Primitive {
   public:
     Point point1, point2, point3, point4;
     Vector normal;
 
-    float intersection(Ray ray) {
+    float getIntersection(Ray ray) {
       float t;
       static const float eps = 0.000000001;
       
@@ -69,8 +69,23 @@ class Quadrilateral: public BaseObject {
         return t;
       }
     }
+    
+    BoundingBox* createBoundingBox() {
+      BoundingBox* box = new BoundingBox();
+      cout << "BBox Quad1" << endl;
+      box->corner1 = Point(min(min(point1.x, point2.x), min(point3.x, point4.x)),
+                           min(min(point1.y, point2.y), min(point3.y, point4.y)), 
+                           min(min(point1.z, point2.z), min(point3.z, point4.z)));
+      cout << "BBox Quad2" << endl;
+      box->corner2 = Point(max(max(point1.x, point2.x), max(point3.x, point4.x)),
+                           max(max(point1.y, point2.y), max(point3.y, point4.y)), 
+                           max(max(point1.z, point2.z), max(point3.z, point4.z)));
+      cout << "BBox Quad3" << endl;
+      boundingBox = box;
+      return box;
+    }
       
-    Vector getNormal(Point positionition) {
+    Vector getNormal(Point position) {
       return normal;
     }
 };

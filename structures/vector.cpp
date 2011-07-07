@@ -42,6 +42,26 @@ struct Vector {
     return ((other.x == x) && (other.y == y) && (other.z == z));
   }
   
+  bool operator !=(Vector other) {
+    return ((other.x != x) || (other.y != y) || (other.z == z));
+  }
+  
+  bool operator >(Vector other) {
+    return ((other.x > x) && (other.y > y) && (other.z > z));
+  }
+  
+  bool operator >=(Vector other) {
+    return ((other.x >= x) && (other.y >= y) && (other.z >= z));
+  }
+  
+  bool operator <(Vector other) {
+    return ((other.x < x) && (other.y < y) && (other.z < z));
+  }
+  
+  bool operator <=(Vector other) {
+    return ((other.x <= x) && (other.y <= y) && (other.z <= z));
+  }
+  
   Vector operator +=(Vector other) {
     *this = *this + other;
     return *this;
@@ -75,6 +95,18 @@ struct Vector {
   Vector operator /=(float other) {
     *this = *this / other;
     return *this;
+  }
+  
+  float operator [](int index) {
+    if (index == 0) {
+      return x;
+    } else if (index == 1) {
+      return y;
+    } else if (index == 2) {
+      return z;
+    } else {
+      return 0;
+    }
   }
   
   Vector norm() {

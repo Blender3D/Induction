@@ -17,9 +17,17 @@ struct Point {
   Point operator +(Vector other) const {
     return Point(x + other.x, y + other.y, z + other.z);
   }
+  
+  Point operator +(float other) const {
+    return Point(x + other, y + other, z + other);
+  }
 
   Vector operator -(Point other) const {
     return Vector(x - other.x, y - other.y, z - other.z);
+  }
+  
+  Point operator -(float other) const {
+    return Point(x - other, y - other, z - other);
   }
   
   Point operator +=(Point other) {
@@ -29,5 +37,37 @@ struct Point {
   
   bool operator ==(Point other) {
     return ((other.x == x) && (other.y == y) && (other.z == z));
+  }
+  
+  bool operator !=(Point other) {
+    return ((other.x != x) || (other.y != y) || (other.z == z));
+  }
+  
+  bool operator >(Point other) {
+    return ((other.x > x) && (other.y > y) && (other.z > z));
+  }
+  
+  bool operator >=(Point other) {
+    return ((other.x >= x) && (other.y >= y) && (other.z >= z));
+  }
+  
+  bool operator <(Point other) {
+    return ((other.x < x) && (other.y < y) && (other.z < z));
+  }
+  
+  bool operator <=(Point other) {
+    return ((other.x <= x) && (other.y <= y) && (other.z <= z));
+  }
+  
+  float operator [](int index) {
+    if (index == 0) {
+      return x;
+    } else if (index == 1) {
+      return y;
+    } else if (index == 2) {
+      return z;
+    } else {
+      return 0;
+    }
   }
 };
