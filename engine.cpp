@@ -32,7 +32,8 @@
 
 using namespace std;
 
-void Render() {  
+void Render() {
+  bool printing = false;
   int samples = 0;
   char sampleString[512];
   float totalTime, time = 0;
@@ -44,33 +45,18 @@ void Render() {
     while (true) {
       samples++;
       
-      cout << endl;
-      clock_t startTime = clock();
-
+      cout << "Tracing sample " << samples;
+      cout.flush();
+      cout << "\r";
+      
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
-        cout << "Tracing sample " << samples << ": [" << (int)((100 * y) / scene.camera.canvasHeight) + 1 << "%]";
-        cout.flush();
-        cout << "\r";
-        
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Ray ray = scene.camera.CastRay(scene.camera.canvasWidth - x + random_uniform() - 0.5, scene.camera.canvasHeight - y + random_uniform() - 0.5);
           scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
         }
       }
       
-      time = (double)(clock() - startTime) / ((double)CLOCKS_PER_SEC);
-      totalTime += time;
-      
-      cout << "Tracing sample " << samples << ": [" << time << " sec]";
-      cout.flush();
-      cout << "\r";
-      
       if (samples % 10 == 0) {
-        cout << endl;
-        //cout << "          Statistics          " << endl;
-        //cout << "------------------------------" << endl;
-        //cout << "Average Time / pixel: [" << totalTime / samples << " sec]" << endl;
-        cout << "Saving image..." << endl;
         scene.image->write("image.ppm", samples);
       }
       
