@@ -44,6 +44,7 @@ class ObjLoader {
       vector<Point> vertices;
       vector<Primitive*> faces;
       vector<Vector> normals;
+      string materialFile;
       
       ifstream handle;
       string temp;
@@ -126,7 +127,9 @@ class ObjLoader {
             
             normals.push_back(Vector(atof(components[0].c_str()), atof(components[1].c_str()), atof(components[2].c_str())));
           } else if (temp.find("usemtl") == 0) {
-            // Do stuff
+            temp = temp.substr(7, temp.size() - 1);
+            
+            materialFile = temp;
           }
           
           line++;

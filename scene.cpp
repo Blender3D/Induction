@@ -105,7 +105,7 @@ void InitScene() {
   light->point4 = Point(-0.4, -0.4, 0.999);
   light->normal = Vector(0, 0, 1);
   
-  lightObject->emittance = 15;
+  lightObject->emittance = 25;
   lightObject->diffuse = Color(1, 0.85, 0.43);
   
   lightObject->addPrimitive(light);
