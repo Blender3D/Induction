@@ -44,4 +44,10 @@ class Scene {
     void setImage(CellImage* _image) {
       image = _image;
     }
+    
+    void loadObjects(vector<Object*> objects) {
+      for (unsigned int i = 0; i < objects.size(); i++) {
+        addObject(objects[i]);
+      }
+    }
 };

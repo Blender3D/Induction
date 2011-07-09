@@ -22,9 +22,8 @@ float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
 
 Color Trace(Ray ray, Scene scene) {
   Color radiance = Color(1, 1, 1);
-  int bounces = 0;
   
-  while (++bounces < 20) {
+  for (int bounces = 0; ; bounces++) {
     Object* hit;
     float result = GetIntersection(ray, scene, hit);
     
@@ -44,18 +43,42 @@ Color Trace(Ray ray, Scene scene) {
     }
     
     Vector normal = hit->getNormal(point);
-    Vector direction = uniform_hemisphere(normal);
-    //float radius = sqrt(direction.x*direction.x + direction.y*direction.y + direction.z*direction.z);
-    //float theta = acos(direction.z / radius);
-    //float phi = atan(direction.y / direction.x);
+    Vector direction = cosine_weighted_hemisphere(normal);
+    float radius = sqrt(direction.x*direction.x + direction.y*direction.y + direction.z*direction.z);
+    float theta = acos(direction.z / radius);
+    float phi = atan(direction.y / direction.x);
     
-    radiance *= hit->diffuse * hit->BRDF(direction, ray.direction) * abs(normal.dot(direction));
-    radiance *= uniform_hemisphere_pdf(0, 0);//theta, phi);
+    radiance *= hit->diffuse;
+    radiance *= hit->BRDF(direction, ray.direction);
+//    radiance *= abs(normal.dot(direction));
+    radiance *= cosine_weighted_hemisphere_pdf(theta, phi);
     
     ray = Ray(point, direction);
   }
   
   return radiance;
+}
+
+Color RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
+  if (depth > 2) {
+    return Color(0, 0, 0);
+  }
+  
+  Object* hit;
+  float result = GetIntersection(ray, scene, hit);
+  
+  if (!result) {
+    return Color(0, 0, 0);
+  }
+  
+  Point point = ray.position(result);
+  Vector normal = hit->getNormal(point);
+  Ray newRay = Ray(point, uniform_hemisphere(normal));
+  
+  return hit->diffuse
+         * RecursiveTrace(newRay, scene, depth + 1)
+         * hit->BRDF(ray.direction, newRay.direction)
+         + hit->emittance;
 }
 
 float ShadowRay(Primitive* object1, Primitive* object2) {
