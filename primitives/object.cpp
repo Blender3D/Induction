@@ -17,7 +17,7 @@ class Object {
     
     float emittance;
     float IOR;
-    float reflection;
+    float reflectance;
     
     void setName(string _name) {
       name = _name;
@@ -95,7 +95,7 @@ class Object {
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          return output.dot(tempNormal);
+          return reflectance;
           break;
       }
     }

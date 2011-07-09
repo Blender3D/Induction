@@ -6,6 +6,13 @@
 #include <fstream>
 #include <cstdlib>
 #include <limits>
+#include <time.h>
+
+#define PI         3.141592653589793238462643383279
+#define INV_PI     0.318309886183790671537767526745
+
+#define TWO_PI     6.283185307179586476925286766559
+#define INV_TWO_PI 0.159154943091895335768883763372
 
 #include <omp.h>
 #include <GL/glut.h>
@@ -28,7 +35,7 @@ using namespace std;
 void Render() {  
   int samples = 0;
   char sampleString[512];
-  
+  float totalTime, time = 0;
   cout << "Rendering " << scene.objects.size() << " objects." << endl;
   cout << "Canvas resolution is " << scene.camera.canvasWidth << "x" << scene.camera.canvasHeight << "." << endl;
   
@@ -38,7 +45,8 @@ void Render() {
       samples++;
       
       cout << endl;
-      
+      clock_t startTime = clock();
+
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
         cout << "Tracing sample " << samples << ": [" << (int)((100 * y) / scene.camera.canvasHeight) + 1 << "%]";
         cout.flush();
@@ -46,11 +54,23 @@ void Render() {
         
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Ray ray = scene.camera.CastRay(scene.camera.canvasWidth - x + random_uniform() - 0.5, scene.camera.canvasHeight - y + random_uniform() - 0.5);
-          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + Trace(ray, scene));
+          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
         }
       }
-
+      
+      time = (double)(clock() - startTime) / ((double)CLOCKS_PER_SEC);
+      totalTime += time;
+      
+      cout << "Tracing sample " << samples << ": [" << time << " sec]";
+      cout.flush();
+      cout << "\r";
+      
       if (samples % 10 == 0) {
+        cout << endl;
+        //cout << "          Statistics          " << endl;
+        //cout << "------------------------------" << endl;
+        //cout << "Average Time / pixel: [" << totalTime / samples << " sec]" << endl;
+        cout << "Saving image..." << endl;
         scene.image->write("image.ppm", samples);
       }
       
@@ -63,9 +83,9 @@ void Render() {
         for (float y = 0; y < scene.camera.canvasHeight; y++) {
           for (float x = 0; x < scene.camera.canvasWidth; x++) {
             glBegin(GL_POINTS);
-              Color pixel = (scene.image->getPixel(scene.camera.canvasWidth - x, y) / samples).clamp();
+              Color pixel = (scene.image->getPixel(x, y) / samples).clamp();
               glColor3f(pixel.r, pixel.g, pixel.b);
-              glVertex2i(x, scene.camera.canvasHeight - y);
+              glVertex2i(scene.camera.canvasWidth - x, scene.camera.canvasHeight - y);
             glEnd();
           }
         }
@@ -88,11 +108,7 @@ int main(int argc, char *argv[]) {
   
   ObjLoader* loader = new ObjLoader();
   loader->load("plane.obj");
-  vector<Object*> objects = loader->objects;
-  
-  for (unsigned int i = 0; i < objects.size(); i++) {
-    scene.addObject(objects[i]);
-  }
+  scene.loadObjects(loader->objects);
   
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
