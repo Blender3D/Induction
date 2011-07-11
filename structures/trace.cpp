@@ -60,7 +60,7 @@ Color Trace(Ray ray, Scene scene) {
 }
 
 Color RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
-  if (depth > 2) {
+  if (depth > 20) {
     return Color(0, 0, 0);
   }
   
@@ -73,11 +73,17 @@ Color RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
   
   Point point = ray.position(result);
   Vector normal = hit->getNormal(point);
-  Ray newRay = Ray(point, uniform_hemisphere(normal));
+  Vector direction = uniform_hemisphere(normal);
+  float radius = direction.length();
+  float theta = acos(direction.z / radius);
+  float phi = atan(direction.y / direction.x);
+  
+  Ray newRay = Ray(point, direction);
   
   return hit->diffuse
          * RecursiveTrace(newRay, scene, depth + 1)
          * hit->BRDF(ray.direction, newRay.direction)
+//         * uniform_hemisphere_pdf(theta, phi)
          + hit->emittance;
 }
 

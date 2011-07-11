@@ -12,6 +12,7 @@ class Camera {
     float cX, cY;
     float pixelDensity, offset, width, height;
     int canvasWidth, canvasHeight;
+    int samples;
     
     void setSize(float _width, float _height) {
       width = _width;
@@ -30,7 +31,11 @@ class Camera {
       direction = (position - focus).norm();
     }
     
-    Ray CastRay(float x, float y) {
-      return Ray(position, Vector(x * cX - width / 2.0, 1.0, y * cY - height / 2.0));
+    void setSamples(int _samples) {
+      samples = _samples;
+    }
+    
+    Ray castRay(float x, float y) {
+      return Ray(position, Vector(x * cX - width / 2.0, 1, y * cY - height / 2.0));
     }
 };

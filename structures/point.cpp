@@ -59,6 +59,10 @@ struct Point {
     return ((other.x <= x) && (other.y <= y) && (other.z <= z));
   }
   
+  float distanceFrom(Point other) {
+    return sqrt((x - other.x)*(x - other.x) + (y - other.y)*(y - other.y) + (z - other.z)*(z - other.z));
+  }
+  
   float operator [](int index) {
     if (index == 0) {
       return x;
