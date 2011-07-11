@@ -83,15 +83,12 @@ class Object {
       switch (reflectionType) {
         default:
         case DIFFUSE:
-          return 1 / (2 * 3.141592653589);
+          return INV_TWO_PI;
           break;
       }
     }
     
     float BRDF(Vector input, Vector output) {
-      Vector tempNormal = this->getNormal(position);
-      Vector v2;
-      
       switch (reflectionType) {
         default:
         case DIFFUSE:

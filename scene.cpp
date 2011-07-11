@@ -85,16 +85,28 @@ void InitScene() {
   scene.addObject(backObject);
   
   
-  Object* sphereObject = new Object();
-  Sphere* sphere = new Sphere();
-  sphere->radius = 0.5;
-  sphere->position = Point(0, 0, -0.5);
+  Object* sphereBigObject = new Object();
+  Sphere* sphereBig = new Sphere();
+  sphereBig->radius = 0.5;
+  sphereBig->position = Point(0, 0, -0.5);
   
-  sphereObject->reflectance = 1;
-  sphereObject->diffuse = Color(1, 1, 1);
+  sphereBigObject->reflectance = 1;
+  sphereBigObject->diffuse = Color(1, 1, 1);
   
-  sphereObject->addPrimitive(sphere);
-  scene.addObject(sphereObject);
+  sphereBigObject->addPrimitive(sphereBig);
+  scene.addObject(sphereBigObject);
+
+
+  Object* sphereLittleObject = new Object();
+  Sphere* sphereLittle = new Sphere();
+  sphereLittle->radius = 0.2;
+  sphereLittle->position = Point(0, 0, 0.2);
+  
+  sphereLittleObject->reflectance = 1;
+  sphereLittleObject->diffuse = Color(1, 1, 1);
+  
+  sphereLittleObject->addPrimitive(sphereLittle);
+  scene.addObject(sphereLittleObject);
 
 
   Object* lightObject = new Object();
@@ -113,11 +125,12 @@ void InitScene() {
 
 
   Camera camera = Camera();
-  camera.position = Point(0, -4.995, 0);
+  camera.position = Point(0, -5, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
-  camera.offset = 1;
+  camera.offset = 0.1;
   camera.setPixelDensity(400);
+  camera.setSamples(8);
   scene.setCamera(camera);
 
   

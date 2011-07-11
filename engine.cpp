@@ -15,7 +15,7 @@
 #define INV_TWO_PI 0.159154943091895335768883763372
 
 #include <omp.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 
 #include "structures/vector.cpp"
 #include "structures/point.cpp"
@@ -25,6 +25,7 @@
 #include "structures/random.cpp"
 #include "structures/image.cpp"
 #include "structures/boundingbox.cpp"
+#include "structures/sampler.cpp"
 
 #include "scene.cpp"
 #include "structures/trace.cpp"
@@ -33,12 +34,19 @@
 using namespace std;
 
 void Render() {
-  bool printing = false;
   int samples = 0;
   char sampleString[512];
-  float totalTime, time = 0;
+  
+  JitteredSampler* sampler = new JitteredSampler();
+  
+  sampler->width = scene.camera.canvasWidth;
+  sampler->height = scene.camera.canvasHeight;
+  
+  sampler->init();
+  
   cout << "Rendering " << scene.objects.size() << " objects." << endl;
   cout << "Canvas resolution is " << scene.camera.canvasWidth << "x" << scene.camera.canvasHeight << "." << endl;
+  cout << endl;
   
   #pragma omp parallel
   {
@@ -51,7 +59,8 @@ void Render() {
       
       for (float y = 0; y < scene.camera.canvasHeight; y++) {
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
-          Ray ray = scene.camera.CastRay(scene.camera.canvasWidth - x + random_uniform() - 0.5, scene.camera.canvasHeight - y + random_uniform() - 0.5);
+          Point sample = sampler->getPixel(x, y);
+          Ray ray = scene.camera.castRay(sample.x, sample.y);
           scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
         }
       }
@@ -71,7 +80,7 @@ void Render() {
             glBegin(GL_POINTS);
               Color pixel = (scene.image->getPixel(x, y) / samples).clamp();
               glColor3f(pixel.r, pixel.g, pixel.b);
-              glVertex2i(scene.camera.canvasWidth - x, scene.camera.canvasHeight - y);
+              glVertex2i(x, y);
             glEnd();
           }
         }
