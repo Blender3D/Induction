@@ -50,6 +50,14 @@ class Triangle: public Primitive {
       return ratio;
     }
     
+    float getSurfaceArea() {
+      return 0.5 * (point1 - point2).cross(point1 - point3).length();
+    }
+    
+    float getVolume() {
+      return 0;
+    }
+    
     BoundingBox* createBoundingBox() {
       BoundingBox* box = new BoundingBox();
       
@@ -67,5 +75,13 @@ class Triangle: public Primitive {
       
     Vector getNormal(Point _position) {
       return normal;
+    }
+    
+    Point getLightSample() {
+      float r1 = random_uniform();
+      float r2 = (1 - r1) * random_uniform();
+      float r3 = 1 - r1 - r2;
+      
+      return r1 * point1 + r2 * point2 + r3 * point3;
     }
 };

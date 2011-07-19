@@ -54,7 +54,7 @@ class CellImage {
       
       for (int y = 0; y < width; y++) {
         for (int x = 0; x < height; x++) {
-          Color pixel = (image[x + height * y] / samples).clamp();
+          Color pixel = (image[x + height * (height - y)] / samples).clamp();
           
           handle << (int)(pixel.r * 255.0);
           handle << " ";

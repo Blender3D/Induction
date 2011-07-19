@@ -3,4 +3,6 @@ all:
 
 run: all
 	./engine
-	eog image.ppm
+
+jrun:
+	./engine

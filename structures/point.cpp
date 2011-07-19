@@ -10,6 +10,12 @@ struct Point {
     z = _z;
   }
   
+  Point(Vector vector) {
+    x = vector.x;
+    y = vector.y;
+    z = vector.z;
+  }
+  
   Point operator +(Point other) const {
     return Point(x + other.x, y + other.y, z + other.z);
   }
