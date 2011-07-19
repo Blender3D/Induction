@@ -79,6 +79,10 @@ class Object {
       return lastHit->getNormal(position);
     }
     
+    Point getLightSample() {
+      return objects[random_int(objects.size())]->getLightSample();
+    }
+    
     float PDF() {
       switch (reflectionType) {
         default:

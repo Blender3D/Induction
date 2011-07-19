@@ -1,31 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-class Sampler {
-  public:
-    vector<Point> coordinates;
-    int width, height;
-    
-    virtual void init() = 0;
-    Point getPixel(int x, int y) {
-      return coordinates[x + y * height];
-    }
-};
-
-class JitteredSampler: public Sampler {
-  public:
-    void init() {
-      coordinates.resize(width * height, Point(0, 0));
-      
-      for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-          coordinates[x + y * height].x = x + random_uniform();
-          coordinates[x + y * height].y = y + random_uniform();
-        }
-      }
-    }
-};
-
 class PoissonSampler: public Sampler {
   public:
     void init() {

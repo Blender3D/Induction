@@ -27,6 +27,22 @@ class Plane: public Primitive {
       return t;
     }
     
+    float getSurfaceArea() {
+      return INFINITY;
+    }
+    
+    float getVolume() {
+      return 0;
+    }
+    
+    Point getLightSample() {
+      int max = 1000000;
+      float u = max * (2 * random_uniform() - 1);
+      float v = max * (2 * random_uniform() - 1);
+      
+      // Transform (u, v) coordinates to world (x, y, z) coordinates.
+    }
+    
     BoundingBox* createBoundingBox() {
       BoundingBox* box = new BoundingBox();
       

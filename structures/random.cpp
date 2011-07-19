@@ -9,6 +9,10 @@ int random_int(int end) {
   return ((float)rand() * (end - 1)) / RAND_MAX;
 }
 
+int random_binary() {
+  return (int)(random_uniform());
+}
+
 Vector uniform_hemisphere(Vector normal = Vector(0, 0, 0)) {
   float random = random_uniform();
   float radius = sqrt(1 - random * random);
@@ -20,6 +24,10 @@ Vector uniform_hemisphere(Vector normal = Vector(0, 0, 0)) {
 
 float uniform_hemisphere_pdf(float theta, float phi) {
   return INV_TWO_PI;
+}
+
+Vector random_vector() {
+  return uniform_hemisphere() * (2 * random_binary() - 1);
 }
 
 Vector cosine_weighted_hemisphere(Vector normal) {

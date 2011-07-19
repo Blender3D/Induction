@@ -38,4 +38,16 @@ class Sphere: public Primitive {
     Vector getNormal(Point _position) {
       return (position - _position).norm();
     }
+    
+    Point getLightSample() {
+      return Point(random_vector() * radius);
+    }
+    
+    float getSurfaceArea() {
+      return 2 * TWO_PI * radius * radius;
+    }
+    
+    float getVolume() {
+      return (4 / 3) * PI * radius * radius * radius;
+    }
 };

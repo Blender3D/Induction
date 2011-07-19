@@ -25,7 +25,10 @@
 #include "structures/random.cpp"
 #include "structures/image.cpp"
 #include "structures/boundingbox.cpp"
-#include "structures/sampler.cpp"
+
+#include "samplers/sampler.cpp"
+#include "samplers/jittered.cpp"
+#include "samplers/poisson.cpp"
 
 #include "scene.cpp"
 #include "structures/trace.cpp"
@@ -51,8 +54,6 @@ void Render() {
   #pragma omp parallel
   {
     while (true) {
-      samples++;
-      
       cout << "Tracing sample " << samples;
       cout.flush();
       cout << "\r";
@@ -61,11 +62,11 @@ void Render() {
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Point sample = sampler->getPixel(x, y);
           Ray ray = scene.camera.castRay(sample.x, sample.y);
-          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
+          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + Trace(ray, scene));
         }
       }
       
-      if (samples % 10 == 0) {
+      if (++samples % 10 == 0) {
         scene.image->write("image.ppm", samples);
       }
       
