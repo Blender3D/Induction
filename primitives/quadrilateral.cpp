@@ -1,4 +1,4 @@
-#include <cmath>
+#include <math.h>
 #include <stdlib.h>
 
 class Quadrilateral: public Primitive {
@@ -16,7 +16,7 @@ class Quadrilateral: public Primitive {
       
       float determinant = edge_12.dot(P);
       
-      if (abs(determinant) < 0.0000001) {
+      if (fabs(determinant) < 0.0000001) {
         return false;
       }
       
@@ -41,7 +41,7 @@ class Quadrilateral: public Primitive {
         Vector P_prime = ray.direction.cross(edge_32);
         float determinant_prime = edge_34.dot(P_prime);
         
-        if (abs(determinant_prime) < eps) {
+        if (fabs(determinant_prime) < eps) {
           return false;
         }
         
@@ -94,6 +94,8 @@ class Quadrilateral: public Primitive {
     }
       
     Vector getNormal(Point position) {
+      position = position;
+      
       return normal;
     }
     

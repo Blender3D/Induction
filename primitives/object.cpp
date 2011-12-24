@@ -1,4 +1,4 @@
-#include <cmath>
+#include <math.h>
 #include <stdlib.h>
 
 using namespace std;
@@ -11,7 +11,7 @@ class Object {
     string name;
     
     Point position;
-    Color diffuse;
+    ColorXYZ diffuse;
     
     ReflectionType reflectionType;
     
@@ -28,8 +28,8 @@ class Object {
     }
     
     BoundingBox* createBoundingBox() {
-      Point minimum = Point(INFINITY, INFINITY, INFINITY);
-      Point maximum = Point(-INFINITY, -INFINITY, -INFINITY);
+      Point minimum = Point(INFINITY);
+      Point maximum = Point(-INFINITY);
       
       for (unsigned int i = 0; i < objects.size(); i++) {
         BoundingBox* box = objects[i]->createBoundingBox();
@@ -93,6 +93,9 @@ class Object {
     }
     
     float BRDF(Vector input, Vector output) {
+      input = input;
+      output = output;
+      
       switch (reflectionType) {
         default:
         case DIFFUSE:

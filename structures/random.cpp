@@ -1,5 +1,4 @@
-#include <cmath>
-#include <stdlib.h>
+#include <math.h>
 
 float random_uniform() {
   return ((float)rand()) / RAND_MAX;
@@ -23,6 +22,9 @@ Vector uniform_hemisphere(Vector normal = Vector(0, 0, 0)) {
 }
 
 float uniform_hemisphere_pdf(float theta, float phi) {
+  theta = theta + 0;
+  phi = phi + 0;
+  
   return INV_TWO_PI;
 }
 
@@ -36,9 +38,9 @@ Vector cosine_weighted_hemisphere(Vector normal) {
 
   Vector result = normal;
   
-  if ((abs(result.x) <= fabs(result.y)) && (abs(result.x) <= fabs(result.z))) {
+  if ((fabs(result.x) <= fabs(result.y)) && (fabs(result.x) <= fabs(result.z))) {
     result.x = 1;
-  } else if ((abs(result.y) <= abs(result.x)) && (abs(result.y) <= fabs(result.z))) {
+  } else if ((fabs(result.y) <= fabs(result.x)) && (fabs(result.y) <= fabs(result.z))) {
     result.y = 1;
   } else {
     result.z = 1;
@@ -51,5 +53,6 @@ Vector cosine_weighted_hemisphere(Vector normal) {
 }
 
 float cosine_weighted_hemisphere_pdf(float theta, float phi) {
+  phi = phi + 0;
   return (cos(theta) * sin(theta)) * INV_PI;
 }

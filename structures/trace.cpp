@@ -1,5 +1,4 @@
-#include <cmath>
-#include <stdlib.h>
+#include <math.h>
 
 float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
   int index = -1;
@@ -20,15 +19,15 @@ float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
   return (index == -1) ? false : result;
 }
 
-Color Trace(Ray ray, Scene scene) {
-  Color L = Color(0, 0, 0);
+ColorXYZ Trace(Ray ray, Scene scene) {
+  ColorXYZ L = ColorXYZ(0, 0, 0);
   
   for (int bounces = 0; ; bounces++) {
     Object* hit;
     float result = GetIntersection(ray, scene, hit);
     
     if (!result) {
-      return Color(0, 0, 0);
+      return ColorXYZ(0, 0, 0);
       break;
     }
     
@@ -36,7 +35,7 @@ Color Trace(Ray ray, Scene scene) {
     float emittance = hit->emittance;
     
     if (emittance > 0) {
-      L += emittance;
+      L = L + ColorXYZ(emittance, emittance, emittance);
       break;
     }
   }
@@ -44,24 +43,24 @@ Color Trace(Ray ray, Scene scene) {
   return L;
 }
 
-Color RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
+ColorXYZ RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
   if (depth > 20) {
-    return Color(0, 0, 0);
+    return ColorXYZ(0, 0, 0);
   }
   
   Object* hit;
   float result = GetIntersection(ray, scene, hit);
   
   if (!result) {
-    return Color(0, 0, 0);
+    return ColorXYZ(0, 0, 0);
   }
   
   Point point = ray.position(result);
   Vector normal = hit->getNormal(point);
   Vector direction = uniform_hemisphere(normal);
-  float radius = direction.length();
-  float theta = acos(direction.z / radius);
-  float phi = atan(direction.y / direction.x);
+  //float radius = direction.length();
+  //float theta = acos(direction.z / radius);
+  //float phi = atan(direction.y / direction.x);
   
   Ray newRay = Ray(point, direction);
   
@@ -69,9 +68,8 @@ Color RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
          * RecursiveTrace(newRay, scene, depth + 1)
          * hit->BRDF(ray.direction, newRay.direction)
 //         * uniform_hemisphere_pdf(theta, phi)
-         + hit->emittance;
+         + ColorXYZ(hit->emittance, hit->emittance, hit->emittance);
 }
-
 float ShadowRay(Primitive* object1, Primitive* object2) {
   return object2->getIntersection(Ray(object1->position, object1->position - object2->position));
 }

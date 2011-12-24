@@ -2,7 +2,7 @@
 #include <climits>
 #include <cstdio>
 #include <ctime>
-#include <cmath>
+#include <math.h>
 
 class MTRand {
   public:
@@ -27,15 +27,15 @@ class MTRand {
     uint32 randInt();                     
     uint32 randInt(const uint32 n);     
     
-    double rand();                        
-    double rand(const double n);        
-    double randExc();                     
-    double randExc(const double n);     
-    double randDblExc();                  
-    double randDblExc(const double n);  
-    double operator()();                  
-    double rand53();  
-    double randNorm(const double mean = 0.0, const double stddev = 1.0);
+    float rand();                        
+    float rand(const float n);        
+    float randExc();                     
+    float randExc(const float n);     
+    float randDblExc();                  
+    float randDblExc(const float n);  
+    float operator()();                  
+    float rand53();  
+    float randNorm(const float mean = 0.0, const float stddev = 1.0);
     
     void seed(const uint32 oneSeed);
     void seed(uint32 *const bigSeed, const uint32 seedLength = N);
@@ -44,8 +44,8 @@ class MTRand {
     void save(uint32* saveArray) const;  
     void load(uint32 *const loadArray);  
     
-    friend std::ostream& operator<<(std::ostream& os, const MTRand& mtrand);
-    friend std::istream& operator>>(std::istream& is, MTRand& mtrand);
+    std::ostream& operator<<(std::ostream& os, const MTRand& mtrand);
+    std::istream& operator>>(std::istream& is, MTRand& mtrand);
     
     MTRand& operator=(const MTRand& o);
 
@@ -229,22 +229,22 @@ inline MTRand::uint32 MTRand::randInt(const uint32 n) {
   return i;
 }
 
-inline double MTRand::rand() { return double(randInt()) * (1.0/4294967295.0); }
-inline double MTRand::rand(const double n) { return rand() * n; }
-inline double MTRand::randExc() { return double(randInt()) * (1.0/4294967296.0); }
-inline double MTRand::randExc(const double n) { return randExc() * n; }
-inline double MTRand::randDblExc() { return (double(randInt()) + 0.5) * (1.0/4294967296.0); }
-inline double MTRand::randDblExc(const double n) { return randDblExc() * n; }
+inline float MTRand::rand() { return float(randInt()) * (1.0/4294967295.0); }
+inline float MTRand::rand(const float n) { return rand() * n; }
+inline float MTRand::randExc() { return float(randInt()) * (1.0/4294967296.0); }
+inline float MTRand::randExc(const float n) { return randExc() * n; }
+inline float MTRand::randDblExc() { return (float(randInt()) + 0.5) * (1.0/4294967296.0); }
+inline float MTRand::randDblExc(const float n) { return randDblExc() * n; }
 
-inline double MTRand::rand53() {
+inline float MTRand::rand53() {
   uint32 a = randInt() >> 5;
   uint32 b = randInt() >> 6;
   
   return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0);  
 }
 
-inline double MTRand::randNorm(const double mean, const double stddev) {
-  double x, y, r;
+inline float MTRand::randNorm(const float mean, const float stddev) {
+  float x, y, r;
   
   do {
     x = 2.0 * rand() - 1.0;
@@ -252,12 +252,12 @@ inline double MTRand::randNorm(const double mean, const double stddev) {
     r = x * x + y * y;
   } while ((r >= 1.0) || (r == 0.0));
   
-  double s = sqrt(-2.0 * log(r) / r);
+  float s = sqrt(-2.0 * log(r) / r);
   
   return mean + x * s * stddev;
 }
 
-inline double MTRand::operator()() {
+inline float MTRand::operator()() {
   return rand();
 }
 

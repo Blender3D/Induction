@@ -1,127 +1,101 @@
 #include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <vector>
+
+#include "vector.h"
+#include "point.h"
 
 using namespace std;
 
-struct Vector {
-  float x, y, z;
+Vector::Vector() {
+  x = 0;
+  y = 0;
+  z = 0;
+}
+
+Vector::Vector(Point point) {
+  x = point.x;
+  y = point.y;
+  z = point.z;
+}
+
+Vector::Vector(float k) {
+  x = k;
+  y = k;
+  z = k;
+}
+
+Vector::Vector(float _x, float _y) {
+  x = _x;
+  y = _y;
+}
+
+Vector::Vector(float _x, float _y, float _z) {
+  x = _x;
+  y = _y;
+  z = _z;
+}
+
+Vector Vector::operator+(Vector vector) {
+  return Vector(x + vector.x, y + vector.y, z + vector.z);
+}
+
+Point Vector::operator+(Point point) {
+  return Point(x + point.x, y + point.y, z + point.z);
+}
+
+Point Vector::operator-(Point point) {
+  return Point(x - point.x, y - point.y, z - point.z);
+}
+
+Vector Vector::operator-(Vector vector) {
+  return Vector(vector.x - x, vector.y - y, vector.z - z);
+}
+
+Vector Vector::operator*(float k) {
+  return Vector(x * k, y * k, z * k);
+}
+
+Vector Vector::operator/(float k) {
+  return Vector(x / k, y / k, z / k);
+}
+
+bool Vector::operator==(Vector other) {
+  return ((x == other.x) && (y == other.y) && (z == other.z));
+}
+
+bool Vector::operator!=(Vector other) {
+  return ((x != other.x) || (y != other.y) || (z != other.z));
+}
+
+ostream& operator<<(ostream& stream, Vector& vector) {
+  stream << "Point(" << vector.x << ", " << vector.y << ", " << vector.z << ")";
   
-  Vector(float _x = 0.0, float _y = 0.0, float _z = 0.0) {
-    x = _x;
-    y = _y;
-    z = _z;
+  return stream;
+}
+
+float Vector::operator[](int index) {
+  if (index == 0) {
+    return x;
+  } else if (index == 1) {
+    return y;
+  } else if (index == 2) {
+    return z;
+  } else {
+    return 0;
   }
-  
-  Vector operator +(Vector other) const {
-    return Vector(x + other.x, y + other.y, z + other.z);
-  }
-  
-  Vector operator +(float other) const {
-    return Vector(x + other, y + other, z + other);
-  }
-  
-  Vector operator -(Vector other) const {
-    return Vector(x - other.x, y - other.y, z - other.z);
-  }
-  
-  Vector operator *(float other) const {
-    return Vector(x * other, y * other, z * other);
-  }
-  
-  Vector operator *(Vector other) const {
-    return Vector(x * other.x, y * other.y, z * other.z);
-  }
-  
-  Vector operator /(float other) const {
-    return *this * (1.0 / other);
-  }
-  
-  bool operator ==(Vector other) {
-    return ((other.x == x) && (other.y == y) && (other.z == z));
-  }
-  
-  bool operator !=(Vector other) {
-    return ((other.x != x) || (other.y != y) || (other.z == z));
-  }
-  
-  bool operator >(Vector other) {
-    return ((other.x > x) && (other.y > y) && (other.z > z));
-  }
-  
-  bool operator >=(Vector other) {
-    return ((other.x >= x) && (other.y >= y) && (other.z >= z));
-  }
-  
-  bool operator <(Vector other) {
-    return ((other.x < x) && (other.y < y) && (other.z < z));
-  }
-  
-  bool operator <=(Vector other) {
-    return ((other.x <= x) && (other.y <= y) && (other.z <= z));
-  }
-  
-  Vector operator +=(Vector other) {
-    *this = *this + other;
-    return *this;
-  }
-  
-  Vector operator +=(float other) {
-    *this = *this + other;
-    return *this;
-  }
-  
-  Vector operator -=(Vector other) {
-    *this = *this - other;
-    return *this;
-  }
-  
-  Vector operator -=(float other) {
-    *this = *this - other;
-    return *this;
-  }
-  
-  Vector operator *=(Vector other) {
-    *this = *this * other;
-    return *this;
-  }
-  
-  Vector operator *=(float other) {
-    *this = *this * other;
-    return *this;
-  }
-  
-  Vector operator /=(float other) {
-    *this = *this / other;
-    return *this;
-  }
-  
-  float operator [](int index) {
-    if (index == 0) {
-      return x;
-    } else if (index == 1) {
-      return y;
-    } else if (index == 2) {
-      return z;
-    } else {
-      return 0;
-    }
-  }
-  
-  Vector norm() {
-    return *this * (1.0 / sqrt(x*x + y*y + z*z));
-  }
-  
-  float dot(Vector other) const {
-    return x * other.x + y * other.y + z * other.z;
-  }
-  
-  Vector cross(Vector other) const {
-    return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
-  }
-  
-  float length() {
-    return sqrt(x*x + y*y + z*z);
-  }
-};
+}
+
+float Vector::length() {
+  return sqrt(dot(*this));
+}
+
+Vector Vector::norm() {
+  return *this * (1.0 / length());
+}
+
+float Vector::dot(Vector other) {
+  return x * other.x + y * other.y + z * other.z;
+}
+
+Vector Vector::cross(Vector other) {
+  return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+}

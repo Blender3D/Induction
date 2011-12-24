@@ -1,24 +1,21 @@
 #include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <vector>
 
-using namespace std;
+#include "ray.h"
 
-struct Ray {
-  Point origin;
-  Vector direction;
-  
-  Ray(Point _origin, Vector _direction) {
-    origin = _origin;
-    direction = _direction.norm();
-  }
-  
-  Point position(float &time) {
-    return origin + direction * time;
-  }
-  
-  bool operator==(Ray &other) {
-    return ((other.origin == origin) && (other.direction == direction));
-  }
-};
+Ray::Ray() {
+  origin = Point();
+  direction = Vector();
+}
+
+Ray::Ray(Point _origin, Vector _direction) {
+  origin = _origin;
+  direction = _direction.norm();
+}
+
+Point Ray::position(float time) {
+  return origin + direction * time;
+}
+
+bool operator==(Ray a, Ray b) {
+  return ((a.origin == b.origin) && (a.direction == b.direction));
+}
