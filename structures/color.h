@@ -6,6 +6,8 @@
 
 #include "spectrum.h"
 
+class ColorXYZ;
+
 class ColorRGB {
   public:
     float r, g, b;
@@ -17,6 +19,8 @@ class ColorRGB {
     
     ColorRGB operator+(ColorRGB);
     ColorRGB operator*(float);
+    
+    ColorXYZ toXYZ();
     
     friend std::ostream& operator<<(std::ostream&, ColorRGB&);
 };

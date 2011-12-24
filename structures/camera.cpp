@@ -29,5 +29,5 @@ void Camera::setSamples(int _samples) {
 }
 
 Ray Camera::castRay(float x, float y) {
-  return Ray(position, Vector(x * cX - width / 2.0, 1, y * cY - height / 2.0));
+  return Ray(position, Vector(x * cX - width / 2.0, offset, y * cY - height / 2.0));
 }
