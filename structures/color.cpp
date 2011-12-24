@@ -24,6 +24,12 @@ ColorRGB ColorRGB::operator*(float k) {
   return ColorRGB(r * k, g * k, b * k);
 }
 
+ColorXYZ ColorRGB::toXYZ() {
+  return ColorXYZ(0.412453 * r  + 0.35758 * g  + 0.180423 * b,
+                   0.212671 * r  + 0.71516 * g  + 0.0721688 * b,
+                   0.0193338 * r + 0.119194 * g + 0.950227 * b);
+}
+
 ostream& operator<<(ostream& stream, ColorRGB& color) {
   stream << "ColorRGB(" << color.r << ", " << color.g << ", " << color.b << ")";
   
