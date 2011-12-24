@@ -1,83 +1,78 @@
 #include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <vector>
+
+#include "color.h"
 
 using namespace std;
 
-struct Color {
-  float r, g, b;
+ColorRGB::ColorRGB() {
+  r = 0;
+  g = 0;
+  b = 0;
+}
+
+ColorRGB::ColorRGB(float _r, float _g, float _b) {
+  r = _r;
+  g = _g;
+  b = _b;
+}
+
+ColorRGB ColorRGB::operator+(ColorRGB color) {
+  return ColorRGB(r + color.r, g + color.g, b + color.b);
+}
+
+ColorRGB ColorRGB::operator*(float k) {
+  return ColorRGB(r * k, g * k, b * k);
+}
+
+ostream& operator<<(ostream& stream, ColorRGB& color) {
+  stream << "ColorRGB(" << color.r << ", " << color.g << ", " << color.b << ")";
   
-  Color(float _r = 0.0, float _g = 0.0, float _b = 0.0) {
-    r = _r;
-    g = _g;
-    b = _b;
-  }
+  return stream;
+}
+
+
+
+ColorXYZ::ColorXYZ() {
+  x = 0;
+  y = 0;
+  z = 0;
+}
+
+ColorXYZ::ColorXYZ(float _x, float _y, float _z) {
+  x = _x;
+  y = _y;
+  z = _z;
+}
+
+ColorXYZ ColorXYZ::operator+(ColorXYZ color) {
+  return ColorXYZ(x + color.x, y + color.y, z + color.z);
+}
+
+ColorXYZ ColorXYZ::operator*(ColorXYZ color) {
+  return ColorXYZ(x * color.x, y * color.y, z * color.z);
+}
+
+ColorXYZ ColorXYZ::operator*(float k) {
+  return ColorXYZ(x * k, y * k, z * k);
+}
+
+ColorXYZ ColorXYZ::operator/(float k) {
+  return ColorXYZ(x / k, y / k, z / k);
+}
+
+ColorXYZ operator +=(ColorXYZ self, ColorXYZ other) {
+  self = self + other;
+  return self;
+}
+
+ColorRGB ColorXYZ::toRGB() {
+  return ColorRGB(3.240479 * x - 1.537150 * y - 0.498535 * z,
+                  -0.969256 * x + 1.875991 * y + 0.041556 * z,
+                   0.055648 * x - 0.204043 * y + 1.057311 * z);
+}
+
+ostream& operator<<(ostream& stream, ColorXYZ& color) {
+  stream << "ColorXYZ(" << color.x << ", " << color.y << ", " << color.z << ")";
   
-  Color operator +(Color other) const {
-    return Color(r + other.r, g + other.g, b + other.b);
-  }
-  
-  Color operator +(float other) const {
-    return Color(r + other, g + other, b + other);
-  }
-  
-  Color operator -(Color other) const {
-    return Color(r - other.r, g - other.g, b - other.b);
-  }
-  
-  Color operator *(float other) const {
-    return Color(r * other, g * other, b * other);
-  }
-  
-  Color operator *(Color other) const {
-    return Color(r * other.r, g * other.g, b * other.b);
-  }
-  
-  Color operator /(float other) const {
-    return *this * (1.0 / other);
-  }
-  
-  bool operator ==(Color other) {
-    return ((other.r == r) && (other.g == g) && (other.b == b));
-  }
-  
-  Color operator +=(Color other) {
-    *this = *this + other;
-    return *this;
-  }
-  
-  Color operator +=(float other) {
-    *this = *this + other;
-    return *this;
-  }
-  
-  Color operator -=(Color other) {
-    *this = *this - other;
-    return *this;
-  }
-  
-  Color operator -=(float other) {
-    *this = *this - other;
-    return *this;
-  }
-  
-  Color operator *=(Color other) {
-    *this = *this * other;
-    return *this;
-  }
-  
-  Color operator *=(float other) {
-    *this = *this * other;
-    return *this;
-  }
-  
-  Color operator /=(float other) {
-    *this = *this / other;
-    return *this;
-  }
-  
-  Color clamp() {
-    return Color(r > 1 ? 1 : r, g > 1 ? 1 : g, b > 1 ? 1 : b);
-  }
-};
+  return stream;
+}

@@ -41,6 +41,8 @@ class Plane: public Primitive {
       float v = max * (2 * random_uniform() - 1);
       
       // Transform (u, v) coordinates to world (x, y, z) coordinates.
+
+      return Point(u, v, 0);
     }
     
     BoundingBox* createBoundingBox() {
@@ -54,6 +56,8 @@ class Plane: public Primitive {
     }
       
     Vector getNormal(Point _position) {
+      _position = _position;
+      
       return normal;
     }
 };

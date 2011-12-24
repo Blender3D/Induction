@@ -14,19 +14,27 @@
 #define TWO_PI     6.283185307179586476925286766559
 #define INV_TWO_PI 0.159154943091895335768883763372
 
-#include <omp.h>
-#include <GL/freeglut.h>
+#define MULTITHREADING
+#define GUI
 
-#include "structures/vector.cpp"
-#include "structures/point.cpp"
-#include "structures/color.cpp"
-#include "structures/ray.cpp"
-#include "structures/camera.cpp"
+#ifdef MULTITHREADING
+  #include <omp.h>
+#endif
+
+#ifdef GUI
+  #include <GL/freeglut.h>
+#endif
+
+#include "structures/point.h"
+#include "structures/vector.h"
+#include "structures/color.h"
+#include "structures/ray.h"
+#include "structures/camera.h"
+#include "structures/image.h"
 #include "structures/random.cpp"
-#include "structures/image.cpp"
-#include "structures/boundingbox.cpp"
+#include "structures/boundingbox.h"
 
-#include "samplers/sampler.cpp"
+#include "samplers/sampler.h"
 #include "samplers/jittered.cpp"
 #include "samplers/poisson.cpp"
 
@@ -38,7 +46,6 @@ using namespace std;
 
 void Render() {
   int samples = 0;
-  char sampleString[512];
   
   JitteredSampler* sampler = new JitteredSampler();
   
@@ -62,7 +69,7 @@ void Render() {
         for (float x = 0; x < scene.camera.canvasWidth; x++) {
           Point sample = sampler->getPixel(x, y);
           Ray ray = scene.camera.castRay(sample.x, sample.y);
-          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + Trace(ray, scene));
+          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
         }
       }
       
@@ -70,24 +77,23 @@ void Render() {
         scene.image->write("image.ppm", samples);
       }
       
-      #pragma omp barrier
-      #pragma omp master
-      {
-        sprintf(sampleString, "Samples: [%d]", samples);
-        glutSetWindowTitle(sampleString);
-        
-        for (float y = 0; y < scene.camera.canvasHeight; y++) {
-          for (float x = 0; x < scene.camera.canvasWidth; x++) {
-            glBegin(GL_POINTS);
-              Color pixel = (scene.image->getPixel(x, y) / samples).clamp();
-              glColor3f(pixel.r, pixel.g, pixel.b);
-              glVertex2i(x, y);
-            glEnd();
+      #ifdef GUI
+        #pragma omp barrier
+        #pragma omp master
+        {
+          for (float y = 0; y < scene.camera.canvasHeight; y++) {
+            for (float x = 0; x < scene.camera.canvasWidth; x++) {
+              glBegin(GL_POINTS);
+                ColorRGB pixel = (scene.image->getPixel(x, y) / samples).toRGB();
+                glColor3f(pixel.r, pixel.g, pixel.b);
+                glVertex2i(x, y);
+              glEnd();
+            }
           }
+          
+          glutSwapBuffers();
         }
-        
-        glutSwapBuffers();
-      }
+      #endif
     }
   }
 }
@@ -98,25 +104,29 @@ int main(int argc, char *argv[]) {
   
   cout << "/==========================\\" << endl;
   cout << "||  Induction Pathtracer  ||" << endl;
-  cout << "||       v0.1 (Git)       ||" << endl;
+  cout << "||       v0.5 (Git)       ||" << endl;
   cout << "\\==========================/" << endl;
   cout << endl;
   
-  ObjLoader* loader = new ObjLoader();
-  loader->load("plane.obj");
-  scene.loadObjects(loader->objects);
+  //ObjLoader* loader = new ObjLoader();
+  //loader->load("plane.obj");
+  //scene.loadObjects(loader->objects);
   
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-  glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - scene.camera.canvasWidth) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.canvasHeight) / 2);
-  glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
-  glutCreateWindow("Samples: [0]");
-  
-  glutDisplayFunc(Render);
-  
-  glViewport(0, 0, scene.camera.canvasWidth, scene.camera.canvasHeight);
-  glLoadIdentity();
-  glOrtho(0.0, scene.camera.canvasWidth - 1.0, 0.0, scene.camera.canvasHeight - 1.0, -1.0, 1.0);
+  #ifdef GUI
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - scene.camera.canvasWidth) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.canvasHeight) / 2);
+    glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
+    glutCreateWindow("Samples: [0]");
+    
+    glutDisplayFunc(Render);
+    
+    glViewport(0, 0, scene.camera.canvasWidth, scene.camera.canvasHeight);
+    glLoadIdentity();
+    glOrtho(0.0, scene.camera.canvasWidth - 1.0, 0.0, scene.camera.canvasHeight - 1.0, -1.0, 1.0);
 
-  glutMainLoop();
+    glutMainLoop();
+  #else
+    Render();
+  #endif
 }

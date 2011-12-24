@@ -1,13 +1,15 @@
 #include <math.h>
-#include <stdlib.h>
+#include <vector>
 
-class Sampler {
-  public:
-    vector<Point> coordinates;
-    int width, height;
+#include "sampler.h"
+#include "../structures/point.h"
+
+using namespace std;
+
+Sampler::Sampler() {
     
-    virtual void init() = 0;
-    Point getPixel(int x, int y) {
-      return coordinates[x + y * height];
-    }
-};
+}
+
+Point Sampler::getPixel(int x, int y) {
+  return coordinates[x + y * height];
+}

@@ -28,8 +28,8 @@ class Sphere: public Primitive {
     BoundingBox* createBoundingBox() {
       BoundingBox* box = new BoundingBox();
       
-      box->corner1 = position - radius;
-      box->corner2 = position + radius;
+      box->corner1 = position - Point(radius);
+      box->corner2 = position + Point(radius);
       
       boundingBox = box;
       return box;

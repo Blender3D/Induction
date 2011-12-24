@@ -1,4 +1,4 @@
-#include <cmath>
+#include <math.h>
 #include <stdlib.h>
 
 class Triangle: public Primitive {
@@ -15,7 +15,7 @@ class Triangle: public Primitive {
       float a = -n.dot(w0);
       float b = n.dot(ray.direction);
       
-      if (abs(b) < 0.0000001) {
+      if (fabs(b) < 0.0000001) {
         return false;
       }
 
@@ -74,6 +74,7 @@ class Triangle: public Primitive {
     }
       
     Vector getNormal(Point _position) {
+      _position = _position;
       return normal;
     }
     
@@ -82,6 +83,6 @@ class Triangle: public Primitive {
       float r2 = (1 - r1) * random_uniform();
       float r3 = 1 - r1 - r2;
       
-      return r1 * point1 + r2 * point2 + r3 * point3;
+      return point1 * r1  + point2 * r2 + point3 * r3;
     }
 };

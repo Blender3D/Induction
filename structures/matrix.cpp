@@ -1,66 +1,86 @@
 #include <math.h>
-#include <stdlib.h>
+
+#include "matrix.h"
 
 using namespace std;
 
-class Matrix {
-  public:
-    int width, height;
-    vector<float> contents;
+Matrix4x4::Matrix4x4() {
+  for (int i = 0; i < 4; i++) {
+    vector<float> row;
     
-    float get(int x, int y) {
-      return contents[height * y + x];
+    for (int j = 0; j < 4; j++) {
+      row.push_back(i * j);
     }
     
-    void set(int x, int y, float value) {
-      contents[height * y + x] = value;
+    cells.push_back(row);
+  }
+}
+
+Matrix4x4::Matrix4x4(float _cells[4][4]) {
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      cells[y][x] = _cells[y][x];
     }
-    
-    Matrix operator +(Matrix other) {
-      Matrix *temp = new Matrix();
-      temp->setSize(width, height);
+  }
+}
+
+Matrix4x4 Matrix4x4::operator+(Matrix4x4 other) {
+  Matrix4x4 temp = Matrix4x4();;
+  
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      temp.cells[y][x] = cells[y][x] + other.cells[y][x];
+    }
+  }
+  
+  return temp;
+}
+
+Matrix4x4 Matrix4x4::operator-(Matrix4x4 other) {
+  Matrix4x4 temp = Matrix4x4();
+  
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      temp.cells[y][x] = cells[y][x] - other.cells[y][x];
+    }
+  }
+  
+  return temp;
+}
+
+Matrix4x4 Matrix4x4::operator*(Matrix4x4 other) {
+  Matrix4x4 temp = Matrix4x4();
+  
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      float temp_cell = 0;
       
-      for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-          temp->set(x, y, get(x, y) + other.get(x, y));
-        }
+      for (int z = 0; z < 4; z++) {
+        temp_cell += cells[y][z] * other.cells[z][x];
       }
-      
-      return *temp;
+
+      temp.cells[y][x] = temp_cell;
     }
+  }
+  
+  return temp;
+}
+
+ostream& operator<<(ostream& stream, Matrix4x4& matrix) {
+  stream << "Matrix4x4[";
+  
+  for (int y = 0; y < 4; y++) {
+    stream << matrix.cells[y][0]
+           << " " << matrix.cells[y][1]
+           << " " << matrix.cells[y][2]
+           << " " << matrix.cells[y][3];
     
-    Matrix operator -(Matrix other) {
-      Matrix *temp = new Matrix();
-      temp->setSize(width, height);
-      
-      for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-          temp->set(x, y, get(x, y) - other.get(x, y));
-        }
-      }
-      
-      return *temp;
+    if (y < 3) {
+      stream << "]" << endl << "         [";
+    } else {
+      stream << "]";
     }
-    
-    Matrix operator *(Matrix other) {
-      Matrix *temp = new Matrix();
-      temp->setSize(other.width, height);
-      
-      for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-          for (int i = 0; i < width; x++) {
-            temp->set(x, y, temp->get(x, y) + get(i, y) * other.get(x, i));
-          }
-        }
-      }
-      
-      return *temp;
-    }
-    
-    void setSize(int _width, int _height) {
-      width = _width;
-      height = _height;
-      
-      contents.resize(width * height, 0);
-    }
-};
+  }
+  
+  return stream;
+}

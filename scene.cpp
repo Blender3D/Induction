@@ -7,6 +7,8 @@
 
 #include "structures/scene.cpp"
 
+#include "structures/camera.h"
+
 Scene scene = Scene();
 
 void InitScene() {
@@ -19,7 +21,7 @@ void InitScene() {
   top->normal = Vector(0, 0, 1);
   
   topObject->reflectance = 1;
-  topObject->diffuse = Color(1, 1, 1);
+  topObject->diffuse = ColorXYZ(1, 1, 1);
   
   topObject->addPrimitive(top);
   scene.addObject(topObject);
@@ -34,7 +36,7 @@ void InitScene() {
   bottom->normal = Vector(0, 0, -1);
   
   bottomObject->reflectance = 1;
-  bottomObject->diffuse = Color(0.76, 0.75, 0.75);
+  bottomObject->diffuse = ColorXYZ(0.76, 0.75, 0.75);
   
   bottomObject->addPrimitive(bottom);
   scene.addObject(bottomObject);
@@ -49,7 +51,7 @@ void InitScene() {
   left->normal = Vector(-1, 0, 0);
   
   leftObject->reflectance = 1;
-  leftObject->diffuse = Color(0.63, 0.06, 0.04);
+  leftObject->diffuse = ColorXYZ(0.63, 0.06, 0.04);
   
   leftObject->addPrimitive(left);
   scene.addObject(leftObject);
@@ -64,7 +66,7 @@ void InitScene() {
   right->normal = Vector(1, 0, 0);
   
   rightObject->reflectance = 1;
-  rightObject->diffuse = Color(0.15, 0.48, 0.09);
+  rightObject->diffuse = ColorXYZ(0.15, 0.48, 0.09);
   
   rightObject->addPrimitive(right);
   scene.addObject(rightObject);
@@ -79,7 +81,7 @@ void InitScene() {
   back->normal = Vector(0, 1, 0);
   
   backObject->reflectance = 1;
-  backObject->diffuse = Color(0.76, 0.75, 0.75);
+  backObject->diffuse = ColorXYZ(0.76, 0.75, 0.75);
   
   backObject->addPrimitive(back);
   scene.addObject(backObject);
@@ -91,7 +93,7 @@ void InitScene() {
   sphereBig->position = Point(0, 0, -0.5);
   
   sphereBigObject->reflectance = 1;
-  sphereBigObject->diffuse = Color(1, 1, 1);
+  sphereBigObject->diffuse = ColorXYZ(1, 1, 1);
   
   sphereBigObject->addPrimitive(sphereBig);
   scene.addObject(sphereBigObject);
@@ -103,7 +105,7 @@ void InitScene() {
   sphereLittle->position = Point(0, 0, 0.2);
   
   sphereLittleObject->reflectance = 1;
-  sphereLittleObject->diffuse = Color(1, 1, 1);
+  sphereLittleObject->diffuse = ColorXYZ(1, 1, 1);
   
   sphereLittleObject->addPrimitive(sphereLittle);
   scene.addObject(sphereLittleObject);
@@ -118,7 +120,7 @@ void InitScene() {
   light->normal = Vector(0, 0, 1);
   
   lightObject->emittance = 25;
-  lightObject->diffuse = Color(1, 0.85, 0.43);
+  lightObject->diffuse = ColorXYZ(1, 0.85, 0.43);
   
   lightObject->addPrimitive(light);
   scene.addObject(lightObject);
