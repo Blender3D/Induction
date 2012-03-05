@@ -11,7 +11,7 @@ class Object {
     string name;
     
     Point position;
-    ColorXYZ diffuse;
+    ColorRGB diffuse;
     
     ReflectionType reflectionType;
     

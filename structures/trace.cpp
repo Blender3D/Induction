@@ -19,15 +19,15 @@ float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
   return (index == -1) ? false : result;
 }
 
-ColorXYZ Trace(Ray ray, Scene scene) {
-  ColorXYZ L = ColorXYZ(0, 0, 0);
+ColorRGB Trace(Ray ray, Scene scene) {
+  ColorRGB L = ColorRGB(0, 0, 0);
   
   for (int bounces = 0; ; bounces++) {
     Object* hit;
     float result = GetIntersection(ray, scene, hit);
     
     if (!result) {
-      return ColorXYZ(0, 0, 0);
+      return ColorRGB(0, 0, 0);
       break;
     }
     
@@ -35,7 +35,7 @@ ColorXYZ Trace(Ray ray, Scene scene) {
     float emittance = hit->emittance;
     
     if (emittance > 0) {
-      L = L + ColorXYZ(emittance, emittance, emittance);
+      L = L + ColorRGB(emittance, emittance, emittance);
       break;
     }
   }
@@ -43,16 +43,16 @@ ColorXYZ Trace(Ray ray, Scene scene) {
   return L;
 }
 
-ColorXYZ RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
+ColorRGB RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
   if (depth > 20) {
-    return ColorXYZ(0, 0, 0);
+    return ColorRGB(0, 0, 0);
   }
   
   Object* hit;
   float result = GetIntersection(ray, scene, hit);
   
   if (!result) {
-    return ColorXYZ(0, 0, 0);
+    return ColorRGB(0, 0, 0);
   }
   
   Point point = ray.position(result);
@@ -68,7 +68,7 @@ ColorXYZ RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
          * RecursiveTrace(newRay, scene, depth + 1)
          * hit->BRDF(ray.direction, newRay.direction)
 //         * uniform_hemisphere_pdf(theta, phi)
-         + ColorXYZ(hit->emittance, hit->emittance, hit->emittance);
+         + ColorRGB(hit->emittance, hit->emittance, hit->emittance);
 }
 float ShadowRay(Primitive* object1, Primitive* object2) {
   return object2->getIntersection(Ray(object1->position, object1->position - object2->position));

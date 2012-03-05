@@ -14,9 +14,6 @@
 #define TWO_PI     6.283185307179586476925286766559
 #define INV_TWO_PI 0.159154943091895335768883763372
 
-#define MULTITHREADING
-#define GUI
-
 #ifdef MULTITHREADING
   #include <omp.h>
 #endif
@@ -58,7 +55,7 @@ void Render() {
   cout << "Canvas resolution is " << scene.camera.canvasWidth << "x" << scene.camera.canvasHeight << "." << endl;
   cout << endl;
   
-  #pragma omp parallel
+//  #pragma omp parallel
   {
     while (true) {
       cout << "Tracing sample " << samples;
@@ -81,10 +78,12 @@ void Render() {
         #pragma omp barrier
         #pragma omp master
         {
+          sampler->init();
+          
           for (float y = 0; y < scene.camera.canvasHeight; y++) {
             for (float x = 0; x < scene.camera.canvasWidth; x++) {
               glBegin(GL_POINTS);
-                ColorRGB pixel = (scene.image->getPixel(x, y) / samples).toRGB();
+                ColorRGB pixel = (scene.image->getPixel(x, y) / samples);
                 glColor3f(pixel.r, pixel.g, pixel.b);
                 glVertex2i(x, y);
               glEnd();

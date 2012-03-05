@@ -18,8 +18,14 @@ class ColorRGB {
     ColorRGB(float, float, float);
     
     ColorRGB operator+(ColorRGB);
+    ColorRGB operator*(ColorRGB);
     ColorRGB operator*(float);
+    ColorRGB operator/(float);
     
+    ColorRGB operator+=(ColorXYZ);
+    ColorRGB operator*=(float);
+    
+    ColorRGB clamp();
     ColorXYZ toXYZ();
     
     friend std::ostream& operator<<(std::ostream&, ColorRGB&);

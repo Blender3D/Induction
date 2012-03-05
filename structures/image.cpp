@@ -26,14 +26,14 @@ void CellImage::setSize(int _width, int _height) {
   width = _width;
   height = _height;
   
-  image.resize(width * height, ColorXYZ(0, 0, 0));
+  image.resize(width * height, ColorRGB(0, 0, 0));
 }
 
-void CellImage::setPixel(int x, int y, ColorXYZ color) {
+void CellImage::setPixel(int x, int y, ColorRGB color) {
   image[y * height + x] = color;
 }
 
-ColorXYZ CellImage::getPixel(int x, int y) {
+ColorRGB CellImage::getPixel(int x, int y) {
   return image[y * height + x];
 }
 
@@ -42,15 +42,11 @@ void CellImage::write(const char* filename, int samples) {
   handle.open(filename);
   
   handle << "P3" << endl;
-  handle << width;
-  handle << " ";
-  handle << height;
-  handle << " ";
-  handle << "255" << endl << endl;
+  handle << width << " " << height << " " << "255" << endl << endl;
   
-  for (int y = 0; y < width; y++) {
-    for (int x = 0; x < height; x++) {
-      ColorRGB pixel = (image[x + height * (height - y)] / samples).toRGB();
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      ColorRGB pixel = (getPixel(x, height - y) / samples).clamp();
       
       handle << (int)(pixel.r * 255.0);
       handle << " ";

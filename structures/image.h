@@ -11,7 +11,7 @@
 class CellImage {
   public:
     int width, height;
-    std::vector<ColorXYZ> image;
+    std::vector<ColorRGB> image;
     
     ~CellImage() {};
     CellImage();
@@ -19,8 +19,8 @@ class CellImage {
     CellImage* operator+ (CellImage);
 
     void setSize(int, int);
-    void setPixel(int, int, ColorXYZ);
-    ColorXYZ getPixel(int, int);
+    void setPixel(int, int, ColorRGB);
+    ColorRGB getPixel(int, int);
     
     void write(const char*, int);
 };

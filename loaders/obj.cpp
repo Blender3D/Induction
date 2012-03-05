@@ -39,7 +39,7 @@ class ObjLoader {
     
     void load(const char* filename) {
       Object* object = new Object();
-      object->diffuse = ColorXYZ(1, 1, 1);
+      object->diffuse = ColorRGB(1, 1, 1);
       
       vector<Point> vertices;
       vector<Primitive*> faces;
@@ -84,7 +84,7 @@ class ObjLoader {
             
             Object* object = new Object();
             object->setName(objectName);
-            object->diffuse = ColorXYZ(1, 1, 1);
+            object->diffuse = ColorRGB(1, 1, 1);
           }
           
           if ((temp[0] == 'v') && (temp[1] == ' ')) {
