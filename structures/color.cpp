@@ -1,4 +1,5 @@
 #include <math.h>
+#include <algorithm>
 
 #include "color.h"
 
@@ -20,8 +21,36 @@ ColorRGB ColorRGB::operator+(ColorRGB color) {
   return ColorRGB(r + color.r, g + color.g, b + color.b);
 }
 
+ColorRGB ColorRGB::operator*(ColorRGB color) {
+  return ColorRGB(r * color.r, g * color.g, b * color.b);
+}
+
 ColorRGB ColorRGB::operator*(float k) {
   return ColorRGB(r * k, g * k, b * k);
+}
+
+ColorRGB ColorRGB::operator/(float k) {
+  return ColorRGB(r / k, g / k, b / k);
+}
+
+ColorRGB operator +=(ColorRGB self, ColorRGB other) {
+  self = self + other;
+  return self;
+}
+
+ColorRGB ColorRGB::clamp() {
+  ColorRGB temp = ColorRGB();
+  
+  if (r > 1) temp.r = 1.0;
+  if (r < 0) temp.r = 0.0;
+  
+  if (g > 1) temp.g = 1.0;
+  if (g < 0) temp.g = 0.0;
+  
+  if (b > 1) temp.b = 1.0;
+  if (b < 0) temp.b = 0.0;
+  
+  return temp;
 }
 
 ColorXYZ ColorRGB::toXYZ() {

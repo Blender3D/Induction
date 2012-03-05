@@ -6,6 +6,8 @@ all:
 	    -O3 \
 	    -lglut -lGLU -lGL \
 	    -fopenmp \
+	    -D GUI \
+	    -D MULTITHREADING \
 	    engine.cpp \
 					structures/vector.cpp \
 					structures/point.cpp \

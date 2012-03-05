@@ -5,8 +5,8 @@
 #include "primitives/sphere.cpp"
 #include "primitives/object.cpp"
 
-#include "structures/scene.cpp"
 
+#include "structures/scene.cpp"
 #include "structures/camera.h"
 
 Scene scene = Scene();
@@ -21,7 +21,7 @@ void InitScene() {
   top->normal = Vector(0, 0, 1);
   
   topObject->reflectance = 1;
-  topObject->diffuse = ColorRGB(1, 1, 1).toXYZ();
+  topObject->diffuse = ColorRGB(1, 1, 1);
   
   topObject->addPrimitive(top);
   scene.addObject(topObject);
@@ -36,7 +36,7 @@ void InitScene() {
   bottom->normal = Vector(0, 0, -1);
   
   bottomObject->reflectance = 1;
-  bottomObject->diffuse = ColorRGB(0.76, 0.75, 0.75).toXYZ();
+  bottomObject->diffuse = ColorRGB(0.76, 0.75, 0.75);
   
   bottomObject->addPrimitive(bottom);
   scene.addObject(bottomObject);
@@ -51,7 +51,7 @@ void InitScene() {
   left->normal = Vector(-1, 0, 0);
   
   leftObject->reflectance = 1;
-  leftObject->diffuse = ColorRGB(0.63, 0.06, 0.04).toXYZ();
+  leftObject->diffuse = ColorRGB(0.63, 0.06, 0.04);
   
   leftObject->addPrimitive(left);
   scene.addObject(leftObject);
@@ -66,7 +66,7 @@ void InitScene() {
   right->normal = Vector(1, 0, 0);
   
   rightObject->reflectance = 1;
-  rightObject->diffuse = ColorRGB(0.15, 0.48, 0.09).toXYZ();
+  rightObject->diffuse = ColorRGB(0.15, 0.48, 0.09);
   
   rightObject->addPrimitive(right);
   scene.addObject(rightObject);
@@ -81,58 +81,45 @@ void InitScene() {
   back->normal = Vector(0, 1, 0);
   
   backObject->reflectance = 1;
-  backObject->diffuse = ColorRGB(0.76, 0.75, 0.75).toXYZ();
+  backObject->diffuse = ColorRGB(0.76, 0.75, 0.75);
   
   backObject->addPrimitive(back);
   scene.addObject(backObject);
   
   
-  Object* sphereBigObject = new Object();
-  Sphere* sphereBig = new Sphere();
-  sphereBig->radius = 0.5;
-  sphereBig->position = Point(0, 0, -0.5);
+  Object* sphereObject = new Object();
+  Sphere* sphere = new Sphere();
+  sphere->radius = 0.5;
+  sphere->position = Point(0, 0, -0.5);
   
-  sphereBigObject->reflectance = 1;
-  sphereBigObject->diffuse = ColorRGB(1, 1, 1).toXYZ();
+  sphereObject->reflectance = 1;
+  sphereObject->diffuse = ColorRGB(1, 1, 1);
   
-  sphereBigObject->addPrimitive(sphereBig);
-  scene.addObject(sphereBigObject);
-
-
-  Object* sphereLittleObject = new Object();
-  Sphere* sphereLittle = new Sphere();
-  sphereLittle->radius = 0.2;
-  sphereLittle->position = Point(0, 0, 0.2);
-  
-  sphereLittleObject->reflectance = 1;
-  sphereLittleObject->diffuse = ColorRGB(1, 1, 1).toXYZ();
-  
-  sphereLittleObject->addPrimitive(sphereLittle);
-  scene.addObject(sphereLittleObject);
+  sphereObject->addPrimitive(sphere);
+  scene.addObject(sphereObject);
 
 
   Object* lightObject = new Object();
   Quadrilateral* light = new Quadrilateral();
-  light->point1 = Point(-1, 1, 0.999);
-  light->point2 = Point(1, 1, 0.999);
-  light->point3 = Point(1, -1, 0.999);
-  light->point4 = Point(-1, -1, 0.999);
+  light->point1 = Point(-0.4, 0.4, 0.999);
+  light->point2 = Point(0.4, 0.4, 0.999);
+  light->point3 = Point(0.4, -0.4, 0.999);
+  light->point4 = Point(-0.4, -0.4, 0.999);
   light->normal = Vector(0, 0, 1);
   
-  lightObject->emittance = 3;
-  lightObject->diffuse = ColorRGB(1, 0.85, 0.43).toXYZ();
+  lightObject->emittance = 15;
+  lightObject->diffuse = ColorRGB(1, 0.85, 0.43);
   
   lightObject->addPrimitive(light);
   scene.addObject(lightObject);
 
 
   Camera camera = Camera();
-  camera.position = Point(0, -5, 0);
+  camera.position = Point(0, -4.995, 0);
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(800);
-  camera.setSamples(8);
+  camera.setPixelDensity(200);
   scene.setCamera(camera);
 
   
