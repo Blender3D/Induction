@@ -36,13 +36,14 @@ class Plane: public Primitive {
     }
     
     Point getLightSample() {
-      int max = 1000000;
-      float u = max * (2 * random_uniform() - 1);
-      float v = max * (2 * random_uniform() - 1);
-      
-      // Transform (u, v) coordinates to world (x, y, z) coordinates.
-
-      return Point(u, v, 0);
+       Vector random;
+       int radius = 1000;
+       
+       do {
+         random = random_vector().cross(normal);
+       } while (random == Vector());
+       
+       return random * radius * sqrtf(random_uniform()) + position;
     }
     
     BoundingBox* createBoundingBox() {

@@ -13,4 +13,8 @@ class JitteredSampler: public Sampler {
         }
       }
     }
+
+    Point getPixel(int x, int y) {
+      return Point(x + random_uniform(), y + random_uniform());
+    }
 };
