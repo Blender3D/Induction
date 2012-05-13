@@ -14,8 +14,13 @@ float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
       index = i;
     }
   }
+
+  if (index != -1) {
+    _hit = scene.objects[index];
+  } else {
+    _hit = NULL;
+  }
   
-  _hit = scene.objects[index];
   return (index == -1) ? false : result;
 }
 

@@ -4,6 +4,7 @@ all:
 	    -Wall \
 	    -std=c++0x \
 	    -O3 \
+	    -g \
 	    -lglut -lGLU -lGL \
 	    -fopenmp \
 	    -D GUI \

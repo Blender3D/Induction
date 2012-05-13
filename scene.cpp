@@ -119,7 +119,7 @@ void InitScene() {
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(200);
+  camera.setPixelDensity(800);
   scene.setCamera(camera);
 
   
