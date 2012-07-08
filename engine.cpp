@@ -30,6 +30,7 @@
 #include "structures/image.h"
 #include "structures/random.cpp"
 #include "structures/boundingbox.h"
+#include "structures/lightpath.h"
 
 #include "samplers/sampler.h"
 #include "samplers/jittered.cpp"
