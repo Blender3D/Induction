@@ -43,7 +43,7 @@ using namespace std;
 
 void Render() {
   int samples = 0;
-  
+
   JitteredSampler* sampler = new JitteredSampler();
   
   sampler->width = scene.camera.canvasWidth;
@@ -55,52 +55,56 @@ void Render() {
   cout << "Canvas resolution is " << scene.camera.canvasWidth << "x" << scene.camera.canvasHeight << "." << endl;
   cout << endl;
   
-//  #pragma omp parallel
-  {
-    while (true) {
-      cout << "Tracing sample " << samples;
-      cout.flush();
-      cout << "\r";
-      
-      for (float y = 0; y < scene.camera.canvasHeight; y++) {
-        for (float x = 0; x < scene.camera.canvasWidth; x++) {
+  while (true) {
+    #pragma omp parallel
+    {
+      for (int y = 0; y < scene.camera.canvasHeight; y++) {
+        for (int x = 0; x < scene.camera.canvasWidth; x++) {
           Point sample = sampler->getPixel(x, y);
           Ray ray = scene.camera.castRay(sample.x, sample.y);
+
           scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
         }
       }
-      
-      if (++samples % 10 == 0) {
-        scene.image->write("image.ppm", samples);
+
+      #pragma omp critical
+      {
+        cout << "Tracing sample " << ++samples;
+        cout.flush();
+        cout << "\r";
       }
-      
-      #ifdef GUI
-        #pragma omp barrier
-        #pragma omp master
-        {
-          sampler->init();
-          
-          for (float y = 0; y < scene.camera.canvasHeight; y++) {
-            for (float x = 0; x < scene.camera.canvasWidth; x++) {
-              glBegin(GL_POINTS);
-                ColorRGB pixel = (scene.image->getPixel(x, y) / samples);
-                glColor3f(pixel.r, pixel.g, pixel.b);
-                glVertex2i(x, y);
-              glEnd();
-            }
-          }
-          
-          glutSwapBuffers();
-
-          ostringstream title_stream;
-          title_stream << "Samples: [" << samples << "]";
-
-          const string title = title_stream.str();
-
-          glutSetWindowTitle(title.c_str());
-        }
-      #endif
     }
+    
+    if (samples % 10 == 0) {
+      scene.image->write("image.ppm", samples);
+    }
+    
+    #ifdef GUI
+      #pragma omp barrier
+      #pragma omp master
+      {
+        sampler->init();
+        
+        for (float y = 0; y < scene.camera.canvasHeight; y++) {
+          for (float x = 0; x < scene.camera.canvasWidth; x++) {
+            glBegin(GL_POINTS);
+              ColorRGB pixel = (scene.image->getPixel(x, y) / samples);
+              glColor3f(pixel.r, pixel.g, pixel.b);
+              glVertex2i(x, y);
+            glEnd();
+          }
+        }
+        
+        glutSwapBuffers();
+
+        ostringstream title_stream;
+        title_stream << "Samples: [" << samples << "]";
+
+        const string title = title_stream.str();
+
+        glutSetWindowTitle(title.c_str());
+      }
+    #endif
   }
 }
 
