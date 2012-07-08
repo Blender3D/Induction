@@ -101,13 +101,13 @@ void InitScene() {
 
   Object* lightObject = new Object();
   Quadrilateral* light = new Quadrilateral();
-  light->point1 = Point(-0.4, 0.4, 0.999);
-  light->point2 = Point(0.4, 0.4, 0.999);
-  light->point3 = Point(0.4, -0.4, 0.999);
-  light->point4 = Point(-0.4, -0.4, 0.999);
+  light->point1 = Point(-1.0, 1.0, 0.999);
+  light->point2 = Point(1.0, 1.0, 0.999);
+  light->point3 = Point(1.0, -1.0, 0.999);
+  light->point4 = Point(-1.0, -1.0, 0.999);
   light->normal = Vector(0, 0, 1);
   
-  lightObject->emittance = 15;
+  lightObject->emittance = 5;
   lightObject->diffuse = ColorRGB(1, 0.85, 0.43);
   
   lightObject->addPrimitive(light);
@@ -119,7 +119,7 @@ void InitScene() {
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(800);
+  camera.setPixelDensity(1000);
   scene.setCamera(camera);
 
   
