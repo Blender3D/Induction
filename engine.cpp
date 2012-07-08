@@ -91,6 +91,13 @@ void Render() {
           }
           
           glutSwapBuffers();
+
+          ostringstream title_stream;
+          title_stream << "Samples: [" << samples << "]";
+
+          const string title = title_stream.str();
+
+          glutSetWindowTitle(title.c_str());
         }
       #endif
     }
@@ -103,7 +110,7 @@ int main(int argc, char *argv[]) {
   
   cout << "/==========================\\" << endl;
   cout << "||  Induction Pathtracer  ||" << endl;
-  cout << "||       v0.5 (Git)       ||" << endl;
+  cout << "||       v0.6 (Git)       ||" << endl;
   cout << "\\==========================/" << endl;
   cout << endl;
   
