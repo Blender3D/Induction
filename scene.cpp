@@ -20,8 +20,8 @@ void InitScene() {
   top->point4 = Point(-1, -1, 1);
   top->normal = Vector(0, 0, 1);
   
-  topObject->reflectance = 1;
-  topObject->diffuse = ColorRGB(1, 1, 1);
+  topObject->material.reflectance = 1;
+  topObject->material.diffuse = ColorRGB(1, 1, 1);
   
   topObject->addPrimitive(top);
   scene.addObject(topObject);
@@ -35,8 +35,8 @@ void InitScene() {
   bottom->point4 = Point(-1, -1, -1);
   bottom->normal = Vector(0, 0, -1);
   
-  bottomObject->reflectance = 1;
-  bottomObject->diffuse = ColorRGB(0.76, 0.75, 0.75);
+  bottomObject->material.reflectance = 1;
+  bottomObject->material.diffuse = ColorRGB(0.76, 0.75, 0.75);
   
   bottomObject->addPrimitive(bottom);
   scene.addObject(bottomObject);
@@ -50,8 +50,8 @@ void InitScene() {
   left->point4 = Point(-1, 1, -1);
   left->normal = Vector(-1, 0, 0);
   
-  leftObject->reflectance = 1;
-  leftObject->diffuse = ColorRGB(0.63, 0.06, 0.04);
+  leftObject->material.reflectance = 1;
+  leftObject->material.diffuse = ColorRGB(0.63, 0.06, 0.04);
   
   leftObject->addPrimitive(left);
   scene.addObject(leftObject);
@@ -65,8 +65,8 @@ void InitScene() {
   right->point4 = Point(1, 1, -1);
   right->normal = Vector(1, 0, 0);
   
-  rightObject->reflectance = 1;
-  rightObject->diffuse = ColorRGB(0.15, 0.48, 0.09);
+  rightObject->material.reflectance = 1;
+  rightObject->material.diffuse = ColorRGB(0.15, 0.48, 0.09);
   
   rightObject->addPrimitive(right);
   scene.addObject(rightObject);
@@ -80,8 +80,8 @@ void InitScene() {
   back->point4 = Point(-1, 1, 1);
   back->normal = Vector(0, 1, 0);
   
-  backObject->reflectance = 1;
-  backObject->diffuse = ColorRGB(0.76, 0.75, 0.75);
+  backObject->material.reflectance = 1;
+  backObject->material.diffuse = ColorRGB(0.76, 0.75, 0.75);
   
   backObject->addPrimitive(back);
   scene.addObject(backObject);
@@ -92,8 +92,8 @@ void InitScene() {
   sphere->radius = 0.5;
   sphere->position = Point(0, 0, -0.5);
   
-  sphereObject->reflectance = 1;
-  sphereObject->diffuse = ColorRGB(1, 1, 1);
+  sphereObject->material.reflectance = 1;
+  sphereObject->material.diffuse = ColorRGB(1, 1, 1);
   
   sphereObject->addPrimitive(sphere);
   scene.addObject(sphereObject);
@@ -107,8 +107,8 @@ void InitScene() {
   light->point4 = Point(-1.0, -1.0, 0.999);
   light->normal = Vector(0, 0, 1);
   
-  lightObject->emittance = 5;
-  lightObject->diffuse = ColorRGB(1, 0.85, 0.43);
+  lightObject->material.emittance = 5;
+  lightObject->material.diffuse = ColorRGB(1, 0.85, 0.43);
   
   lightObject->addPrimitive(light);
   scene.addObject(lightObject);
@@ -119,7 +119,7 @@ void InitScene() {
   camera.setFocus(Point(0, 0, -1));
   camera.setSize(0.5, 0.5);
   camera.offset = 1;
-  camera.setPixelDensity(1000);
+  camera.setPixelDensity(300);
   scene.setCamera(camera);
 
   

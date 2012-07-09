@@ -24,7 +24,7 @@ class Scene {
       //object->createBoundingBox();
       objects.push_back(object);
       
-      if (object->emittance > 0) {
+      if (object->material.emittance > 0) {
         lights.push_back(object);
       }
     }

@@ -30,6 +30,7 @@
 #include "structures/image.h"
 #include "structures/random.cpp"
 #include "structures/boundingbox.h"
+#include "structures/material.h"
 #include "structures/lightpath.h"
 
 #include "samplers/sampler.h"
@@ -37,6 +38,7 @@
 #include "samplers/poisson.cpp"
 
 #include "scene.cpp"
+#include "structures/material.cpp"
 #include "structures/trace.cpp"
 #include "loaders/obj.cpp"
 
@@ -44,7 +46,7 @@ using namespace std;
 
 void Render() {
   int samples = 0;
-
+  
   JitteredSampler* sampler = new JitteredSampler();
   
   sampler->width = scene.camera.canvasWidth;
@@ -55,7 +57,7 @@ void Render() {
   cout << "Rendering " << scene.objects.size() << " objects." << endl;
   cout << "Canvas resolution is " << scene.camera.canvasWidth << "x" << scene.camera.canvasHeight << "." << endl;
   cout << endl;
-  
+
   while (true) {
     #pragma omp parallel
     {
@@ -70,7 +72,7 @@ void Render() {
 
       #pragma omp critical
       {
-        cout << "Tracing sample " << ++samples;
+        cout << "Tracing sample " << ++samples << " with " << omp_get_num_threads() << " threads";
         cout.flush();
         cout << "\r";
       }
@@ -81,8 +83,7 @@ void Render() {
     }
     
     #ifdef GUI
-      #pragma omp barrier
-      #pragma omp master
+      #pragma omp critical
       {
         sampler->init();
         

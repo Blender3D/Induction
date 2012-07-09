@@ -37,7 +37,7 @@ ColorRGB Trace(Ray ray, Scene scene) {
     }
     
     Point point = ray.position(result);
-    float emittance = hit->emittance;
+    float emittance = hit->material.emittance;
     
     if (emittance > 0) {
       L = L + ColorRGB(emittance, emittance, emittance);
@@ -69,11 +69,11 @@ ColorRGB RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
   
   Ray newRay = Ray(point, direction);
   
-  return hit->diffuse
+  return hit->material.diffuse
          * RecursiveTrace(newRay, scene, depth + 1)
-         * hit->BRDF(ray.direction, newRay.direction)
+         * hit->material.BRDF(ray.direction, newRay.direction)
 //         * uniform_hemisphere_pdf(theta, phi)
-         + ColorRGB(hit->emittance, hit->emittance, hit->emittance);
+         + ColorRGB(hit->material.emittance, hit->material.emittance, hit->material.emittance);
 }
 float ShadowRay(Primitive* object1, Primitive* object2) {
   return object2->getIntersection(Ray(object1->position, object1->position - object2->position));

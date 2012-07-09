@@ -3,14 +3,10 @@
 
 using namespace std;
 
-enum ReflectionType {
-  DIFFUSE, SPECULAR, GLASS
-};
-
 class Primitive {
   public:
     Point position;
-    ReflectionType reflectionType;
+    Material material;
     BoundingBox* boundingBox;
     
     virtual float getIntersection(Ray ray) = 0;
