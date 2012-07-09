@@ -11,13 +11,7 @@ class Object {
     string name;
     
     Point position;
-    ColorRGB diffuse;
-    
-    ReflectionType reflectionType;
-    
-    float emittance;
-    float IOR;
-    float reflectance;
+    Material material;
     
     void setName(string _name) {
       name = _name;
@@ -81,26 +75,5 @@ class Object {
     
     Point getLightSample() {
       return objects[random_int(objects.size())]->getLightSample();
-    }
-    
-    float PDF() {
-      switch (reflectionType) {
-        default:
-        case DIFFUSE:
-          return INV_TWO_PI;
-          break;
-      }
-    }
-    
-    float BRDF(Vector input, Vector output) {
-      input = input;
-      output = output;
-      
-      switch (reflectionType) {
-        default:
-        case DIFFUSE:
-          return reflectance;
-          break;
-      }
     }
 };

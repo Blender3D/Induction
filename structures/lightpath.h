@@ -13,6 +13,8 @@ class HitPoint {
     Vector normal;
     Vector input;
     Vector output;
+
+    Material material;
 };
 
 class LightPath {
