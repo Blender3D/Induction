@@ -1,6 +1,3 @@
-#include <math.h>
-#include <algorithm>
-
 #include "material.h"
 
 using namespace std;

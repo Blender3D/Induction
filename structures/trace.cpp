@@ -25,56 +25,73 @@ float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
 }
 
 ColorRGB Trace(Ray ray, Scene scene) {
-  ColorRGB L = ColorRGB(0, 0, 0);
+  ColorRGB luminance = ColorRGB(0, 0, 0);
+  ColorRGB cumilative_diffuse = ColorRGB(1, 1, 1);
   
-  for (int bounces = 0; ; bounces++) {
-    Object* hit;
+  Object* hit;
+
+  for (int bounces = 0; bounces < MAX_DEPTH; bounces++) {
     float result = GetIntersection(ray, scene, hit);
     
     if (!result) {
-      return ColorRGB(0, 0, 0);
+      return luminance;
       break;
     }
     
     Point point = ray.position(result);
-    float emittance = hit->material.emittance;
-    
-    if (emittance > 0) {
-      L = L + ColorRGB(emittance, emittance, emittance);
-      break;
-    }
+    Vector normal = hit->getNormal(point);
+    Vector direction = uniform_hemisphere(normal);
+
+    ray = Ray(point, direction);
+
+    cumilative_diffuse = cumilative_diffuse * hit->material.diffuse;
+    luminance = luminance + cumilative_diffuse * hit->material.emittance;
   }
   
-  return L;
+  return luminance;
 }
 
-ColorRGB RecursiveTrace(Ray ray, Scene scene, int depth = 0) {
-  if (depth > 20) {
-    return ColorRGB(0, 0, 0);
-  }
-  
+LightPath TracePath(Ray ray, Scene scene) {
   Object* hit;
-  float result = GetIntersection(ray, scene, hit);
-  
-  if (!result) {
-    return ColorRGB(0, 0, 0);
+  LightPath path = LightPath();
+  HitPoint hitPoint;
+
+  for (int bounces = 0; bounces < MAX_DEPTH; bounces++) {
+    float result = GetIntersection(ray, scene, hit);
+    
+    if (!result) {
+      return path;
+      break;
+    }
+    
+    Point point = ray.position(result);
+    Vector normal = hit->getNormal(point);
+    Vector direction = uniform_hemisphere(normal);
+
+    hitPoint = HitPoint(normal, ray.direction, direction, hit->material);
+    path.addPoint(hitPoint);
+
+    ray = Ray(point, direction);
   }
   
-  Point point = ray.position(result);
-  Vector normal = hit->getNormal(point);
-  Vector direction = uniform_hemisphere(normal);
-  //float radius = direction.length();
-  //float theta = acos(direction.z / radius);
-  //float phi = atan(direction.y / direction.x);
-  
-  Ray newRay = Ray(point, direction);
-  
-  return hit->material.diffuse
-         * RecursiveTrace(newRay, scene, depth + 1)
-         * hit->material.BRDF(ray.direction, newRay.direction)
-//         * uniform_hemisphere_pdf(theta, phi)
-         + ColorRGB(hit->material.emittance, hit->material.emittance, hit->material.emittance);
+  return path;
 }
+
+ColorRGB CalculatePathContribution(LightPath path) {
+  ColorRGB luminance = ColorRGB(0, 0, 0);
+  ColorRGB cumilative_diffuse = ColorRGB(1, 1, 1);
+  HitPoint point;
+
+  for (unsigned int i = 0; i < path.points.size(); i++) {
+    point = path.points[i];
+
+    cumilative_diffuse = cumilative_diffuse * point.material.diffuse;
+    luminance = luminance + cumilative_diffuse * point.material.emittance;
+  }
+  
+  return luminance;
+}
+
 float ShadowRay(Primitive* object1, Primitive* object2) {
   return object2->getIntersection(Ray(object1->position, object1->position - object2->position));
 }

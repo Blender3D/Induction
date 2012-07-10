@@ -4,6 +4,9 @@
 #include <vector>
 #include <math.h>
 
+#include "vector.h"
+#include "material.h"
+
 using namespace std;
 
 class HitPoint {
@@ -15,11 +18,22 @@ class HitPoint {
     Vector output;
 
     Material material;
+
+    ~HitPoint() {};
+    
+    HitPoint();
+    HitPoint(Vector, Vector, Vector, Material);
 };
 
 class LightPath {
   public:
     vector<HitPoint> points;
+
+    ~LightPath() {};
+    
+    LightPath();
+
+    void addPoint(HitPoint);
 };
 
 #endif
