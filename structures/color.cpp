@@ -38,6 +38,21 @@ ColorRGB operator +=(ColorRGB self, ColorRGB other) {
   return self;
 }
 
+ColorRGB operator *=(ColorRGB self, ColorRGB other) {
+  self = self * other;
+  return self;
+}
+
+ColorRGB operator *=(ColorRGB self, float other) {
+  self = ColorRGB(self.r * other, self.g * other, self.b * other);
+  return self;
+}
+
+ColorRGB operator *=(float other, ColorRGB self) {
+  self = ColorRGB(self.r * other, self.g * other, self.b * other);
+  return self;
+}
+
 ColorRGB ColorRGB::clamp() {
   ColorRGB temp = ColorRGB();
   
@@ -56,7 +71,7 @@ ColorRGB ColorRGB::clamp() {
 ColorXYZ ColorRGB::toXYZ() {
   return ColorXYZ(0.412453 * r  + 0.35758 * g  + 0.180423 * b,
                   0.212671 * r  + 0.71516 * g  + 0.0721688 * b,
-                  0.0193338 * r + 0.119194 * g + 0.950227 * b);
+                 0.0193338 * r + 0.119194 * g  + 0.950227 * b);
 }
 
 ostream& operator<<(ostream& stream, ColorRGB& color) {
@@ -100,10 +115,25 @@ ColorXYZ operator +=(ColorXYZ self, ColorXYZ other) {
   return self;
 }
 
+ColorXYZ operator *=(ColorXYZ self, ColorXYZ other) {
+  self = self * other;
+  return self;
+}
+
+ColorXYZ operator *=(ColorXYZ self, float other) {
+  self = ColorXYZ(self.x * other, self.y * other, self.z * other);
+  return self;
+}
+
+ColorXYZ operator *=(float other, ColorXYZ self) {
+  self = ColorXYZ(self.x * other, self.y * other, self.z * other);
+  return self;
+}
+
 ColorRGB ColorXYZ::toRGB() {
   return ColorRGB(3.240479 * x - 1.537150 * y - 0.498535 * z,
-                  -0.969256 * x + 1.875991 * y + 0.041556 * z,
-                   0.055648 * x - 0.204043 * y + 1.057311 * z);
+                 -0.969256 * x + 1.875991 * y + 0.041556 * z,
+                  0.055648 * x - 0.204043 * y + 1.057311 * z);
 }
 
 ostream& operator<<(ostream& stream, ColorXYZ& color) {

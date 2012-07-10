@@ -16,6 +16,8 @@ all:
 					structures/camera.cpp \
 					structures/color.cpp \
 					structures/image.cpp \
+					structures/material.cpp \
+					structures/lightpath.cpp \
 					structures/boundingbox.cpp \
 					\
 					samplers/sampler.cpp \

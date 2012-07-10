@@ -22,8 +22,10 @@ class ColorRGB {
     ColorRGB operator*(float);
     ColorRGB operator/(float);
     
-    ColorRGB operator+=(ColorXYZ);
-    ColorRGB operator*=(float);
+    friend ColorRGB operator+=(ColorRGB, ColorRGB);
+    friend ColorRGB operator*=(ColorRGB, ColorRGB);
+    friend ColorRGB operator*=(ColorRGB, float);
+    friend ColorRGB operator*=(float, ColorRGB);
     
     ColorRGB clamp();
     ColorXYZ toXYZ();
@@ -45,8 +47,10 @@ class ColorXYZ {
     ColorXYZ operator*(float);
     ColorXYZ operator/(float);
     
-    ColorXYZ operator+=(ColorXYZ);
-    ColorXYZ operator*=(float);
+    friend ColorXYZ operator+=(ColorXYZ, ColorXYZ);
+    friend ColorXYZ operator*=(ColorXYZ, ColorXYZ);
+    friend ColorXYZ operator*=(ColorXYZ, float);
+    friend ColorXYZ operator*=(float, ColorXYZ);
     
     ColorRGB toRGB();
     

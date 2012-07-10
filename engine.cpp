@@ -14,6 +14,8 @@
 #define TWO_PI     6.283185307179586476925286766559
 #define INV_TWO_PI 0.159154943091895335768883763372
 
+#define MAX_DEPTH  7
+
 #ifdef MULTITHREADING
   #include <omp.h>
 #endif
@@ -38,7 +40,6 @@
 #include "samplers/poisson.cpp"
 
 #include "scene.cpp"
-#include "structures/material.cpp"
 #include "structures/trace.cpp"
 #include "loaders/obj.cpp"
 
@@ -66,7 +67,10 @@ void Render() {
           Point sample = sampler->getPixel(x, y);
           Ray ray = scene.camera.castRay(sample.x, sample.y);
 
-          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + RecursiveTrace(ray, scene));
+          LightPath path = TracePath(ray, scene);
+          ColorRGB contribution = CalculatePathContribution(path);
+
+          scene.image->setPixel(x, y, scene.image->getPixel(x, y) + contribution);
         }
       }
 
