@@ -12,22 +12,28 @@ bool IsVisible(Point point1, Point point2, Scene scene) {
   return true;
 }
 
-float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
+float GetIntersection(Ray &ray, Scene scene, Object* &hit) {
   int index = -1;
   float result = INFINITY;
-  unsigned int i;  
   
-  for (i = 0; i < scene.objects.size(); i++) {
+  for (unsigned int i = 0; i < scene.objects.size(); i++) {
     float test = scene.objects[i]->getIntersection(ray);
     
-    if ((test > 0.0) && (test < result)) {
+    if ((0 < test) && (test < result)) {
       result = test;
       index = i;
     }
   }
 
-  _hit = (index == -1) ? NULL : scene.objects[index];
-  return (index == -1) ? false : result;
+  if (index == -1) {
+    hit = NULL;
+
+    return false;
+  } else {
+    hit = scene.objects[index];
+
+    return result;
+  }
 }
 
 LightPath TracePath(Ray ray, Scene scene) {

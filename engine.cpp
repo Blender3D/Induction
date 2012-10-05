@@ -46,7 +46,7 @@
 
 using namespace std;
 
-void Render() {
+void render() {
   int samples = 1;
   int max_threads = 1;
 
@@ -88,15 +88,19 @@ void Render() {
         cout << "\r";
 
         #ifdef GUI
+          glBegin(GL_POINTS);
+
           for (float i = 0; i < scene.camera.canvasWidth; i++) {
-            glBegin(GL_POINTS);
-              ColorRGB pixel = (scene.image->getPixel(i, y) / samples);
-              glColor3f(pixel.r, pixel.g, pixel.b);
-              glVertex2i(i, y);
-            glEnd();
+            ColorRGB pixel = (scene.image->getPixel(i, y) / samples);
+            glColor3f(pixel.r, pixel.g, pixel.b);
+            glVertex2i(i, y);
           }
-          
-         glutSwapBuffers();
+
+          glEnd();
+         
+          if (y % 10 == 0) {
+            glutSwapBuffers();
+          }
         #endif
       }
     }
@@ -137,14 +141,14 @@ int main(int argc, char *argv[]) {
     glutInitWindowSize(scene.camera.canvasWidth, scene.camera.canvasHeight);
     glutCreateWindow("Samples: [0]");
     
-    glutDisplayFunc(Render);
-    
+    glutDisplayFunc(render);
+
     glViewport(0, 0, scene.camera.canvasWidth, scene.camera.canvasHeight);
     glLoadIdentity();
     glOrtho(0.0, scene.camera.canvasWidth - 1.0, 0.0, scene.camera.canvasHeight - 1.0, -1.0, 1.0);
 
     glutMainLoop();
   #else
-    Render();
+    render();
   #endif
 }
