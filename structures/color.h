@@ -28,6 +28,7 @@ class ColorRGB {
     friend ColorRGB operator*=(float, ColorRGB);
     
     ColorRGB clamp();
+    ColorRGB clampRGB();
     ColorXYZ toXYZ();
     
     friend std::ostream& operator<<(std::ostream&, ColorRGB&);

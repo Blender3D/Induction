@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 class Triangle: public Primitive {
+  private:
+    const float epsilon = 0.0001;
+  
   public:
     Point point1, point2, point3;
     Vector normal;
@@ -9,13 +12,12 @@ class Triangle: public Primitive {
     float getIntersection(Ray ray) {
       Vector u = point2 - point1;
       Vector v = point3 - point1;
-      Vector n = u.cross(v);
 
       Vector w0 = ray.origin - point1;
-      float a = -n.dot(w0);
-      float b = n.dot(ray.direction);
+      float a = -normal.dot(w0);
+      float b = normal.dot(ray.direction);
       
-      if (fabs(b) < 0.0000001) {
+      if (fabs(b) < epsilon) {
         return false;
       }
 
@@ -25,12 +27,12 @@ class Triangle: public Primitive {
         return false;
       }
 
-      Point getIntersection = ray.position(ratio);
+      Point intersection = ray.position(ratio);
+      Vector w  = intersection - point1;
 
-      float uu = u.dot(u);
+      float uu = u.length();
       float uv = u.dot(v);
-      float vv = v.dot(v);
-      Vector w  = getIntersection - point1;
+      float vv = v.length();
       float wu = w.dot(u);
       float wv = w.dot(v);
       float D = uv * uv - uu * vv;
@@ -51,7 +53,7 @@ class Triangle: public Primitive {
     }
     
     float getSurfaceArea() {
-      return 0.5 * (point1 - point2).cross(point1 - point3).length();
+      return 0.5 * normal.length();
     }
     
     float getVolume() {

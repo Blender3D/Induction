@@ -1,15 +1,15 @@
 all:
 	g++ \
-	    -Wextra \
-	    -Wall \
-	    -std=c++0x \
-	    -O3 \
-	    -g \
-	    -lglut -lGLU -lGL \
-	    -fopenmp \
-	    -D GUI \
-	    -D MULTITHREADING \
-	    engine.cpp \
+			-Wextra \
+			-Wall \
+			-std=c++0x \
+			-O3 \
+			-g \
+			-lglut -lGLU -lGL \
+			-fopenmp \
+			-D GUI \
+			-D MULTITHREADING \
+			engine.cpp \
 					structures/vector.cpp \
 					structures/point.cpp \
 					structures/ray.cpp \
