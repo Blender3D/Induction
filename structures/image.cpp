@@ -1,6 +1,6 @@
 #include <math.h>
 #include <stdio.h>
-
+#include <fstream>
 #include "image.h"
 
 using namespace std;
@@ -46,14 +46,9 @@ void CellImage::write(const char* filename, int samples) {
   
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      ColorRGB pixel = (getPixel(x, height - y) / samples).clamp();
-      
-      handle << (int)(pixel.r * 255.0);
-      handle << " ";
-      handle << (int)(pixel.g * 255.0);
-      handle << " ";
-      handle << (int)(pixel.b * 255.0); 
-      handle << " ";
+      ColorRGB pixel = (getPixel(x, height - y) / (float)(samples)).clampRGB();
+
+      handle << pixel.r << " " << pixel.g << " " << pixel.b << " ";
     }
   }
   

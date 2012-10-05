@@ -1,13 +1,24 @@
 #include <math.h>
 
+bool IsVisible(Point point1, Point point2, Scene scene) {
+  Ray ray = Ray(point1, point2 - point1);
+  
+  for (unsigned int i = 0; i < scene.objects.size(); i++) {
+    if (scene.objects[i]->getIntersection(ray) > 0.0) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
   int index = -1;
   float result = INFINITY;
   unsigned int i;  
   
   for (i = 0; i < scene.objects.size(); i++) {
-    Object *target = scene.objects[i];
-    float test = target->getIntersection(ray);
+    float test = scene.objects[i]->getIntersection(ray);
     
     if ((test > 0.0) && (test < result)) {
       result = test;
@@ -15,58 +26,30 @@ float GetIntersection(Ray &ray, Scene scene, Object* &_hit) {
     }
   }
 
-  if (index != -1) {
-    _hit = scene.objects[index];
-  } else {
-    _hit = NULL;
-  }
-  
+  _hit = (index == -1) ? NULL : scene.objects[index];
   return (index == -1) ? false : result;
-}
-
-ColorRGB Trace(Ray ray, Scene scene) {
-  ColorRGB luminance = ColorRGB(0, 0, 0);
-  ColorRGB cumilative_diffuse = ColorRGB(1, 1, 1);
-  
-  Object* hit;
-
-  for (int bounces = 0; bounces < MAX_DEPTH; bounces++) {
-    float result = GetIntersection(ray, scene, hit);
-    
-    if (!result) {
-      return luminance;
-      break;
-    }
-    
-    Point point = ray.position(result);
-    Vector normal = hit->getNormal(point);
-    Vector direction = uniform_hemisphere(normal);
-
-    ray = Ray(point, direction);
-
-    cumilative_diffuse = cumilative_diffuse * hit->material.diffuse;
-    luminance = luminance + cumilative_diffuse * hit->material.emittance;
-  }
-  
-  return luminance;
 }
 
 LightPath TracePath(Ray ray, Scene scene) {
   Object* hit;
   LightPath path = LightPath();
+
+  float result;
   HitPoint hitPoint;
+  Point point;
+  Vector normal, direction;
 
   for (int bounces = 0; bounces < MAX_DEPTH; bounces++) {
-    float result = GetIntersection(ray, scene, hit);
+    result = GetIntersection(ray, scene, hit);
     
     if (!result) {
       return path;
       break;
     }
     
-    Point point = ray.position(result);
-    Vector normal = hit->getNormal(point);
-    Vector direction = uniform_hemisphere(normal);
+    point = ray.position(result);
+    normal = hit->getNormal(point);
+    direction = uniform_hemisphere(normal);
 
     hitPoint = HitPoint(normal, ray.direction, direction, hit->material);
     path.addPoint(hitPoint);
@@ -75,6 +58,14 @@ LightPath TracePath(Ray ray, Scene scene) {
   }
   
   return path;
+}
+
+LightPath TraceLightPath(Object* light, Scene scene) {
+  Point point = light->getLightSample();
+  Vector direction = uniform_hemisphere(light->getNormal(point));
+  Ray ray = Ray(point, direction);
+
+  return TracePath(ray, scene);
 }
 
 ColorRGB CalculatePathContribution(LightPath path) {
@@ -90,6 +81,18 @@ ColorRGB CalculatePathContribution(LightPath path) {
   }
   
   return luminance;
+}
+
+ColorRGB CombinePaths(LightPath path1, LightPath path2, Scene scene) {
+  vector<LightPath> paths;
+  
+  for (unsigned int i = 0; i < path1.points.size(); i++) {
+    for (unsigned int j = 0; j < path2.points.size(); j++) {
+      
+    }
+  }
+
+  return ColorRGB();
 }
 
 float ShadowRay(Primitive* object1, Primitive* object2) {

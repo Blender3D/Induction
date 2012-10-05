@@ -4,15 +4,15 @@
 using namespace std;
 
 class Plane: public Primitive {
+  private:
+    const float epsilon = 0.0001;
+
   public:
     Vector normal;
 
     float getIntersection(Ray ray) {
-      float k, t;
-      Point point;
-      Vector toPoint;
-      
-      k = ray.direction.dot(normal);
+      float t;
+      float k = ray.direction.dot(normal);
 
       if (k != 0.0) {
         t = (position - ray.origin).dot(normal) / k;
@@ -20,7 +20,7 @@ class Plane: public Primitive {
         return false;
       }
       
-      if (t < 0.0000001) {
+      if (t < epsilon) {
         return false;
       }
       

@@ -2,26 +2,27 @@
 #include <stdlib.h>
 
 class Quadrilateral: public Primitive {
+  private:
+    const float epsilon = 0.0001;
+
   public:
     Point point1, point2, point3, point4;
     Vector normal;
 
     float getIntersection(Ray ray) {
-      float t;
-      static const float eps = 0.000000001;
-      
       Vector edge_12 = point2 - point1;
       Vector edge_14 = point4 - point1;
       Vector P = ray.direction.cross(edge_14);
       
       float determinant = edge_12.dot(P);
       
-      if (fabs(determinant) < 0.0000001) {
+      if (fabs(determinant) < epsilon) {
         return false;
       }
       
-      float inverse_determinant = 1.0 / determinant;
       Vector T = ray.origin - point1;
+
+      float inverse_determinant = 1.0 / determinant;
       float alpha = T.dot(P) * inverse_determinant;
       
       if ((alpha < 0.0) || (alpha > 1.0)) {
@@ -41,7 +42,7 @@ class Quadrilateral: public Primitive {
         Vector P_prime = ray.direction.cross(edge_32);
         float determinant_prime = edge_34.dot(P_prime);
         
-        if (fabs(determinant_prime) < eps) {
+        if (fabs(determinant_prime) < epsilon) {
           return false;
         }
         
@@ -61,13 +62,13 @@ class Quadrilateral: public Primitive {
         }
       }
 
-      t = edge_14.dot(Q) * inverse_determinant;
+      float t = edge_14.dot(Q) * inverse_determinant;
       
       if (t < 0.0) {
         return false;
-      } else {
-        return t;
       }
+      
+      return t;
     }
     
     float getSurfaceArea() {

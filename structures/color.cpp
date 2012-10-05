@@ -54,24 +54,39 @@ ColorRGB operator *=(float other, ColorRGB self) {
 }
 
 ColorRGB ColorRGB::clamp() {
-  ColorRGB temp = ColorRGB();
+  ColorRGB temp = ColorRGB(r, g, b);
   
-  if (r > 1) temp.r = 1.0;
-  if (r < 0) temp.r = 0.0;
-  
-  if (g > 1) temp.g = 1.0;
-  if (g < 0) temp.g = 0.0;
-  
-  if (b > 1) temp.b = 1.0;
-  if (b < 0) temp.b = 0.0;
+  if (temp.r < 0) {
+    temp.r = 0;
+  } else if (temp.r > 1) {
+    temp.r = 1;
+  }
+
+  if (temp.g < 0) {
+    temp.g = 0;
+  } else if (temp.g > 1) {
+    temp.g = 1;
+  }
+
+  if (temp.b < 0) {
+    temp.b = 0;
+  } else if (temp.b > 1) {
+    temp.b = 1;
+  }
   
   return temp;
 }
 
+ColorRGB ColorRGB::clampRGB() {
+  ColorRGB clamped_temp = this->clamp() * 255;
+  
+  return ColorRGB((int)(clamped_temp.r), (int)(clamped_temp.g), (int)(clamped_temp.b));
+}
+
 ColorXYZ ColorRGB::toXYZ() {
-  return ColorXYZ(0.412453 * r  + 0.35758 * g  + 0.180423 * b,
+  return ColorXYZ(0.412453 * r  + 0.35758 * g  +  0.180423 * b,
                   0.212671 * r  + 0.71516 * g  + 0.0721688 * b,
-                 0.0193338 * r + 0.119194 * g  + 0.950227 * b);
+                 0.0193338 * r + 0.119194 * g  +  0.950227 * b);
 }
 
 ostream& operator<<(ostream& stream, ColorRGB& color) {

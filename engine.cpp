@@ -14,7 +14,8 @@
 #define TWO_PI     6.283185307179586476925286766559
 #define INV_TWO_PI 0.159154943091895335768883763372
 
-#define MAX_DEPTH  7
+#define MAX_DEPTH  6
+#define MIN_ROULETTE_DEPTH  3
 
 #ifdef MULTITHREADING
   #include <omp.h>
@@ -46,7 +47,13 @@
 using namespace std;
 
 void Render() {
-  int samples = 0;
+  int samples = 1;
+  int max_threads = 1;
+
+  #pragma omp parallel
+  {
+    max_threads = omp_get_max_threads();
+  }
   
   JitteredSampler* sampler = new JitteredSampler();
   
@@ -60,57 +67,52 @@ void Render() {
   cout << endl;
 
   while (true) {
-    #pragma omp parallel
-    {
-      for (int y = 0; y < scene.camera.canvasHeight; y++) {
-        for (int x = 0; x < scene.camera.canvasWidth; x++) {
-          Point sample = sampler->getPixel(x, y);
-          Ray ray = scene.camera.castRay(sample.x, sample.y);
+    for (int y = 0; y < scene.camera.canvasHeight; y++) {
+      for (int x = 0; x < scene.camera.canvasWidth; x++) {
+        Point sample = sampler->getPixel(x, y);
+        Ray ray = scene.camera.castRay(sample.x, sample.y);
 
+        #pragma omp parallel
+        {
           LightPath path = TracePath(ray, scene);
           ColorRGB contribution = CalculatePathContribution(path);
-
+          
           scene.image->setPixel(x, y, scene.image->getPixel(x, y) + contribution);
         }
       }
 
       #pragma omp critical
       {
-        cout << "Tracing sample " << ++samples << " with " << omp_get_num_threads() << " threads";
+        printf("Tracing sample %d with %d thread%s [%5.1f%%]", samples, max_threads, (max_threads > 1) ? "s" : "", 100.0 * float(y) / float(scene.camera.canvasHeight));
         cout.flush();
         cout << "\r";
-      }
-    }
-    
-    if (samples % 10 == 0) {
-      scene.image->write("image.ppm", samples);
-    }
-    
-    #ifdef GUI
-      #pragma omp critical
-      {
-        sampler->init();
-        
-        for (float y = 0; y < scene.camera.canvasHeight; y++) {
-          for (float x = 0; x < scene.camera.canvasWidth; x++) {
+
+        #ifdef GUI
+          for (float i = 0; i < scene.camera.canvasWidth; i++) {
             glBegin(GL_POINTS);
-              ColorRGB pixel = (scene.image->getPixel(x, y) / samples);
+              ColorRGB pixel = (scene.image->getPixel(i, y) / samples);
               glColor3f(pixel.r, pixel.g, pixel.b);
-              glVertex2i(x, y);
+              glVertex2i(i, y);
             glEnd();
           }
-        }
-        
-        glutSwapBuffers();
-
-        ostringstream title_stream;
-        title_stream << "Samples: [" << samples << "]";
-
-        const string title = title_stream.str();
-
-        glutSetWindowTitle(title.c_str());
+          
+         glutSwapBuffers();
+        #endif
       }
+    }
+
+    samples += max_threads;
+    
+    #ifdef GUI
+      ostringstream title_stream;
+      title_stream << "Samples: [" << samples << "]";
+
+      const string title = title_stream.str();
+
+      glutSetWindowTitle(title.c_str());
     #endif
+
+    scene.image->write("image.ppm", samples);
   }
 }
 
@@ -120,7 +122,7 @@ int main(int argc, char *argv[]) {
   
   cout << "/==========================\\" << endl;
   cout << "||  Induction Pathtracer  ||" << endl;
-  cout << "||       v0.6 (Git)       ||" << endl;
+  cout << "||       v0.7 (Git)       ||" << endl;
   cout << "\\==========================/" << endl;
   cout << endl;
   

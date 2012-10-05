@@ -101,17 +101,33 @@ void InitScene() {
 
   Object* lightObject = new Object();
   Quadrilateral* light = new Quadrilateral();
-  light->point1 = Point(-0.3, 0.3, 0.999);
-  light->point2 = Point(0.3, 0.3, 0.999);
-  light->point3 = Point(0.3, -0.3, 0.999);
-  light->point4 = Point(-0.3, -0.3, 0.999);
+  light->point1 = Point(-0.4, 0.4, 0.999);
+  light->point2 = Point(0.4, 0.4, 0.999);
+  light->point3 = Point(0.4, -0.4, 0.999);
+  light->point4 = Point(-0.4, -0.4, 0.999);
   light->normal = Vector(0, 0, 1);
   
-  lightObject->material.emittance = 20;
-  lightObject->material.diffuse = ColorRGB(1, 0.85, 0.43);
+  lightObject->material.emittance = 15;
+  //lightObject->material.diffuse = ColorRGB(1, 0.85, 0.43);
+  lightObject->material.diffuse = ColorRGB(1.0, 0.97, 0.88);
   
   lightObject->addPrimitive(light);
   scene.addObject(lightObject);
+
+
+  Object* obstructionObject = new Object();
+  Quadrilateral* obstruction = new Quadrilateral();
+  obstruction->point1 = Point(-0.6, 0.6, 0.6);
+  obstruction->point2 = Point(0.6, 0.6, 0.6);
+  obstruction->point3 = Point(0.6, -0.6, 0.6);
+  obstruction->point4 = Point(-0.6, -0.6, 0.6);
+  obstruction->normal = Vector(0, 0, 1);
+  
+  obstructionObject->material.reflectance = 1;
+  obstructionObject->material.diffuse = ColorRGB(1, 1, 1);
+  
+  obstructionObject->addPrimitive(obstruction);
+  scene.addObject(obstructionObject);
 
 
   Camera camera = Camera();
