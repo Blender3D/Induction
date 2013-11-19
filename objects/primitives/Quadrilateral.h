@@ -3,21 +3,16 @@
 #include "Point.h"
 #include "Vector.h"
 #include "Ray.h"
-#include "BoundingBox.h"
 #include "Primitive.h"
 
 class Quadrilateral: public Primitive {
 	public:
 		Quadrilateral();
 		Quadrilateral(Point, Point, Point);
-		~Quadrilateral();
 
 	public:
-		float getIntersection(Ray) const;
-		Vector getNormal(Point) const;
-		Point getLightSample() const;
-		float getSurfaceArea() const;
-		float getVolume() const;
+		virtual float getIntersection(Ray*) const;
+		virtual Vector getNormal(Point*) const;
 
 	public:
 		void setPoint1(Point);
@@ -25,7 +20,6 @@ class Quadrilateral: public Primitive {
 		void setPoint3(Point);
 		void setPoint4(Point);
 
-	public:
 		Point getPoint1() const;
 		Point getPoint2() const;
 		Point getPoint3() const;

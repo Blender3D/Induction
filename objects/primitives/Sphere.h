@@ -3,30 +3,21 @@
 #include "Point.h"
 #include "Vector.h"
 #include "Ray.h"
-#include "BoundingBox.h"
 #include "Primitive.h"
 
 class Sphere: public Primitive {
 	public:
 		Sphere();
 		Sphere(float);
-		~Sphere();
 
 	public:
-		float getIntersection(Ray*) const;
-		Vector getNormal(Point*) const;
-		Point getLightSample() const;
-		float getSurfaceArea() const;
-		float getVolume() const;
+		virtual float getIntersection(Ray*) const;
+		virtual Vector getNormal(Point*) const;
 
 	public:
-		void createBoundingBox();
 		void setRadius(float);
-
-	public:
 		float getRadius() const;
 
 	private:
 		float radius;
-		BoundingBox boundingBox;
 };
