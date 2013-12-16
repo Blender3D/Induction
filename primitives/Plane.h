@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Point.h"
-#include "Vector.h"
-#include "Ray.h"
-#include "Primitive.h"
-
-#include "constants.h"
+#include "objects/Point.h"
+#include "objects/Vector.h"
+#include "objects/Ray.h"
+#include "primitives/Primitive.h"
 
 class Plane: public Primitive {
 	public:
@@ -13,12 +11,10 @@ class Plane: public Primitive {
 		Plane(Vector);
 
 	public:
+		virtual bool intersects(Ray*) const;
 		virtual float getIntersection(Ray*) const;
 		virtual Vector getNormal(Point*) const;
 
 	public:
-		void setNormal(Vector);
-
-	private:
 		Vector normal;
 };

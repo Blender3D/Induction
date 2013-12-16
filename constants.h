@@ -8,3 +8,4 @@ const float  INV_PI = 1.0 / PI;
 const float HALF_PI = PI / 2.0;
 const float  TWO_PI = 2.0 * PI;
 const float FOUR_PI = 4.0 * PI;
+const float EPSILON = 1e-10;
